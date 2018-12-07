@@ -27,27 +27,42 @@
     <None Include="data\html\help.html" />
     <None Include="data\html\wifi.html" />
     <None Include="data\html\css\relay.ts" />
+    <None Include="data\mqtt.json" />
+    <None Include="data\html\css\clockpicker.css" />
+    <None Include="data\html\js\bootstrap.min.js" />
+    <None Include="data\html\js\clockpicker.js" />
+    <None Include="data\html\js\jquery.min.js" />
+    <None Include="data\html\js\relay.js" />
+    <None Include="data\html\js\relay.js.map" />
+    <None Include="data\html\js\relay.ts" />
+    <None Include="data\html\js\tsconfig.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.MQTT-Relay.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MQTTclient.h">
+    <ClInclude Include="WebPortal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WebPortal.h">
+    <ClInclude Include="MQTTswitch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MQTTclient.cpp">
+    <ClCompile Include="WebPortal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WebPortal.cpp">
+    <ClCompile Include="MQTTswitch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\wifi.json" />
+    <Text Include="data\html\content\switch.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="data\html\favicon.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -2,13 +2,16 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="generator" content="microsoft visual studio">
+    <meta name="generator" content="Microsoft Visual Studio">
     <meta content="/ico.png" itemprop="image">
     <title>WiFi реле</title>
     <link href="css/bootstrap.css" rel="stylesheet" />
-    <script src="css/jquery.js"></script>
-    <script src="css/bootstrap.js"></script>
+    <link href="css/clockpicker.css" rel="stylesheet" />
     <link href="css/style.css" rel="stylesheet" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/clockpicker.js"></script>
+    <script src="js/relay.js"></script>
     <style>
         body {
             height: 100%;
@@ -47,29 +50,51 @@
 
     <div class="container" style="margin-top:30px">
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-sm-12 text-center">
                 <h2>Стан виходів</h2>
-                <p>
-                    <br />
-                    Вихід 1<label class="switch">
-                        <input type="checkbox">
-                        <span class="slider"></span>
-                    </label>
-                    <br />
-                    Вихід 2<label class="switch">
-                        <input type="checkbox" checked>
-                        <span class="slider"></span>
-                    </label>
-                    <br />
-                    Вихід 3<label class="switch">
-                        <input type="checkbox">
-                        <span class="slider round"></span>
-                    </label>
-                </p>
+                <ul class="nav nav-pills flex-column">
+                    <li class="nav-item">
+                        <h4>
+                            Вихід №1 <label class="switch">
+                                <input type="checkbox" id="switch1">
+                                <span class="slider"></span>
+                            </label>
+                        </h4>
+                    </li>
+                    <li class="nav-item">
+                        <h4>
+                            Вихід №2 <label class="switch">
+                                <input type="checkbox" id="switch2">
+                                <span class="slider"></span>
+                            </label>
+                        </h4>
+                    </li>
+                    <li class="nav-item">
+                        <h4>
+                            Вихід №3 <label class="switch">
+                                <input type="checkbox" id="switch3">
+                                <span class="slider"></span>
+                            </label>
+                        </h4>
+                    </li>
+                </ul>
+                <div class="input-group clockpicker">
+                    <input type="text" class="form-control" value="23:30">
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-time"></span>
+                    </span>
+                </div>
+
+
             </div>
         </div>
+
     </div>
 
 
+    <script type="text/javascript">
+        //Relay.relay.init();
+        $('.clockpicker').clockpicker();
+    </script>
 </body>
 </html>

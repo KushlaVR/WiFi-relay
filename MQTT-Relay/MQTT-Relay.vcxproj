@@ -83,30 +83,43 @@
   <ItemGroup>
     <None Include="data\html\css\bootstrap.js" />
     <None Include="data\html\css\bootstrap.css" />
+    <None Include="data\html\css\clockpicker.css" />
     <None Include="data\html\css\jquery.js" />
     <None Include="data\html\css\relay.ts" />
     <None Include="data\html\css\style.css" />
     <None Include="data\html\help.html" />
     <None Include="data\html\index.html" />
     <None Include="data\html\js\bootstrap.bundle.min.js" />
+    <None Include="data\html\js\bootstrap.min.js" />
+    <None Include="data\html\js\clockpicker.js" />
     <None Include="data\html\js\jquery.js" />
+    <None Include="data\html\js\jquery.min.js" />
+    <None Include="data\html\js\relay.js" />
+    <None Include="data\html\js\relay.js.map" />
+    <None Include="data\html\js\relay.ts" />
+    <None Include="data\html\js\tsconfig.json" />
     <None Include="data\html\wifi.html" />
     <None Include="data\index.html" />
+    <None Include="data\mqtt.json" />
     <None Include="MQTT-Relay.ino">
       <FileType>CppCode</FileType>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MQTTclient.h" />
+    <ClInclude Include="MQTTswitch.h" />
     <ClInclude Include="WebPortal.h" />
     <ClInclude Include="__vm\.MQTT-Relay.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="data\html\content\switch.txt" />
     <Text Include="data\wifi.json" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MQTTclient.cpp" />
+    <ClCompile Include="MQTTswitch.cpp" />
     <ClCompile Include="WebPortal.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="data\html\favicon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

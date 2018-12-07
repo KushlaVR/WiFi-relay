@@ -26,10 +26,6 @@ MIT license, all text above must be included in any redistribution
 #include "Adafruit_MQTT_Client.h"
 #include "WebPortal.h"
 
-/************************* WiFi Access Point *********************************/
-
-//#define WLAN_SSID       "Prosvity19_98"
-//#define WLAN_PASS       "29111929"
 
 /************************* Adafruit.io Setup *********************************/
 
@@ -78,6 +74,7 @@ Adafruit_MQTT_Publish onoffbutton_available = Adafruit_MQTT_Publish(&mqtt, AIO_U
 // Bug workaround for Arduino 1.6.6, it seems to need a function declaration
 // for some reason (only affects ESP8266, likely an arduino-builder bug).
 void MQTT_connect();
+
 
 void setup() {
 	Serial.begin(115200);
