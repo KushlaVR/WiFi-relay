@@ -31,11 +31,13 @@ class MQTTswitch : public MQTTprocess
 	Adafruit_MQTT_Publish * onoffbutton_available;
 	String name;
 
+	uint8_t pin;
 
 	bool publish_available();
 	bool publish_state(const char * state);
 public:
-	MQTTswitch(char * name);
+	MQTTswitch(String name, uint8_t pin);
+	MQTTswitch(char * name, uint8_t pin);
 	~MQTTswitch();
 
 	bool process(Adafruit_MQTT_Subscribe * subscription);

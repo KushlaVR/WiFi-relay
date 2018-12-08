@@ -96,11 +96,8 @@ void MQTTconnection::process()
 	while ((subscription = connection->readSubscription())) {
 		dev = firstProcess;
 		while (dev != nullptr) {
-			if (dev->process(subscription)) {
-				dev = nullptr;
-			}
-			else
-				dev = dev->next;
+			dev->process(subscription);
+			dev = dev->next;
 		}
 	}
 	//process scheduled tasks
@@ -123,10 +120,11 @@ void MQTTconnection::Register(MQTTprocess * device) {
 	}
 	else {
 		MQTTprocess * dev = firstProcess;
-		while (dev->next != nullptr) {
+		while (dev != nullptr) {
 			if (dev->next == nullptr) {
 				dev->next = device;
-				dev = device;
+				device->next = nullptr;
+				dev = nullptr;
 			}
 			else
 				dev = dev->next;

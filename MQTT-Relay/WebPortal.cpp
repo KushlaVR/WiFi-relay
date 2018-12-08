@@ -65,18 +65,28 @@ void WebPortal::setup() {
 	
 	//Make device visible in for Microsoft Windows Network
 	ssdp(myHostname);
+
+	Serial.println("reading wifi config....");
+
 	//read wifi config
 	if (SPIFFS.exists("/wifi.json")) {
+	
 		DynamicJsonBuffer  jsonBuffer(200);
 		File f = SPIFFS.open("/wifi.json", "r");
 		f.seek(0);
 		JsonObject& root = jsonBuffer.parseObject(f.readString());
+		Serial.printf("config enty:%i\n", root.size());
 		if (root.containsKey("wlan_id")) {
 			const char * wlan_id = root["wlan_id"];
 			const char * wlan_pwd = root["wlan_pwd"];
 			server.ssid = String(wlan_id).c_str();
 			server.password = String(wlan_pwd).c_str();
+			Serial.println("wifi config OK.");
 		}
+		else {
+			Serial.println("No wlan id found...");
+		}
+		f.close();
 	}
 	else {
 		Serial.println("WiFi config not found!");
@@ -120,6 +130,7 @@ void WebPortal::connectWifi() {
 }
 
 void WebPortal::ssdp(const char* deviceName) {
+	Serial.println("Setup SSDP....");
 	//SSDP makes device visible on windows network
 	on("/description.xml", HTTP_GET, [&]() {
 		SSDP.schema(server.client());

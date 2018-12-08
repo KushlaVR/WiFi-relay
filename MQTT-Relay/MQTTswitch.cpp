@@ -2,27 +2,30 @@
 
 
 
-MQTTswitch::MQTTswitch(char * name)
+MQTTswitch::MQTTswitch(String name, uint8_t pin)
 {
+	this->pin = pin;
 	this->name = name;
-
-	String s = "/feeds/" + String(name);
+	String s = "/switches/" + String(name);
 	feed_sate = (char *)calloc(s.length() + 1, 1);
 	strncpy(feed_sate, s.c_str(), s.length());
 
-	s = "/feeds/" + String(name) + "/set";
+	s = "/switches/" + String(name) + "/set";
 	feed_set = (char *)calloc(s.length() + 1, 1);
 	strncpy(feed_set, s.c_str(), s.length());
 
-	s = "/feeds/" + String(name) + "/available";
+	s = "/switches/" + String(name) + "/available";
 	feed_available = (char *)calloc(s.length() + 1, 1);
 	strncpy(feed_available, s.c_str(), s.length());
-
 
 	Serial.printf("feed_sate=%s\n", feed_sate);
 	Serial.printf("feed_set=%s\n", feed_set);
 	Serial.printf("feed_available=%s\n", feed_available);
 
+}
+
+MQTTswitch::MQTTswitch(char * name, uint8_t pin):MQTTswitch(String(name), pin)
+{
 }
 
 
@@ -37,11 +40,11 @@ bool MQTTswitch::process(Adafruit_MQTT_Subscribe * subscription)
 		Serial.print(F("Got: "));
 		Serial.println(value);
 		if (value == "ON") {
-			digitalWrite(BUILTIN_LED, LOW);
+			digitalWrite(pin, LOW);
 			publish_state("ON");
 		}
 		else {
-			digitalWrite(BUILTIN_LED, HIGH);
+			digitalWrite(pin, HIGH);
 			publish_state("OFF");
 		}
 		return true;
