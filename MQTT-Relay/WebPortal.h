@@ -2,6 +2,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266SSDP.h>
 #include <DNSServer.h>
 #include <ESP8266mDNS.h>
 #include <FS.h>
@@ -53,11 +54,12 @@ public:
 	IPAddress apIP = IPAddress(192, 168, 4, 1);
 	IPAddress netMsk = IPAddress(255, 255, 255, 0);
 
-	/* hostname for mDNS. Should work at least on windows. Try http://login.local */
-	const char *myHostname = "login";
+	/* hostname for mDNS. Should work at least on windows. Try http://relay.local */
+	char * myHostname;// = "relay";
 
 
 	void setup();
+	void ssdp(const char* deviceName = "ESP8266");
 	void loop();
 
 

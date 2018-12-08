@@ -47,12 +47,24 @@
     <ClInclude Include="MQTTswitch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MQTTconnection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MQTTprocess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WebPortal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MQTTswitch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MQTTconnection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MQTTprocess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

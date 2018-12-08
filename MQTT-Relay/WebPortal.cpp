@@ -2,6 +2,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266SSDP.h>
 #include <DNSServer.h>
 #include <ESP8266mDNS.h>
 #include <FS.h>
@@ -55,6 +56,16 @@ This is a captive portal because through the softAP it will redirect any http re
 
 
 void WebPortal::setup() {
+	//Generate unique device name based on MAC address of WIFI adapter
+	String mac = "relay" + WiFi.macAddress(); mac.replace(":", "");
+	myHostname = (char *)calloc(mac.length() + 1, 1);
+	strncpy(myHostname, mac.c_str(), mac.length());
+
+	Serial.print("Host name: http://"); Serial.print(myHostname); Serial.println(".local");
+	
+	//Make device visible in for Microsoft Windows Network
+	ssdp(myHostname);
+	//read wifi config
 	if (SPIFFS.exists("/wifi.json")) {
 		DynamicJsonBuffer  jsonBuffer(200);
 		File f = SPIFFS.open("/wifi.json", "r");
@@ -84,7 +95,6 @@ void WebPortal::setup() {
 		/* Setup the DNS server redirecting all the domains to the apIP */
 		dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
 		dnsServer.start(DNS_PORT, "*", apIP);
-
 	}
 
 	/* Setup web pages: root, wifi config pages, SO captive portal detectors and not found. */
@@ -108,6 +118,22 @@ void WebPortal::connectWifi() {
 	Serial.print("connRes: ");
 	Serial.println(connRes);
 }
+
+void WebPortal::ssdp(const char* deviceName) {
+	//SSDP makes device visible on windows network
+	on("/description.xml", HTTP_GET, [&]() {
+		SSDP.schema(server.client());
+	});
+	SSDP.setSchemaURL("description.xml");
+	SSDP.setHTTPPort(80);
+	SSDP.setName(deviceName);
+	SSDP.setModelName("ESP8266 based wifi relay");
+
+	SSDP.setURL("/");
+	SSDP.begin();
+	SSDP.setDeviceType("upnp:rootdevice");
+} //setup
+
 
 
 
