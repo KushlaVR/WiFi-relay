@@ -5,6 +5,7 @@
 MQTTswitch::MQTTswitch(String name, uint8_t pin)
 {
 	this->pin = pin;
+	pinMode(pin, OUTPUT);
 	this->name = name;
 	String s = "/switches/" + String(name);
 	feed_sate = (char *)calloc(s.length() + 1, 1);
