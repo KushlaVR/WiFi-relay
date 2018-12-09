@@ -1,11 +1,11 @@
 #pragma once
 
 #include <FS.h>
-#include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 #include "MQTTprocess.h"
+#include "Json.h"
 
 class MQTTconnection
 {

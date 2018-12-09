@@ -1,4 +1,3 @@
-#include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
@@ -20,26 +19,24 @@ void MQTTconnection::setup() {
 	if (SPIFFS.exists("/mqtt.json")) {
 		Serial.println(F("read ./mqtt.json"));
 
-		DynamicJsonBuffer  jsonBuffer(200);
 		File f = SPIFFS.open("/mqtt.json", "r");
 		f.seek(0);
-		JsonObject& root = jsonBuffer.parseObject(f.readString());
-		if (root.containsKey("broker")) {
-			const char * b = root["broker"];
-			//Serial.println(strlen(b));
-			broker = (char *)calloc(1, strlen(b) + 1);
-			strncpy(broker, b, strlen(b));
+		JsonString json = JsonString(f.readString());
+		
+		String b = json.getValue("broker");
+		broker = (char *)calloc(b.length() + 1, 1);
+		b.toCharArray(broker, b.length()+1);
+		if (b.length()>0) {
+			String p = json.getValue("port");
+			port = p.toInt();
+			
+			String u = json.getValue("user");
+			user = (char *)calloc(u.length() + 1, 1);
+			u.toCharArray(user, u.length()+1);
 
-			const char * p = root["port"];
-			port = String(p).toInt();
-
-			const char * u = root["user"];
-			user = (char *)calloc(1, strlen(u) + 1);
-			if (strlen(u)) strncpy(user, u, strlen(u));
-
-			const char * k = root["key"];
-			key = (char *)calloc(1, strlen(k) + 1);
-			if (strlen(k)) strncpy(key, k, strlen(k));
+			String k = json.getValue("key");
+			key = (char *)calloc(k.length()+1, 1);
+			k.toCharArray(key, k.length());
 
 			Serial.print("broker:"); Serial.println(broker);
 			Serial.print("port:"); Serial.println(port);

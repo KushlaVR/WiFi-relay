@@ -6,6 +6,7 @@
 #include <DNSServer.h>
 #include <ESP8266mDNS.h>
 #include <FS.h>
+#include "Json.h"
 
 
 
@@ -62,33 +63,30 @@ void WebPortal::setup() {
 	strncpy(myHostname, mac.c_str(), mac.length());
 
 	Serial.print("Host name: http://"); Serial.print(myHostname); Serial.println(".local");
-	
+
 	//Make device visible in for Microsoft Windows Network
 	ssdp(myHostname);
 
 	Serial.println("reading wifi config....");
-
+	bool setupAP = true;
 	//read wifi config
 	if (SPIFFS.exists("/wifi.json")) {
-	
-		DynamicJsonBuffer  jsonBuffer(200);
 		File f = SPIFFS.open("/wifi.json", "r");
 		f.seek(0);
-		JsonObject& root = jsonBuffer.parseObject(f.readString());
-		Serial.printf("config enty:%i\n", root.size());
-		if (root.containsKey("wlan_id")) {
-			const char * wlan_id = root["wlan_id"];
-			const char * wlan_pwd = root["wlan_pwd"];
-			server.ssid = String(wlan_id).c_str();
-			server.password = String(wlan_pwd).c_str();
+		JsonString json = JsonString(f.readString());
+		String wlan_id = json.getValue("wlan_id");
+		if (wlan_id.length() > 0) {
+			server.ssid = wlan_id.c_str();
+			server.password = json.getValue("wlan_pwd").c_str();
 			Serial.println("wifi config OK.");
+			setupAP = false;
 		}
 		else {
 			Serial.println("No wlan id found...");
 		}
 		f.close();
 	}
-	else {
+	if (setupAP) {
 		Serial.println("WiFi config not found!");
 		Serial.println("Start portal");
 		WiFi.disconnect();

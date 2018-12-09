@@ -36,6 +36,7 @@
     <None Include="data\html\js\relay.js.map" />
     <None Include="data\html\js\relay.ts" />
     <None Include="data\html\js\tsconfig.json" />
+    <None Include="data\wifi.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.MQTT-Relay.vsarduino.h">
@@ -53,6 +54,9 @@
     <ClInclude Include="MQTTprocess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Json.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WebPortal.cpp">
@@ -67,10 +71,13 @@
     <ClCompile Include="MQTTprocess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Json.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="data\wifi.json" />
     <Text Include="data\html\content\switch.txt" />
+    <Text Include="data\wifi1.json" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\html\favicon.ico">
