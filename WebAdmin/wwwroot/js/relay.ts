@@ -65,7 +65,7 @@ class WIFI_list {
     public ssid: Array<any>;
 }
 
-class WIFI_item {
-    public name: string;
 
+class Items_list {
+    public items: Array<any>;
 }

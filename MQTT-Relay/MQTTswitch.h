@@ -1,6 +1,7 @@
 #pragma once
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
+#include "Json.h"
 #include "MQTTprocess.h"
 
 class MQTTswitch : public MQTTprocess
@@ -31,16 +32,18 @@ class MQTTswitch : public MQTTprocess
 	Adafruit_MQTT_Publish * onoffbutton_available;
 
 	uint8_t pin;
+	String state = "OFF";
 
 	bool publish_available();
 	bool publish_state(const char * state);
 public:
-	MQTTswitch(String name, uint8_t pin);
-	MQTTswitch(char * name, uint8_t pin);
+	MQTTswitch(String feed, String name, uint8_t pin);
+	MQTTswitch(char * feed, char * name, uint8_t pin);
 	~MQTTswitch();
 
 	bool process(Adafruit_MQTT_Subscribe * subscription);
 	void Register(Adafruit_MQTT_Client * connection);
+	void printInfo(JsonString * ret);
 	bool schedule();
 };;
 

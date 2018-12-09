@@ -105,9 +105,6 @@ void MQTTconnection::process()
 	}
 }
 
-Adafruit_MQTT_Subscribe * MQTTconnection::readSubscription(int16_t timeout) {
-	return connection->readSubscription(timeout);
-}
 
 
 void MQTTconnection::Register(MQTTprocess * device) {

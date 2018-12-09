@@ -27,8 +27,7 @@ public:
 	bool loop();
 	void process();
 
-	Adafruit_MQTT_Subscribe * readSubscription(int16_t timeout = (int16_t)0);
-
 	void Register(MQTTprocess * device);
+	MQTTprocess * getFirstProcess() { return firstProcess; };
 };
 

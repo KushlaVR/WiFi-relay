@@ -2,20 +2,21 @@
 
 
 
-MQTTswitch::MQTTswitch(String name, uint8_t pin)
+MQTTswitch::MQTTswitch(String feed, String name, uint8_t pin)
 {
+	this->name = name;
+	this->type = "switch";
 	this->pin = pin;
 	pinMode(pin, OUTPUT);
-	this->name = name;
-	String s = "/switches/" + String(name);
+	String s = "/switches/" + String(feed) + "/" + String(name);
 	feed_sate = (char *)calloc(s.length() + 1, 1);
 	strncpy(feed_sate, s.c_str(), s.length());
 
-	s = "/switches/" + String(name) + "/set";
+	s = "/switches/" + String(feed) + "/" + String(name) + "/set";
 	feed_set = (char *)calloc(s.length() + 1, 1);
 	strncpy(feed_set, s.c_str(), s.length());
 
-	s = "/switches/" + String(name) + "/available";
+	s = "/switches/" + String(feed) + "/" + String(name) + "/available";
 	feed_available = (char *)calloc(s.length() + 1, 1);
 	strncpy(feed_available, s.c_str(), s.length());
 
@@ -25,7 +26,7 @@ MQTTswitch::MQTTswitch(String name, uint8_t pin)
 
 }
 
-MQTTswitch::MQTTswitch(char * name, uint8_t pin):MQTTswitch(String(name), pin)
+MQTTswitch::MQTTswitch(char * feed, char * name, uint8_t pin) :MQTTswitch(String(feed), String(name), pin)
 {
 }
 
@@ -65,6 +66,12 @@ void MQTTswitch::Register(Adafruit_MQTT_Client * connection)
 
 }
 
+void MQTTswitch::printInfo(JsonString * ret)
+{
+	MQTTprocess::printInfo(ret);
+	ret->AddValue("state", state);
+}
+
 bool MQTTswitch::schedule()
 {
 	ulong m = millis();
@@ -89,6 +96,7 @@ bool MQTTswitch::publish_available() {
 
 
 bool MQTTswitch::publish_state(const char * state) {
+	this->state = String(state);
 	// Now we can publish stuff!
 	if (!onoffbutton_state->publish(state)) {
 		Serial.println(F("state - Failed"));

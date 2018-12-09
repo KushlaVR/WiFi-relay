@@ -60,9 +60,9 @@ var WIFI_list = /** @class */ (function () {
     }
     return WIFI_list;
 }());
-var WIFI_item = /** @class */ (function () {
-    function WIFI_item() {
+var Items_list = /** @class */ (function () {
+    function Items_list() {
     }
-    return WIFI_item;
+    return Items_list;
 }());
 //# sourceMappingURL=relay.js.map

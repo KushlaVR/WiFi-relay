@@ -19,8 +19,8 @@ MQTTconnection mqtt_connection = MQTTconnection();
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
 Adafruit_MQTT_Publish * photocell;// = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/photocell");
 
-MQTTswitch * ledSwitch;
-
+void handleGetSwitches();
+void handleSetSwitches();
 
 void setup() {
 	Serial.begin(115200);
@@ -44,14 +44,45 @@ void setup() {
 	server.setup();
 	mqtt_connection.setup();
 
-	mqtt_connection.Register(new MQTTswitch(String(server.myHostname) + "/out1", D5));
-	mqtt_connection.Register(new MQTTswitch(String(server.myHostname) + "/out2", D6));
-	mqtt_connection.Register(new MQTTswitch(String(server.myHostname) + "/out3", D7));
-	mqtt_connection.Register(new MQTTswitch(String(server.myHostname) + "/led", LED_BUILTIN));
+	mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out1", D5));
+	mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out2", D6));
+	mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out3", D7));
+	mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "led", LED_BUILTIN));
 
 	photocell = new Adafruit_MQTT_Publish(mqtt_connection.connection, "/feeds/photocell");
 
+	server.on("/api/switches", HTTPMethod::HTTP_GET, handleGetSwitches);
+	server.on("/api/switches", HTTPMethod::HTTP_POST, handleSetSwitches);
+
 }
+
+
+void handleGetSwitches() {
+	Serial.println("switches GET:");
+
+	server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+	server.sendHeader("Pragma", "no-cache");
+	server.sendHeader("Expires", "-1");
+	server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+	JsonString ret = JsonString();
+	ret.beginObject();
+	MQTTprocess * proc = mqtt_connection.getFirstProcess();
+	ret.beginArray("items");
+	while (proc != nullptr) {
+		ret.beginObject();
+		proc->printInfo(&ret);
+		ret.endObject();
+		proc = proc->next;
+	};
+	ret.endArray();
+	ret.endObject();
+	server.send(200, "application/json", ret);
+}
+
+void handleSetSwitches() {
+
+}
+
 
 uint32_t x = 0;
 unsigned long lastInfo = 0;
