@@ -15,6 +15,8 @@ namespace WebAdmin.Controllers
             return Redirect("index.html");
         }
 
+
+
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";

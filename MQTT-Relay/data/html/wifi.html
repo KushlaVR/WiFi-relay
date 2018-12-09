@@ -9,11 +9,8 @@
     <link href="css/clockpicker.css" rel="stylesheet" />
     <link href="css/style.css" rel="stylesheet" />
     <script src="js/jquery.min.js"></script>
-    <script src="js/clockpicker.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/relay.js"></script>
-
-
     <style>
         body {
             height: 100%;
@@ -53,21 +50,37 @@
     <div class="container" style="margin-top:30px">
         <div class="row">
             <div class="col-sm-12">
-                <h2>Налаштування wifi</h2>
-                <h5>Дана точки підєднання</h5>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <h5>Доступні мережі</h5>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <br>
+                <h1>Налаштування wifi</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <h3>Доступні точки доступу</h3>
+                <div class="wifi-list list-group">
+                    <div class="list-group-item">Завантаження...</div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <form method="post" action="api/wifisave">
+                    <h3>Підключитись</h3>
+                    <div class="form-group">
+                        <label for="ssid">Мережа WIFI</label>
+                        <input type="text" class="form-control" id="ssid" name="n" aria-describedby="ssidHelp" placeholder="Назва мережі WIFI">
+                        <small id="ssidHelp" class="form-text text-muted">Назва вашої мережі WIFI.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Пароль</label>
+                        <input type="password" class="form-control" id="password" name="p" placeholder="Пароль">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Застосувати</button>
+                </form>
             </div>
         </div>
     </div>
 
-    
+    <script type="text/javascript">
+        Relay.relay.wifi();
+    </script>
 
 </body>
 </html>

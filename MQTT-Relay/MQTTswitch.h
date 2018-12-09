@@ -29,7 +29,6 @@ class MQTTswitch : public MQTTprocess
 	Adafruit_MQTT_Publish * onoffbutton_state;
 	Adafruit_MQTT_Subscribe * onoffbutton_set;
 	Adafruit_MQTT_Publish * onoffbutton_available;
-	String name;
 
 	uint8_t pin;
 

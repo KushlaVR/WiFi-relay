@@ -111,6 +111,10 @@ Adafruit_MQTT_Subscribe * MQTTconnection::readSubscription(int16_t timeout) {
 
 
 void MQTTconnection::Register(MQTTprocess * device) {
+
+	Serial.print("Register: ");
+	Serial.println(device->name);
+
 	if (firstProcess == nullptr) {
 		firstProcess = device;
 		device->next = nullptr;
@@ -127,7 +131,7 @@ void MQTTconnection::Register(MQTTprocess * device) {
 				dev = dev->next;
 		}
 	}
-	Serial.print("registered");
 	device->Register(connection);
+	Serial.println("OK;");
 
 }

@@ -44,6 +44,9 @@ namespace WebAdmin
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+                routes.MapRoute(
+                    name: "wifi",
+                    template: "{controller=Element}/(action=wifi)");
             });
         }
     }

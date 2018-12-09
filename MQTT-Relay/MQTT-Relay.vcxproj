@@ -116,7 +116,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\html\content\switch.txt" />
-    <Text Include="data\wifi1.json" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Json.cpp" />

@@ -9,6 +9,8 @@ public:
 	MQTTprocess();
 	~MQTTprocess();
 
+	String name;
+
 	virtual bool process(Adafruit_MQTT_Subscribe * subscription) {};
 	virtual bool schedule() {};
 	virtual void Register(Adafruit_MQTT_Client * connection) {};

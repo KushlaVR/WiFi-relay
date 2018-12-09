@@ -9,10 +9,10 @@
 #include "Json.h"
 
 /* Set these to your desired softAP credentials. They are not configurable at runtime */
-#ifndef APSSID
-#define APSSID "KushlaVR"
+//#ifndef APSSID
+//#define APSSID "KushlaVR"
 #define APPSK  "12345678"
-#endif
+//#endif
 
 class WebPortal :public ESP8266WebServer
 {
@@ -45,17 +45,14 @@ public:
 	String ssid;
 	String password;
 
-	const char *softAP_ssid = APSSID;
-	const char *softAP_password = APPSK;
-
-
 
 	/* Soft AP network parameters */
 	IPAddress apIP = IPAddress(192, 168, 4, 1);
 	IPAddress netMsk = IPAddress(255, 255, 255, 0);
 
-	/* hostname for mDNS. Should work at least on windows. Try http://relay.local */
-	char * myHostname;// = "relay";
+	/* hostname for mDNS. Should work at least on windows. Try http://relayXXXXXXX.local */
+	char * myHostname;
+	char *softAP_password = APPSK;
 
 
 	void setup();

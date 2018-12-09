@@ -1,5 +1,5 @@
 body {
-    color:#0b0b0b
+    color: #0b0b0b
 }
 
 .switch {
@@ -60,4 +60,18 @@ input:checked + .slider:before {
 
     .slider.round:before {
         border-radius: 50%;
+    }
+
+.wifi-item {
+}
+
+    .wifi-item .name {
+        font-weight: bold;
+    }
+
+    .wifi-item .rssi {
+    }
+
+    .wifi-item .encryption {
+        float:right;
     }

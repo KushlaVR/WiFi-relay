@@ -43,19 +43,6 @@ WebPortal::~WebPortal()
 {
 }
 
-
-
-
-/*
-This example serves a "hello world" on a WLAN and a SoftAP at the same time.
-The SoftAP allow you to configure WLAN parameters at run time. They are not setup in the sketch but saved on EEPROM.
-Connect your computer or cell phone to wifi network ESP_ap with password 12345678. A popup may appear and it allow you to go to WLAN config. If it does not then navigate to http://192.168.4.1/wifi and config it there.
-Then wait for the module to connect to your wifi and take note of the WLAN IP it got. Then you can disconnect from ESP_ap and return to your regular WLAN.
-Now the ESP8266 is in your network. You can reach it through http://192.168.x.x/ (the IP you took note of) or maybe at http://esp8266.local too.
-This is a captive portal because through the softAP it will redirect any http request to http://192.168.4.1/
-*/
-
-
 void WebPortal::setup() {
 	//Generate unique device name based on MAC address of WIFI adapter
 	String mac = "relay" + WiFi.macAddress(); mac.replace(":", "");
@@ -86,8 +73,18 @@ void WebPortal::setup() {
 		}
 		f.close();
 	}
-	if (setupAP) {
+	else {
 		Serial.println("WiFi config not found!");
+	}
+	pinMode(A0, INPUT_PULLUP);
+	int a0 = analogRead(A0);
+	Serial.printf("A0=%i\n", a0);
+	if (a0 > 1000) {
+		setupAP = true;
+		if (SPIFFS.exists("/wifi.json")) SPIFFS.remove("/wifi.json");
+	}
+
+	if (setupAP) {
 		Serial.println("Start portal");
 		WiFi.disconnect();
 
@@ -95,7 +92,7 @@ void WebPortal::setup() {
 		Serial.println("Configuring access point...");
 		/* You can remove the password parameter if you want the AP to be open. */
 		WiFi.softAPConfig(apIP, apIP, netMsk);
-		WiFi.softAP(softAP_ssid, softAP_password);
+		WiFi.softAP(myHostname, softAP_password);
 		delay(500); // Without delay I've seen the IP address blank
 		Serial.print("AP IP address: ");
 		Serial.println(WiFi.softAPIP());
@@ -107,8 +104,8 @@ void WebPortal::setup() {
 
 	/* Setup web pages: root, wifi config pages, SO captive portal detectors and not found. */
 	on("/", handleRoot);
-	on("/wifi", handleWifi);
-	on("/wifisave", handleWifiSave);
+	on("/api/wifi", handleWifi);
+	on("/api/wifisave", handleWifiSave);
 	on("/generate_204", handleRoot);  //Android captive portal. Maybe not needed. Might be handled by notFound handler.
 	on("/fwlink", handleRoot);  //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
 	onNotFound(handleNotFound);
@@ -152,55 +149,20 @@ void WebPortal::handleRoot() {
 	if (captivePortal()) { // If caprive portal redirect instead of displaying the page.
 		return;
 	}
-	/*server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-	server.sendHeader("Pragma", "no-cache");
-	server.sendHeader("Expires", "-1");
-	server.setContentLength(CONTENT_LENGTH_UNKNOWN);
-	server.send(200, "text/html", ""); // Empty content inhibits Content-length header so we have to close the socket ourselves.
-	server.sendContent(
-		"<html><head></head><body>"
-		"<h1>HELLO WORLD!!</h1>"
-	);
-	if (server.client().localIP() == server.apIP) {
-		server.sendContent(String("<p>You are connected through the soft AP: ") + server.softAP_ssid + "</p>");
-	}
-	else {
-		server.sendContent(String("<p>You are connected through the wifi network: ") + server.ssid + "</p>");
-	}
-	server.sendContent(
-		"<p>You may want to <a href='/wifi'>config the wifi connection</a>.</p>"
-		"</body></html>"
-	);
-	server.client().stop(); // Stop is needed because we sent no content length*/
-
 	handleFileRead("/index.html");
-
 }
 
 bool WebPortal::handleFileRead(String path) {
-	/*if (path.equals("/home.html")) {
-		if (config.homePage.length() > 0) path = config.homePage;
-		else if (config.hasDHT) path = "/home_dht.htm";
-	}*/
 	if (path.endsWith("/")) path += "index.html";
 	if (path.equals("/favicon.ico")) path = "icon.svg";
 	char* contentType = server.getContentType(path);
-	//String minimized = portal.getMinimizedPath(path);
-	//String minimizedGz = server + ".gz";
-	//bool gz = false;
-	//if (SPIFFS.exists(minimizedGz)) { path = minimizedGz; gz = true; }
-	//else if (SPIFFS.exists(minimized)) path = minimized;
-	//else {
-	//	minimized = path + ".gz";
-	//	if (SPIFFS.exists(minimized)) { path = minimized; gz = true; }
-	//}
+
 	String s = "/html" + path;
 	Serial.println("path=" + s);
 	if (SPIFFS.exists(s)) {
 		File file = SPIFFS.open(s, "r");
 		server.sendFile(file, contentType, false);
 		file.close();
-		//		console.println("Read file from spiffs: " + path);
 		return true;
 	}
 	Serial.println("Not found!!! " + path);
@@ -267,64 +229,31 @@ boolean WebPortal::captivePortal() {
 
 /** Wifi config page handler */
 void WebPortal::handleWifi() {
+
+	Serial.println("scan start");
+	int n = WiFi.scanNetworks();
+
 	server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 	server.sendHeader("Pragma", "no-cache");
 	server.sendHeader("Expires", "-1");
 	server.setContentLength(CONTENT_LENGTH_UNKNOWN);
-	server.send(200, "text/html", ""); // Empty content inhibits Content-length header so we have to close the socket ourselves.
-	server.sendContent(
-		"<html><head>"
-		"<style>"
-		"</style>"
-		"</head>"
-		"<body>"
-		"<h1>Wifi config</h1>"
-	);
-	if (server.client().localIP() == server.apIP) {
-		server.sendContent(String("<p>You are connected through the soft AP: ") + server.softAP_ssid + "</p>");
-	}
-	else {
-		server.sendContent(String("<p>You are connected through the wifi network: ") + server.ssid + "</p>");
-	}
-	server.sendContent(
-		"\r\n<br />"
-		"<table><tr><th align='left'>SoftAP config</th></tr>"
-	);
-	server.sendContent(String() + "<tr><td>SSID " + String(server.softAP_ssid) + "</td></tr>");
-	server.sendContent(String() + "<tr><td>IP " + WebPortal::toStringIp(WiFi.softAPIP()) + "</td></tr>");
-	server.sendContent(
-		"</table>"
-		"\r\n<br />"
-		"<table><tr><th align='left'>WLAN config</th></tr>"
-	);
-	server.sendContent(String() + "<tr><td>SSID " + String(server.ssid) + "</td></tr>");
-	server.sendContent(String() + "<tr><td>IP " + WebPortal::toStringIp(WiFi.localIP()) + "</td></tr>");
-	server.sendContent(
-		"</table>"
-		"\r\n<br />"
-		"<table><tr><th align='left'>WLAN list (refresh if any missing)</th></tr>"
-	);
-	Serial.println("scan start");
-	int n = WiFi.scanNetworks();
 	Serial.println("scan done");
+	JsonString ret = JsonString();
+	ret.beginObject();
 	if (n > 0) {
+		ret.beginArray("ssid");
 		for (int i = 0; i < n; i++) {
-			server.sendContent(String() + "\r\n<tr><td>SSID " + WiFi.SSID(i) + String((WiFi.encryptionType(i) == ENC_TYPE_NONE) ? " " : " *") + " (" + WiFi.RSSI(i) + ")</td></tr>");
+			ret.beginObject();
+			ret.AddValue("name", WiFi.SSID(i));
+			ret.AddValue("encryption", String(WiFi.encryptionType(i)));
+			ret.AddValue("rssi", String(WiFi.RSSI(i)));
+			//server.sendContent(String() + "\r\n<tr><td>SSID " + WiFi.SSID(i) + String((WiFi.encryptionType(i) == ENC_TYPE_NONE) ? " " : " *") + " (" + WiFi.RSSI(i) + ")</td></tr>");
+			ret.endObject();
 		}
-	}
-	else {
-		server.sendContent(String() + "<tr><td>No WLAN found</td></tr>");
-	}
-	server.sendContent(
-		"</table>"
-		"\r\n<br /><form method='POST' action='wifisave'><h4>Connect to network:</h4>"
-		"<input type='text' placeholder='network' name='n'/>"
-		"<br /><input type='password' placeholder='password' name='p'/>"
-		"<br /><input type='submit' value='Connect/Disconnect'/></form>"
-		"<p>You may want to <a href='/'>return to the home page</a>.</p>"
-		"</body></html>"
-	);
-	server.client().stop(); // Stop is needed because we sent no content length
+		ret.endArray();
+	};
+	ret.endObject();
+	server.send(200, "application/json", ret);
 }
 
 /** Handle the WLAN save form and redirect to WLAN config page again */
@@ -332,7 +261,7 @@ void WebPortal::handleWifiSave() {
 	Serial.println("wifi save");
 	server.ssid = server.arg("n");
 	server.password = server.arg("p");
-	server.sendHeader("Location", "wifi", true);
+	server.sendHeader("Location", "/", true);
 	server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 	server.sendHeader("Pragma", "no-cache");
 	server.sendHeader("Expires", "-1");
