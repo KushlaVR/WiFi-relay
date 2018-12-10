@@ -80,7 +80,42 @@ void handleGetSwitches() {
 }
 
 void handleSetSwitches() {
+	Serial.println("switches GET:");
+	if (server.hasArg("index") && server.hasArg("state")) {
+		
+		int index = server.arg("index").toInt();
 
+		MQTTprocess * proc = mqtt_connection.getFirstProcess();
+		int i = 1;
+		while (proc != nullptr) {
+			if (i == index) break;
+			proc = proc->next;
+			i++;
+		};
+
+		if (proc == nullptr) {
+			WebPortal::handleNotFound();
+			return;
+		}
+
+		if (proc->type != "switch") {
+			WebPortal::handleNotFound();
+			return;
+		}
+		MQTTswitch * sw = (MQTTswitch *)proc;
+		sw->setState(server.arg("state")=="on");
+		server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+		server.sendHeader("Pragma", "no-cache");
+		server.sendHeader("Expires", "-1");
+		server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+		JsonString ret = JsonString();
+		ret.beginObject();
+		ret.AddValue("status", "OK");
+		ret.endObject();
+		server.send(200, "application/json", ret);
+		return;
+	}
+	WebPortal::handleNotFound();
 }
 
 

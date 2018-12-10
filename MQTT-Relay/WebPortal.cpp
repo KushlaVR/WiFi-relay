@@ -193,8 +193,9 @@ void WebPortal::sendFile(File file, char* contenttype, bool addGzHeader) {
 	Serial.println("file=" + String(file.name()) + " filesize=" + String(size_to_send));
 	if (addGzHeader) {
 		sendHeader("Content-Encoding", "gzip"); // console.print("Header1 ");
-		sendHeader("Cache-Control", "max-age=31536000", true);
+		//sendHeader("Cache-Control", "max-age=31536000", true);
 	}
+	sendHeader("Cache-Control", "max-age=31536000", true);
 	_prepareHeader(header, 200, contenttype, size_to_send);
 	sendContent(header);
 	//	console.print("Header2 ");

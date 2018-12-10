@@ -1,10 +1,13 @@
 #include "MQTTswitch.h"
 
+int switchCount;
 
 
 MQTTswitch::MQTTswitch(String feed, String name, uint8_t pin)
 {
+	switchCount++;
 	this->name = name;
+	this->index = switchCount;
 	this->type = "switch";
 	this->pin = pin;
 	pinMode(pin, OUTPUT);
@@ -41,14 +44,7 @@ bool MQTTswitch::process(Adafruit_MQTT_Subscribe * subscription)
 		String value = String((char *)onoffbutton_set->lastread);
 		Serial.print(F("Got: "));
 		Serial.println(value);
-		if (value == "ON") {
-			digitalWrite(pin, LOW);
-			publish_state("ON");
-		}
-		else {
-			digitalWrite(pin, HIGH);
-			publish_state("OFF");
-		}
+		setState(value=="ON");
 		return true;
 	}
 
@@ -70,6 +66,20 @@ void MQTTswitch::printInfo(JsonString * ret)
 {
 	MQTTprocess::printInfo(ret);
 	ret->AddValue("state", state);
+	ret->AddValue("index", String(index));
+	ret->AddValue("visual", "switch");
+}
+
+void MQTTswitch::setState(bool newState)
+{
+	if (newState) {
+		digitalWrite(pin, LOW);
+		publish_state("ON");
+	}
+	else {
+		digitalWrite(pin, HIGH);
+		publish_state("OFF");
+	}
 }
 
 bool MQTTswitch::schedule()

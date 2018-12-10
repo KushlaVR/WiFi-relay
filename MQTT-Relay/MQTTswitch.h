@@ -22,7 +22,7 @@ class MQTTswitch : public MQTTprocess
 	retain: true
 	*/
 	ulong lastReport = 0;
-
+	int index;
 	char * feed_sate;
 	char * feed_set;
 	char * feed_available;
@@ -44,6 +44,9 @@ public:
 	bool process(Adafruit_MQTT_Subscribe * subscription);
 	void Register(Adafruit_MQTT_Client * connection);
 	void printInfo(JsonString * ret);
+	void setState(bool newState);
 	bool schedule();
+
+
 };;
 
