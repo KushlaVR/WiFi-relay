@@ -73,6 +73,8 @@ public:
 	static void handleWifi();
 	static void handleWifiSave();
 	static void handleNotFound();
+	static void handleUpdate();
+
 	static bool handleFileRead(String path);
 };
 

@@ -1,0 +1,11 @@
+https://github.com/KushlaVR/WiFi-relay/raw/master/MQTT-Relay/data/html
+/index.html
+/wifi.html
+/help.html
+/js/jquery.min.js
+/js/bootstrap.min.js
+/js/clockpicker.js
+/js/relay.js
+/css/bootstrap.css
+/css/clockpicker.css
+/css/style.css

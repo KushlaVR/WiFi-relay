@@ -14,10 +14,29 @@ namespace WebAdmin.Controllers
     public class ApiController : Controller
     {
 
+        public class MQTTProcess
+        {
+            public string name { get; set; }
+            public string visual { get; set; } = "switch";
+            public string type { get; set; } = "switch";
+            public string state { get; set; } = "OFF";
+            public string index { get; set; } = "0";
+        }
+
+        private static List<MQTTProcess> items;
         private IHostingEnvironment _env;
         public ApiController(IHostingEnvironment env)
         {
             _env = env;
+            if (items == null)
+            {
+                items = new List<MQTTProcess>();
+                items.Add(new MQTTProcess() { name = "out1", index = "1" });
+                items.Add(new MQTTProcess() { name = "out2", index = "2" });
+                items.Add(new MQTTProcess() { name = "out3", index = "3" });
+                items.Add(new MQTTProcess() { name = "led", index = "4", state = "ON" });
+            }
+
         }
 
         public IActionResult Index()
@@ -74,7 +93,8 @@ namespace WebAdmin.Controllers
         [HttpGet()]
         public IActionResult switches()
         {
-            return Content("{\"items\":[{\"name\":\"out1\",\"type\":\"switch\",\"state\":\"OFF\",\"index\":\"1\",\"visual\":\"switch\"},{\"name\":\"out2\",\"type\":\"switch\",\"state\":\"OFF\",\"index\":\"2\",\"visual\":\"switch\"},{\"name\":\"out3\",\"type\":\"switch\",\"state\":\"OFF\",\"index\":\"3\",\"visual\":\"switch\"},{\"name\":\"led\",\"type\":\"switch\",\"state\":\"ON\",\"index\":\"4\",\"visual\":\"switch\"}]}", new Microsoft.Net.Http.Headers.MediaTypeHeaderValue("application/json"));
+            //return Content("{\"items\":[{\"name\":\"out1\",\"type\":\"switch\",\"state\":\"OFF\",\"index\":\"1\",\"visual\":\"switch\"},{\"name\":\"out2\",\"type\":\"switch\",\"state\":\"OFF\",\"index\":\"2\",\"visual\":\"switch\"},{\"name\":\"out3\",\"type\":\"switch\",\"state\":\"OFF\",\"index\":\"3\",\"visual\":\"switch\"},{\"name\":\"led\",\"type\":\"switch\",\"state\":\"ON\",\"index\":\"4\",\"visual\":\"switch\"}]}", new Microsoft.Net.Http.Headers.MediaTypeHeaderValue("application/json"));
+            return new JsonResult(new { items = items });
         }
 
         [HttpPost()]
@@ -82,7 +102,11 @@ namespace WebAdmin.Controllers
         {
             if (index.HasValue && !string.IsNullOrEmpty(state))
             {
-                return new JsonResult(new { status = "OK" });
+                if (index.Value <= items.Count)
+                {
+                    items[index.Value - 1].state = state.ToUpper();
+                    return new JsonResult(new { status = "OK" });
+                }
             }
             return NotFound();
         }

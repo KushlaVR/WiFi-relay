@@ -108,6 +108,7 @@ void WebPortal::setup() {
 	on("/api/wifisave", handleWifiSave);
 	on("/generate_204", handleRoot);  //Android captive portal. Maybe not needed. Might be handled by notFound handler.
 	on("/fwlink", handleRoot);  //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
+	on("/update", handleUpdate);
 	onNotFound(handleNotFound);
 	begin(); // Web server start
 	Serial.println("HTTP server started");
@@ -300,6 +301,31 @@ void WebPortal::handleWifiSave() {
 
 }
 
+void WebPortal::handleUpdate() {
+	if (SPIFFS.exists("/html/files.txt"))
+		/*
+	String url = String(UPDATE_URL) + response.substring(4);
+	//url = http://123.123.123.123/SPIFFS/test2.htm
+	String file_name = response.substring(response.lastIndexOf('/'));
+	//file_name = test2.htm
+	Serial.println(url);
+	File f = SPIFFS.open(file_name, "w");
+	if (f) {
+		http.begin(url);
+		int httpCode = http.GET();
+		if (httpCode > 0) {
+			if (httpCode == HTTP_CODE_OK) {
+				http.writeToStream(&f);
+			}
+		}
+		else {
+			Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+		}
+		f.close();
+	}
+	http.end();
+	*/
+}
 
 void WebPortal::handleNotFound()
 {
