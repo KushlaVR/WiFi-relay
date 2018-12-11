@@ -303,6 +303,13 @@ void WebPortal::handleWifiSave() {
 
 }
 
+
+
+
+uint16_t httpsPort = 443;
+const char * host = "raw.githubusercontent.com";//TOD: read from settings file
+const char * fingerprint = "CC AA 48 48 66 46 0E 91 53 2C 9C 7C 23 2A B1 74 4D 29 9D 33";//TOD: read from settings file (can see in browser certificate info)
+
 void WebPortal::handleUpdate() {
 	String url = "";
 	if (server.hasArg("url")) {
@@ -316,7 +323,7 @@ void WebPortal::handleUpdate() {
 		}
 	}
 	if (url.length() > 0) {
-		server.send(200, "application/json", "ok");
+		server.send(200, "application/json", "{\"status\":\"ok\"}");
 		Serial.printf("url=%s", url.c_str());
 		updateFiles(url);
 	}
@@ -324,19 +331,19 @@ void WebPortal::handleUpdate() {
 		handleNotFound();
 		return;
 	}
-
-
 }
+
+
 
 void WebPortal::updateFiles(String url) {
 	updateFile(url, "/html/files.txt");
 	if (SPIFFS.exists("/html/files.txt")) {
 		File f = SPIFFS.open("/html/files.txt", "r");
-		url = f.readStringUntil('\10');
-		String fName = f.readStringUntil('\10');
+		url = f.readStringUntil('\n');
+		String fName = f.readStringUntil('\n');
 		while (fName.length() > 0) {
 			updateFile(url, fName);
-			fName = f.readStringUntil('\10');
+			fName = f.readStringUntil('\n');
 		}
 		f.close();
 	}
@@ -344,24 +351,61 @@ void WebPortal::updateFiles(String url) {
 
 void WebPortal::updateFile(String url, String file) {
 
-	HTTPClient http;
-	String raw_url = url + file;
-	Serial.printf("[HTTP] GET: %s\n",raw_url.c_str());
+
+	WiFiClientSecure client;
+	Serial.print("connecting to ");
+	Serial.println(host);
+	if (!client.connect(host, httpsPort)) {
+		Serial.println("connection failed");
+		return;
+	}
+	if (client.verify(fingerprint, host)) {
+		Serial.println("certificate matches");
+	}
+	else {
+		Serial.println("certificate doesn't match");
+	}
+
+	String action = url.substring(url.indexOf(host) + strlen(host)) + file;
+
+	client.print(String("GET ") + action + " HTTP/1.1\r\n" +
+		"Host: " + host + "\r\n" +
+		"User-Agent: ESP8266\r\n" +
+		"Connection: close\r\n\r\n");
+
+	long len = -1;
+	while (client.connected()) {
+		String line = client.readStringUntil('\n');
+		if (line.startsWith("Content-Length:")) {
+			len = line.substring(15).toInt();
+		}
+		if (line == "\r") {
+			Serial.println("headers received");
+			break;
+		}
+	}
+
+	Serial.printf("[HTTPS] GET: %s\n",action.c_str());
 	File f = SPIFFS.open(file, "w");
 	if (f) {
-		http.begin(url);
-		int httpCode = http.GET();
-		if (httpCode > 0) {
-			if (httpCode == HTTP_CODE_OK) {
-				http.writeToStream(&f);
+		uint8_t buff[128];
+		while (client.connected() && (len > 0 || len == -1)) {
+			size_t size = client.available();
+			if (size) {
+				int c = client.readBytes(buff, ((size > 128) ? 128 : size));
+				f.write(buff, c);
+				if (len > 0) 	len -= c;
 			}
+			else { break; }
+			Serial.printf("bytes left %i", len);
+			ESP.wdtDisable();
+			ESP.wdtEnable(1000);
+			//f.println(line);
+			//line = client.readStringUntil('\n');
 		}
-		else {
-			Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
-		}
+		Serial.println("done.");
 		f.close();
 	}
-	http.end();
 }
 
 void WebPortal::handleNotFound()
