@@ -1,4 +1,4 @@
-http://raw.githubusercontent.com/KushlaVR/WiFi-relay/master/MQTT-Relay/data
+https://raw.githubusercontent.com/KushlaVR/WiFi-relay/master/MQTT-Relay/data
 /html/index.html
 /html/wifi.html
 /html/help.html
