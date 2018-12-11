@@ -1,6 +1,8 @@
 #include "WebPortal.h"
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
+#include <ESP8266HTTPClient.h>
+#include <ESP8266httpUpdate.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266SSDP.h>
 #include <DNSServer.h>
@@ -302,14 +304,48 @@ void WebPortal::handleWifiSave() {
 }
 
 void WebPortal::handleUpdate() {
-	if (SPIFFS.exists("/html/files.txt"))
-		/*
-	String url = String(UPDATE_URL) + response.substring(4);
-	//url = http://123.123.123.123/SPIFFS/test2.htm
-	String file_name = response.substring(response.lastIndexOf('/'));
-	//file_name = test2.htm
-	Serial.println(url);
-	File f = SPIFFS.open(file_name, "w");
+	String url;
+	if (server.hasArg("url")) {
+		url = server.arg("url");
+	}
+	else {
+		if (SPIFFS.exists("/html/files.txt")) {
+			File f = SPIFFS.open("/html/files.txt", "r");
+			url = f.readStringUntil('\10');
+			f.close();
+		}
+	}
+	if (url.length() > 0) {
+		Serial.printf("url=%s", url);
+		updateFiles(url);
+	}
+	else {
+		handleNotFound();
+		return;
+	}
+
+
+}
+
+void WebPortal::updateFiles(String url) {
+	updateFile(url, "/html/files.txt");
+	if (SPIFFS.exists("/html/files.txt")) {
+		File f = SPIFFS.open("/html/files.txt", "r");
+		url = f.readStringUntil('\10');
+		String fName = f.readStringUntil('\10');
+		while (fName.length() > 0) {
+			updateFile(url, fName);
+			fName = f.readStringUntil('\10');
+		}
+		f.close();
+	}
+}
+
+void WebPortal::updateFile(String url, String file) {
+	HTTPClient http;
+	String raw_url = url + file;
+	Serial.println(raw_url);
+	File f = SPIFFS.open(file, "w");
 	if (f) {
 		http.begin(url);
 		int httpCode = http.GET();
@@ -324,7 +360,6 @@ void WebPortal::handleUpdate() {
 		f.close();
 	}
 	http.end();
-	*/
 }
 
 void WebPortal::handleNotFound()

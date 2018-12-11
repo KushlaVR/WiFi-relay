@@ -74,6 +74,8 @@ public:
 	static void handleWifiSave();
 	static void handleNotFound();
 	static void handleUpdate();
+	static void updateFiles(String url);
+	static void updateFile(String url, String file);
 
 	static bool handleFileRead(String path);
 };

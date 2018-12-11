@@ -75,3 +75,8 @@ input:checked + .slider:before {
     .wifi-item .encryption {
         float:right;
     }
+
+.process-list .nav-item .name {
+    margin-right: 10px;
+    vertical-align: middle;
+}
