@@ -304,7 +304,7 @@ void WebPortal::handleWifiSave() {
 }
 
 void WebPortal::handleUpdate() {
-	String url;
+	String url = "";
 	if (server.hasArg("url")) {
 		url = server.arg("url");
 	}
@@ -316,7 +316,8 @@ void WebPortal::handleUpdate() {
 		}
 	}
 	if (url.length() > 0) {
-		Serial.printf("url=%s", url);
+		server.send(200, "application/json", "ok");
+		Serial.printf("url=%s", url.c_str());
 		updateFiles(url);
 	}
 	else {
@@ -342,9 +343,10 @@ void WebPortal::updateFiles(String url) {
 }
 
 void WebPortal::updateFile(String url, String file) {
+
 	HTTPClient http;
 	String raw_url = url + file;
-	Serial.println(raw_url);
+	Serial.printf("[HTTP] GET: %s\n",raw_url.c_str());
 	File f = SPIFFS.open(file, "w");
 	if (f) {
 		http.begin(url);
