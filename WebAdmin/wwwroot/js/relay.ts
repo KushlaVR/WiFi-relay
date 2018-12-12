@@ -17,13 +17,41 @@ class Relay {
                     let item: any = w.items[i];
                     if (item.visual) {
                         if (item.visual == "switch") {
-                            list += "<li class='nav-item'>";
-                            list += "<span class='name h4'>Вихід №" + item.index + "</span>";
+                            //list += "<li class='nav-item'>";
+                            //list += "<span class='name h4'>Вихід №" + item.index + "</span>";
+                            //list += "<label class=" + item.type + ">";
+                            //list += "<input type='checkbox' class='switch-checkbox' id='switch_" + item.index + "'data-switch='" + item.index + "' data-state='" + item.state + "'/>";
+                            //list += "<span class='slider'></span>";
+                            //list += "</label>";
+                            //list += "<span class='item-info'>" + item.info + "</span>";
+                            //list += "<button class='item-setup'></span>";
+                            //list += "</li>";
+
+
+                            list += "<div class='card' style='width: 18rem;'>"
+                            list += "  <img class='card-img-top light-off' src='/content/idea.svg' alt='Вимикач' id='switch_img_" + item.index + "' data-state='" + item.state + "'>"
+                            list += "  <div class='card-body'>"
+                            list += "    <h5 class='card-title'>Вихід №" + item.index + "</h5>"
+                            //list += "    <p class='card-text'>Керування виходои</p>"
+
+
                             list += "<label class=" + item.type + ">";
                             list += "<input type='checkbox' class='switch-checkbox' id='switch_" + item.index + "'data-switch='" + item.index + "' data-state='" + item.state + "'/>";
                             list += "<span class='slider'></span>";
                             list += "</label>";
-                            list += "</li>";
+
+                            list += "  </div>"
+                            list += "  <ul class='list-group list-group-flush'>"
+                            list += "    <li class='list-group-item'><a href='#' class='card-link'>Графік</a></li>"
+                            //list += "    <li class='list-group-item'><a href='#' class='card-link'>Налаштування</a></li>"
+                            list += "  </ul>"
+                            //list += "  <div class='card-body'>"
+                            //list += "    <a href='#' class='card-link'>Card link</a>"
+                            //list += "    <a href='#' class='card-link'>Another link</a>"
+                            //list += "  </div>"
+                            list += "</div>"
+
+
                         } else {
                             list += "<li class='nav-item'>";
                             list += item.name;
@@ -33,6 +61,7 @@ class Relay {
                 };
                 $(".process-list").html(list);
                 $(".switch-checkbox[data-state='ON']").prop("checked", true);
+                $("img[data-state='ON']").removeClass("light-off");
                 $(".switch-checkbox").change(function () {
                     if (this.checked) {
                         Relay.relay.turnOn($(this).data("switch"))
@@ -57,6 +86,7 @@ class Relay {
         $.post(Relay.relay.rooturl + "switches" + "?index=" + i.toString() + "&state=on").done(
             function (data: any, status: any) {
                 $("#switch_" + i.toString()).data("state", "ON");
+                $("#switch_img_" + i.toString()).removeClass("light-off").addClass("light-on")
             }
         ).fail(
             function (data: any, status: any) {
@@ -74,6 +104,7 @@ class Relay {
         $.post(Relay.relay.rooturl + "switches" + "?index=" + i.toString() + "&state=off").done(
             function (data: any, status: any) {
                 $("#switch_" + i.toString()).data("state", "OFF");
+                $("#switch_img_" + i.toString()).removeClass("light-on").addClass("light-off")
             }
         ).fail(
             function (data: any, status: any) {

@@ -14,6 +14,7 @@
 #include "MQTTswitch.h"
 #include "WebPortal.h"
 #include "Json.h"
+#include "NTPreciver.h"
 
 MQTTconnection mqtt_connection = MQTTconnection();
 /****************************** Feeds ***************************************/
@@ -23,6 +24,8 @@ Adafruit_MQTT_Publish * photocell;// = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME
 
 void handleGetSwitches();
 void handleSetSwitches();
+
+NTPreciver NTP;
 
 void setup() {
 	Serial.begin(115200);
@@ -45,6 +48,7 @@ void setup() {
 
 	server.setup();
 	mqtt_connection.setup();
+	NTP.setup();
 
 	mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out1", D5));
 	mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out2", D6));
@@ -126,6 +130,7 @@ unsigned long lastInfo = 0;
 
 void loop() {
 	server.loop();
+	NTP.loop();
 	if (mqtt_connection.loop()) {
 		mqtt_connection.process();
 

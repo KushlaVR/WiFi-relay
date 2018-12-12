@@ -52,19 +52,33 @@
         <div class="row">
             <div class="col-sm-12 text-center">
                 <h2>Стан виходів</h2>
-                <ul class="nav nav-pills flex-column process-list">
-                    <li class="nav-item">Завантаження...</li>
-                </ul>
-                <div class="input-group clockpicker">
-                    <input type="text" class="form-control" value="23:30">
-                    <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-time"></span>
-                    </span>
+                <div class="card-deck process-list">
+                    <h5>Завантаження...</h5>
                 </div>
+                <!--<div class="input-group clockpicker">
+                <input type="text" class="form-control" value="23:30">
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-time"></span>
+                </span>
+            </div>-->
+            </div>
+        </div>
+        <br />
+        <br />
+    </div>
+
+    <div class="jumbotron text-center" style="margin-bottom:0">
+        <div class="container container-fluid">
+            <div class="row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4"></div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 text-secondary text-right">Версія: v 1.1.pre alpa</div>
             </div>
         </div>
     </div>
-    <div class="text-secondary text-right">v 1.1.pre alpa</div>
     <script type="text/javascript">
         $('.clockpicker').clockpicker();
         Relay.relay.init();

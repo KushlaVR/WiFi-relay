@@ -80,3 +80,10 @@ input:checked + .slider:before {
     margin-right: 10px;
     vertical-align: middle;
 }
+
+.light-on{
+
+}
+.light-off{
+    filter:grayscale(100%);
+}

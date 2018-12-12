@@ -93,7 +93,6 @@ namespace WebAdmin.Controllers
         [HttpGet()]
         public IActionResult switches()
         {
-            //return Content("{\"items\":[{\"name\":\"out1\",\"type\":\"switch\",\"state\":\"OFF\",\"index\":\"1\",\"visual\":\"switch\"},{\"name\":\"out2\",\"type\":\"switch\",\"state\":\"OFF\",\"index\":\"2\",\"visual\":\"switch\"},{\"name\":\"out3\",\"type\":\"switch\",\"state\":\"OFF\",\"index\":\"3\",\"visual\":\"switch\"},{\"name\":\"led\",\"type\":\"switch\",\"state\":\"ON\",\"index\":\"4\",\"visual\":\"switch\"}]}", new Microsoft.Net.Http.Headers.MediaTypeHeaderValue("application/json"));
             return new JsonResult(new { items = items });
         }
 

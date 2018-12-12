@@ -1,4 +1,4 @@
-var Relay = /** @class */ (function () {
+var Relay = (function () {
     function Relay() {
         this.rooturl = "api/";
     }
@@ -13,13 +13,19 @@ var Relay = /** @class */ (function () {
                 var item = w.items[i];
                 if (item.visual) {
                     if (item.visual == "switch") {
-                        list += "<li class='nav-item'>";
-                        list += "<span class='name h4'>Вихід №" + item.index + "</span>";
+                        list += "<div class='card' style='width: 18rem;'>";
+                        list += "  <img class='card-img-top light-off' src='/content/idea.svg' alt='Вимикач' id='switch_img_" + item.index + "' data-state='" + item.state + "'>";
+                        list += "  <div class='card-body'>";
+                        list += "    <h5 class='card-title'>Вихід №" + item.index + "</h5>";
                         list += "<label class=" + item.type + ">";
                         list += "<input type='checkbox' class='switch-checkbox' id='switch_" + item.index + "'data-switch='" + item.index + "' data-state='" + item.state + "'/>";
                         list += "<span class='slider'></span>";
                         list += "</label>";
-                        list += "</li>";
+                        list += "  </div>";
+                        list += "  <ul class='list-group list-group-flush'>";
+                        list += "    <li class='list-group-item'><a href='#' class='card-link'>Графік</a></li>";
+                        list += "  </ul>";
+                        list += "</div>";
                     }
                     else {
                         list += "<li class='nav-item'>";
@@ -31,6 +37,7 @@ var Relay = /** @class */ (function () {
             ;
             $(".process-list").html(list);
             $(".switch-checkbox[data-state='ON']").prop("checked", true);
+            $("img[data-state='ON']").removeClass("light-off");
             $(".switch-checkbox").change(function () {
                 if (this.checked) {
                     Relay.relay.turnOn($(this).data("switch"));
@@ -52,6 +59,7 @@ var Relay = /** @class */ (function () {
         console.log("turn on");
         $.post(Relay.relay.rooturl + "switches" + "?index=" + i.toString() + "&state=on").done(function (data, status) {
             $("#switch_" + i.toString()).data("state", "ON");
+            $("#switch_img_" + i.toString()).removeClass("light-off").addClass("light-on");
         }).fail(function (data, status) {
             $("#switch_" + i.toString()).prop("checked", false);
         });
@@ -63,6 +71,7 @@ var Relay = /** @class */ (function () {
         console.log("turn off");
         $.post(Relay.relay.rooturl + "switches" + "?index=" + i.toString() + "&state=off").done(function (data, status) {
             $("#switch_" + i.toString()).data("state", "OFF");
+            $("#switch_img_" + i.toString()).removeClass("light-on").addClass("light-off");
         }).fail(function (data, status) {
             $("#switch_" + i.toString()).prop("checked", true);
         });
@@ -71,7 +80,6 @@ var Relay = /** @class */ (function () {
     Relay.prototype.wifi = function () {
         $.get(Relay.relay.rooturl + "wifi").done(function (data, status) {
             var w = data;
-            //alert("Done: " + data + "\nStatus: " + status);
             var list = "";
             for (var i = 0; i < w.ssid.length; i++) {
                 list += "<a class='wifi-item list-group-item' href='#'>";
@@ -96,19 +104,18 @@ var Relay = /** @class */ (function () {
                 $('#password').focus();
             });
         }).fail(function (data, status) {
-            //alert("Error: " + data + "\nStatus: " + status);
             $(".wifi-list").html("Не вдалось завантажити список мереж.<br />Поновіть сторінку, щоб повторити спробу.");
         });
     };
     Relay.relay = new Relay();
     return Relay;
 }());
-var WIFI_list = /** @class */ (function () {
+var WIFI_list = (function () {
     function WIFI_list() {
     }
     return WIFI_list;
 }());
-var Items_list = /** @class */ (function () {
+var Items_list = (function () {
     function Items_list() {
     }
     return Items_list;

@@ -111,6 +111,7 @@
     <ClInclude Include="MQTTconnection.h" />
     <ClInclude Include="MQTTprocess.h" />
     <ClInclude Include="MQTTswitch.h" />
+    <ClInclude Include="NTPreciver.h" />
     <ClInclude Include="WebPortal.h" />
     <ClInclude Include="__vm\.MQTT-Relay.vsarduino.h" />
   </ItemGroup>
@@ -123,6 +124,7 @@
     <ClCompile Include="MQTTconnection.cpp" />
     <ClCompile Include="MQTTprocess.cpp" />
     <ClCompile Include="MQTTswitch.cpp" />
+    <ClCompile Include="NTPreciver.cpp" />
     <ClCompile Include="WebPortal.cpp" />
   </ItemGroup>
   <ItemGroup>
