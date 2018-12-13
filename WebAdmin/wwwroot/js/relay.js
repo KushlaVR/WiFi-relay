@@ -1,9 +1,19 @@
 var Relay = (function () {
     function Relay() {
         this.rooturl = "api/";
+        this.templates = new Array();
+        this.triggers = new Array();
     }
     Relay.prototype.init = function () {
-        Relay.relay.loadProcesses();
+        var setup = this.getUrlParameter("setup");
+        if (setup === undefined) {
+            $("#pageHeader").html("Стан виходів");
+            this.loadProcesses();
+        }
+        else {
+            $("#pageHeader").html("Налаштування");
+            this.loadSetup(setup, this.getUrlParameter("index"));
+        }
     };
     Relay.prototype.loadProcesses = function () {
         $.get(Relay.relay.rooturl + "switches").done(function (data, status) {
@@ -13,7 +23,7 @@ var Relay = (function () {
                 var item = w.items[i];
                 if (item.visual) {
                     if (item.visual == "switch") {
-                        list += "<div class='card' style='width: 18rem;'>";
+                        list += "<div class='card m-3' style='width: 18rem; display:inline-block;'>";
                         list += "  <img class='card-img-top light-off' src='/content/idea.svg' alt='Вимикач' id='switch_img_" + item.index + "' data-state='" + item.state + "'>";
                         list += "  <div class='card-body'>";
                         list += "    <h5 class='card-title'>Вихід №" + item.index + "</h5>";
@@ -23,7 +33,7 @@ var Relay = (function () {
                         list += "</label>";
                         list += "  </div>";
                         list += "  <ul class='list-group list-group-flush'>";
-                        list += "    <li class='list-group-item'><a href='#' class='card-link'>Графік</a></li>";
+                        list += "    <li class='list-group-item'><a href='/index.html?setup=switch&index=" + item.index + "' class='card-link'>Налаштувати</a></li>";
                         list += "  </ul>";
                         list += "</div>";
                     }
@@ -52,6 +62,97 @@ var Relay = (function () {
                 Relay.relay.loadProcesses();
             });
         });
+    };
+    Relay.prototype.getTemplate = function (s) {
+        for (var i = 0; i < this.templates.length; i++) {
+            var item = this.templates[i];
+            if (item.key === s) {
+                return item.value;
+            }
+        }
+        ;
+        return undefined;
+    };
+    Relay.prototype.loadTemplateByName = function (name) {
+        $.get(Relay.relay.rooturl + "template?name=" + name).done(function (data, status) {
+            var item = new keyValue();
+            item.key = data.name;
+            item.value = data.html;
+            Relay.relay.templates.push(item);
+            Relay.relay.loadTemplate();
+        }).fail(function (data, status) {
+            $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
+            $(".switch-checkbox").click(function () {
+                Relay.relay.loadTemplate();
+            });
+        });
+    };
+    Relay.prototype.loadTemplate = function () {
+        var _this = this;
+        var allReady = true;
+        for (var i = 0; i < this.triggers.length; i++) {
+            var item = this.triggers[i];
+            var t = this.getTemplate(item.template);
+            if (t === undefined) {
+                allReady = false;
+                this.loadTemplateByName(item.template);
+            }
+            t = this.getTemplate(item.editingtemplate);
+            if (t === undefined) {
+                allReady = false;
+                this.loadTemplateByName(item.editingtemplate);
+            }
+        }
+        ;
+        if (allReady === true) {
+            var list = "";
+            for (var i = 0; i < this.triggers.length; i++) {
+                var item = this.triggers[i];
+                var t = this.getTemplate(item.template);
+                list += this.fillTemplate(t, item);
+            }
+            $(".process-list").html(list);
+            $(".btn-edit").click(function (e) {
+                Relay.relay.edit(_this);
+            });
+        }
+    };
+    Relay.prototype.fillTemplate = function (t, item) {
+        return t.replace("#name#", item.name)
+            .replace("#action#", item.action)
+            .replace("#type#", item.type)
+            .replace("#desc#", item.desc);
+    };
+    Relay.prototype.edit = function (e) {
+        console.log("edit");
+    };
+    Relay.prototype.loadSetup = function (setup, index) {
+        $.get(Relay.relay.rooturl + "setup?type=switch&index=" + index.toString()).done(function (data, status) {
+            for (var i = 0; i < data.items.length; i++) {
+                var item = data.items[i];
+                Relay.relay.triggers.push(item);
+            }
+            ;
+            Relay.relay.loadTemplate();
+        }).fail(function (data, status) {
+            $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
+            $(".switch-checkbox").click(function () {
+                Relay.relay.loadSetup(setup, index);
+            });
+        });
+    };
+    Relay.prototype.getUrlParameter = function (sParam) {
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        var sParameterName;
+        var i;
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === sParam) {
+                return (sParameterName[1] === undefined) ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+        return undefined;
     };
     Relay.prototype.turnOn = function (i) {
         if ($("#switch_" + i.toString()).data("state") == "ON")
@@ -119,5 +220,15 @@ var Items_list = (function () {
     function Items_list() {
     }
     return Items_list;
+}());
+var keyValue = (function () {
+    function keyValue() {
+    }
+    return keyValue;
+}());
+var Trigger = (function () {
+    function Trigger() {
+    }
+    return Trigger;
 }());
 //# sourceMappingURL=relay.js.map

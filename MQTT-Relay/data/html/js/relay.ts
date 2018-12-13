@@ -34,6 +34,7 @@ class Relay {
                             list += "    <h5 class='card-title'>Вихід №" + item.index + "</h5>"
                             //list += "    <p class='card-text'>Керування виходои</p>"
 
+
                             list += "<label class=" + item.type + ">";
                             list += "<input type='checkbox' class='switch-checkbox' id='switch_" + item.index + "'data-switch='" + item.index + "' data-state='" + item.state + "'/>";
                             list += "<span class='slider'></span>";

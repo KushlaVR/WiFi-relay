@@ -5,7 +5,14 @@ class Relay {
     public static relay: Relay = new Relay();
 
     public init(): void {
-        Relay.relay.loadProcesses();
+        let setup: any = this.getUrlParameter("setup");
+        if (setup === undefined) {
+            $("#pageHeader").html("Стан виходів");
+            this.loadProcesses();
+        } else {
+            $("#pageHeader").html("Налаштування");
+            this.loadSetup(setup, this.getUrlParameter("index"));
+        }
     }
 
     public loadProcesses(): void {
@@ -17,23 +24,10 @@ class Relay {
                     let item: any = w.items[i];
                     if (item.visual) {
                         if (item.visual == "switch") {
-                            //list += "<li class='nav-item'>";
-                            //list += "<span class='name h4'>Вихід №" + item.index + "</span>";
-                            //list += "<label class=" + item.type + ">";
-                            //list += "<input type='checkbox' class='switch-checkbox' id='switch_" + item.index + "'data-switch='" + item.index + "' data-state='" + item.state + "'/>";
-                            //list += "<span class='slider'></span>";
-                            //list += "</label>";
-                            //list += "<span class='item-info'>" + item.info + "</span>";
-                            //list += "<button class='item-setup'></span>";
-                            //list += "</li>";
-
-
-                            list += "<div class='card' style='width: 18rem;'>"
+                            list += "<div class='card m-3' style='width: 18rem; display:inline-block;'>"
                             list += "  <img class='card-img-top light-off' src='/content/idea.svg' alt='Вимикач' id='switch_img_" + item.index + "' data-state='" + item.state + "'>"
                             list += "  <div class='card-body'>"
                             list += "    <h5 class='card-title'>Вихід №" + item.index + "</h5>"
-                            //list += "    <p class='card-text'>Керування виходои</p>"
-
 
                             list += "<label class=" + item.type + ">";
                             list += "<input type='checkbox' class='switch-checkbox' id='switch_" + item.index + "'data-switch='" + item.index + "' data-state='" + item.state + "'/>";
@@ -42,15 +36,9 @@ class Relay {
 
                             list += "  </div>"
                             list += "  <ul class='list-group list-group-flush'>"
-                            list += "    <li class='list-group-item'><a href='#' class='card-link'>Графік</a></li>"
-                            //list += "    <li class='list-group-item'><a href='#' class='card-link'>Налаштування</a></li>"
+                            list += "    <li class='list-group-item'><a href='/index.html?setup=switch&index=" + item.index + "' class='card-link'>Налаштувати</a></li>"
                             list += "  </ul>"
-                            //list += "  <div class='card-body'>"
-                            //list += "    <a href='#' class='card-link'>Card link</a>"
-                            //list += "    <a href='#' class='card-link'>Another link</a>"
-                            //list += "  </div>"
                             list += "</div>"
-
 
                         } else {
                             list += "<li class='nav-item'>";
@@ -77,6 +65,116 @@ class Relay {
             });
         }
         );
+    }
+
+    private templates: Array<keyValue> = new Array<keyValue>();
+    public triggers: Array<Trigger> = new Array<Trigger>();
+
+    private getTemplate(s: string): string {
+        for (let i: number = 0; i < this.templates.length; i++) {
+            let item: keyValue = this.templates[i];
+            if (item.key === s) {
+                return item.value;
+            }
+        };
+        return undefined;
+    }
+
+    public loadTemplateByName(name: string): void {
+
+        $.get(Relay.relay.rooturl + "template?name=" + name).done(
+            function (data: any, status: any) {
+                let item: keyValue = new keyValue();
+                item.key = data.name;
+                item.value = data.html;
+                Relay.relay.templates.push(item)
+                Relay.relay.loadTemplate();
+            }
+        ).fail(function (data: any, status: any) {
+            $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
+            $(".switch-checkbox").click(function () {
+                Relay.relay.loadTemplate();
+            });
+        }
+        );
+
+    }
+
+    public loadTemplate(): void {
+        let allReady: boolean = true;
+        for (let i: number = 0; i < this.triggers.length; i++) {
+            let item: Trigger = this.triggers[i];
+            let t: string = this.getTemplate(item.template);
+            if (t === undefined) {
+                allReady = false;
+                this.loadTemplateByName(item.template);
+            }
+
+            t = this.getTemplate(item.editingtemplate);
+            if (t === undefined) {
+                allReady = false;
+                this.loadTemplateByName(item.editingtemplate);
+            }
+        };
+        if (allReady === true) {
+            let list: string = "";
+
+            for (let i: number = 0; i < this.triggers.length; i++) {
+                let item: Trigger = this.triggers[i];
+                let t: string = this.getTemplate(item.template);
+                list += this.fillTemplate(t, item);
+            }
+
+            $(".process-list").html(list);
+            $(".btn-edit").click((e) => {
+                Relay.relay.edit(this);
+            })
+        }
+    }
+
+    private fillTemplate(t: string, item: Trigger): string {
+        return t.replace("#name#", item.name)
+            .replace("#action#", item.action)
+            .replace("#type#", item.type)
+            .replace("#desc#", item.desc)
+    }
+
+    public edit(e:any): void {
+        console.log("edit");
+
+    }
+
+    public loadSetup(setup: any, index: number): void {
+        $.get(Relay.relay.rooturl + "setup?type=switch&index=" + index.toString()).done(
+            function (data: any, status: any) {
+                for (let i: number = 0; i < data.items.length; i++) {
+                    let item: Trigger = data.items[i];
+                    Relay.relay.triggers.push(item);
+                };
+                Relay.relay.loadTemplate();
+            }
+        ).fail(function (data: any, status: any) {
+            $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
+            $(".switch-checkbox").click(function () {
+                Relay.relay.loadSetup(setup, index);
+            });
+        }
+        );
+    }
+
+    public getUrlParameter(sParam): any {
+        let sPageURL: string = window.location.search.substring(1);
+        let sURLVariables: string[] = sPageURL.split('&');
+        let sParameterName: string[];
+        let i: number;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === sParam) {
+                return (sParameterName[1] === undefined) ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+        return undefined;
     }
 
     public turnOn(i: number): boolean {
@@ -157,4 +255,18 @@ class WIFI_list {
 
 class Items_list {
     public items: Array<any>;
+}
+
+class keyValue {
+    public key: string;
+    public value: any;
+}
+
+class Trigger {
+    public name: string;
+    public desc: string;
+    public type: string;
+    public action: string;
+    public template: string;
+    public editingtemplate: string;
 }

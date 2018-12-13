@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\content\switch.txt" />
+    <None Include="wwwroot\content\_trigger.html" />
     <None Include="wwwroot\css\bootstrap.css" />
     <None Include="wwwroot\css\clockpicker.css" />
     <None Include="wwwroot\css\style.css" />

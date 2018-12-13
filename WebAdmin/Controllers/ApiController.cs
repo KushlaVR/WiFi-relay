@@ -14,6 +14,28 @@ namespace WebAdmin.Controllers
     public class ApiController : Controller
     {
 
+        public class Trigger
+        {
+
+            public string name { get; set; }
+            public string desc { get; set; }
+            /// <summary>
+            /// once, day, weekDay, 
+            /// </summary>
+            public string type { get; set; } = "once";
+
+            /// <summary>
+            /// on, off
+            /// </summary>
+            public string action { get; set; }
+
+
+            public string template { get; set; } = "trigger";
+            public string editingtemplate { get; set; } = "edittrigger";
+
+
+        }
+
         public class MQTTProcess
         {
             public string name { get; set; }
@@ -110,6 +132,28 @@ namespace WebAdmin.Controllers
             return NotFound();
         }
 
+        [HttpGet()]
+        public IActionResult template(string name)
+        {
+            var webRoot = _env.WebRootPath;
+            var file = System.IO.Path.Combine(webRoot, "content/_" + name + ".html");
+            //System.IO.File.WriteAllText(file, "Hello World!");
+            return Json(new { name = name, html = System.IO.File.ReadAllText(file) });
+        }
+
+
+        [HttpGet()]
+        public IActionResult setup(string type, int? index)
+        {
+            List<Trigger> list = new List<Trigger>();
+            list.Add(new Trigger() { name = "Включити зранку", type = "day", action = "on", desc="Щодня" });
+            list.Add(new Trigger() { name = "Виключити зранку", type = "day", action = "off", desc = "Щодня" });
+            list.Add(new Trigger() { name = "Включити вечером", type = "once", action = "on", desc = "Разово" });
+            list.Add(new Trigger() { name = "Включити вечером", type = "once", action = "off", desc = "Разово" });
+            list.Add(new Trigger() { name = "Включити", type = "hour", action = "on", desc = "Щогодини" });
+            list.Add(new Trigger() { name = "Виключити", type = "hour", action = "off", desc = "Щогодини" });
+            return Json(new { items = list.ToArray() });
+        }
 
     }
 }
