@@ -74,6 +74,7 @@ public:
 	static void handleWifiSave();
 	static void handleNotFound();
 	static void handleUpdate();
+	static void handleTemplate();
 	static void updateFiles(String url);
 	static void updateFile(String url, String file);
 

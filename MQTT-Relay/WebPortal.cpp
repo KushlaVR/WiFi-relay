@@ -333,7 +333,21 @@ void WebPortal::handleUpdate() {
 	}
 }
 
-
+void WebPortal::handleTemplate() {
+	String name = "";
+	if (server.hasArg("name")) {
+		name = server.arg("name");
+		String path = "/html/content/" + name + ".html";
+		if (SPIFFS.exists(path)) {
+			char* contentType = server.getContentType(path);
+			File f = SPIFFS.open("/html/files.txt", "r");
+			server.sendFile(f, contentType, false);
+			f.close();
+			return;
+		}
+	}
+	handleNotFound();
+}
 
 void WebPortal::updateFiles(String url) {
 	updateFile(url, "/html/files.txt");
@@ -385,7 +399,7 @@ void WebPortal::updateFile(String url, String file) {
 		}
 	}
 
-	Serial.printf("[HTTPS] GET: %s\n",action.c_str());
+	Serial.printf("[HTTPS] GET: %s\n", action.c_str());
 	File f = SPIFFS.open(file, "w");
 	if (f) {
 		uint8_t buff[128];
