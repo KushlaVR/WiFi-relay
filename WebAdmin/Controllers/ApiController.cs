@@ -16,7 +16,14 @@ namespace WebAdmin.Controllers
 
         public class Trigger
         {
+            private static int _uid = 0;
 
+            public Trigger() {
+                _uid++;
+                uid = _uid.ToString();
+            }
+
+            public string uid { get; set; }
             public string name { get; set; }
             public string desc { get; set; }
             /// <summary>
@@ -146,7 +153,7 @@ namespace WebAdmin.Controllers
         public IActionResult setup(string type, int? index)
         {
             List<Trigger> list = new List<Trigger>();
-            list.Add(new Trigger() { name = "Включити зранку", type = "day", action = "on", desc="Щодня" });
+            list.Add(new Trigger() { name = "Включити зранку", type = "day", action = "on", desc = "Щодня" });
             list.Add(new Trigger() { name = "Виключити зранку", type = "day", action = "off", desc = "Щодня" });
             list.Add(new Trigger() { name = "Включити вечером", type = "once", action = "on", desc = "Разово" });
             list.Add(new Trigger() { name = "Включити вечером", type = "once", action = "off", desc = "Разово" });

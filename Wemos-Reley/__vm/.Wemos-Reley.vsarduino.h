@@ -1,5 +1,5 @@
 /* 
-	Editor: http://www.visualmicro.com
+	Editor: https://www.visualmicro.com/
 			visual micro and the arduino ide ignore this code during compilation. this code is automatically maintained by visualmicro, manual changes to this file will be overwritten
 			the contents of the Visual Micro sketch sub folder can be deleted prior to publishing a project
 			all non-arduino files created by visual micro and all visual studio project or solution files can be freely deleted and are not required to compile a sketch (do not delete your own code!).
@@ -14,12 +14,13 @@
 #define _VSARDUINO_H_
 #define __ESP8266_ESp8266__
 #define __ESP8266_ESP8266__
+#define _VMDEBUG 1
 #define __ets__
 #define ICACHE_FLASH
 #define F_CPU 80000000L
 #define LWIP_OPEN_SRC
 #define TCP_MSS 536
-#define ARDUINO 106013
+#define ARDUINO 10806
 #define ARDUINO_ESP8266_WEMOS_D1MINI
 #define ARDUINO_ARCH_ESP8266
 #define ESP8266
@@ -48,7 +49,8 @@
 #define _Lockit
 #define __CLR_OR_THIS_CALL
 #define C4005
-//
+#define _NEW
+
 //typedef int uint8_t;
 //#define __ARMCC_VERSION 400678
 //#define PROGMEM

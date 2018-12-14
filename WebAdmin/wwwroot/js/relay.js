@@ -88,7 +88,6 @@ var Relay = (function () {
         });
     };
     Relay.prototype.loadTemplate = function () {
-        var _this = this;
         var allReady = true;
         for (var i = 0; i < this.triggers.length; i++) {
             var item = this.triggers[i];
@@ -96,11 +95,13 @@ var Relay = (function () {
             if (t === undefined) {
                 allReady = false;
                 this.loadTemplateByName(item.template);
+                return;
             }
             t = this.getTemplate(item.editingtemplate);
             if (t === undefined) {
                 allReady = false;
                 this.loadTemplateByName(item.editingtemplate);
+                return;
             }
         }
         ;
@@ -109,11 +110,11 @@ var Relay = (function () {
             for (var i = 0; i < this.triggers.length; i++) {
                 var item = this.triggers[i];
                 var t = this.getTemplate(item.template);
-                list += this.fillTemplate(t, item);
+                list += "<div style='display:inline-block;' class='holder' id='trigger_" + item.uid + "' data-index='" + i.toString() + "'>" + this.fillTemplate(t, item) + "</div>";
             }
             $(".process-list").html(list);
             $(".btn-edit").click(function (e) {
-                Relay.relay.edit(_this);
+                Relay.relay.edit(e);
             });
         }
     };
@@ -125,6 +126,11 @@ var Relay = (function () {
     };
     Relay.prototype.edit = function (e) {
         console.log("edit");
+        var holder = $(e.target).closest(".holder");
+        var i = holder.data("index");
+        var item = this.triggers[i];
+        var t = this.getTemplate(item.editingtemplate);
+        holder.html(this.fillTemplate(t, item));
     };
     Relay.prototype.loadSetup = function (setup, index) {
         $.get(Relay.relay.rooturl + "setup?type=switch&index=" + index.toString()).done(function (data, status) {
