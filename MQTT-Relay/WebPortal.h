@@ -75,6 +75,7 @@ public:
 	static void handleNotFound();
 	static void handleUpdate();
 	static void handleTemplate();
+	static void handleSetup();
 	static void updateFiles(String url);
 	static void updateFile(String url, String file);
 

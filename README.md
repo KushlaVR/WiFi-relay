@@ -21,3 +21,15 @@
 	3. GET api/swithces - перелік усіх доступних функцій приладу
 	4. POST api/swithces?name=outName&...   - задати значення однієї із функцій приладу
 	5. GET api/template?name=templatename    - return file _templatename.html from html/content folder
+
+
+## Тригери		
+### Інтервал		
+	Інтервал	0:12:00
+	Тривалість	0:06:00
+### Включити/Виключити		
+	Година	17:00
+### Включити/Виключити		
+	Змінна	Т
+	Умова	>, <, =
+	Значення	12

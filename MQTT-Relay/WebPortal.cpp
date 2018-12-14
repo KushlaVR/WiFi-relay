@@ -108,6 +108,8 @@ void WebPortal::setup() {
 	on("/", handleRoot);
 	on("/api/wifi", handleWifi);
 	on("/api/wifisave", handleWifiSave);
+	on("/api/template", handleTemplate);
+	on("/api/setup", handleSetup);
 	on("/generate_204", handleRoot);  //Android captive portal. Maybe not needed. Might be handled by notFound handler.
 	on("/fwlink", handleRoot);  //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
 	on("/update", handleUpdate);
@@ -337,10 +339,13 @@ void WebPortal::handleTemplate() {
 	String name = "";
 	if (server.hasArg("name")) {
 		name = server.arg("name");
-		String path = "/html/content/" + name + ".html";
+		String path = "/html/content/_" + name + ".html";
+		Serial.printf("path=%s\n", path.c_str());
+
 		if (SPIFFS.exists(path)) {
+			Serial.printf("exist=%s\n", path.c_str());
 			char* contentType = server.getContentType(path);
-			File f = SPIFFS.open("/html/files.txt", "r");
+			File f = SPIFFS.open(path, "r");
 			server.sendFile(f, contentType, false);
 			f.close();
 			return;
@@ -348,6 +353,34 @@ void WebPortal::handleTemplate() {
 	}
 	handleNotFound();
 }
+
+
+void WebPortal::handleSetup() {
+	String name = "";
+	if (server.hasArg("type")) {
+		name = server.arg("type");
+		Serial.printf("setup: name=%s\n", name.c_str());
+		int index = server.arg("index").toInt();
+
+		JsonString ret = "";
+
+		ret.beginObject();
+
+		ret.beginArray("items");
+		ret.endArray();
+
+		ret.endObject();
+
+
+		Serial.printf("setup: ret=%s\n", ret.c_str());
+
+		server.send(200, "application/json", ret);
+		return;
+	}
+	handleNotFound();
+}
+
+
 
 void WebPortal::updateFiles(String url) {
 	updateFile(url, "/html/files.txt");

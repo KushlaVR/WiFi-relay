@@ -82,7 +82,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="data\html\content\switch.txt" />
     <Text Include="data\html\files.txt" />
   </ItemGroup>
   <ItemGroup>

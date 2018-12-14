@@ -1,0 +1,27 @@
+﻿<div class="card border-primary m-3" style="width: 18rem;">
+    <div class="card-header">Тригер: <input type="text" name="name" value="@name@"/></div>
+    <div class="card-body text-primary">
+        <div class="card-title">
+            <div class="dropdown h5">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                    @desc@
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="№">Інтервал</a></li>
+                    <li><a href="#">Раз на годину</a></li>
+                    <li><a href="#">Раз на день</a></li>
+                </ul>
+            </div>
+        </div>
+        <p class="card-text">
+            <label class="switch">
+                <input type="checkbox" class="switch-checkbox" data-action="@action@" />
+                <span class="slider"></span>
+            </label>
+        </p>
+    </div>
+    <ul class='list-group list-group-flush'>
+        <li class='list-group-item text-right'><a href='#' class='card-link btn-save'>Записати</a></li>
+    </ul>
+</div>

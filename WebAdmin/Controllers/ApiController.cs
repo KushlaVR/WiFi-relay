@@ -18,7 +18,8 @@ namespace WebAdmin.Controllers
         {
             private static int _uid = 0;
 
-            public Trigger() {
+            public Trigger()
+            {
                 _uid++;
                 uid = _uid.ToString();
             }
@@ -145,7 +146,7 @@ namespace WebAdmin.Controllers
             var webRoot = _env.WebRootPath;
             var file = System.IO.Path.Combine(webRoot, "content/_" + name + ".html");
             //System.IO.File.WriteAllText(file, "Hello World!");
-            return Json(new { name = name, html = System.IO.File.ReadAllText(file) });
+            return Content(System.IO.File.ReadAllText(file));
         }
 
 

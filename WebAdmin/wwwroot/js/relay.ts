@@ -7,7 +7,7 @@
         let setup: any = this.getUrlParameter("setup");
         if (setup === undefined) {
             $("#pageHeader").html("Стан виходів");
-            this.loadProcesses();
+            this.loadTemplateByName("switch", this.loadProcesses);
         } else {
             $("#pageHeader").html("Налаштування");
             this.loadSetup(setup, this.getUrlParameter("index"));
@@ -21,28 +21,15 @@
                 let list: string = "";
                 for (let i: number = 0; i < w.items.length; i++) {
                     let item: any = w.items[i];
+
                     if (item.visual) {
-                        if (item.visual == "switch") {
-                            list += "<div class='card m-3' style='width: 18rem; display:inline-block;'>"
-                            list += "  <img class='card-img-top light-off' src='/content/idea.svg' alt='Вимикач' id='switch_img_" + item.index + "' data-state='" + item.state + "'>"
-                            list += "  <div class='card-body'>"
-                            list += "    <h5 class='card-title'>Вихід №" + item.index + "</h5>"
-
-                            list += "<label class=" + item.type + ">";
-                            list += "<input type='checkbox' class='switch-checkbox' id='switch_" + item.index + "'data-switch='" + item.index + "' data-state='" + item.state + "'/>";
-                            list += "<span class='slider'></span>";
-                            list += "</label>";
-
-                            list += "  </div>"
-                            list += "  <ul class='list-group list-group-flush'>"
-                            list += "    <li class='list-group-item'><a href='/index.html?setup=switch&index=" + item.index + "' class='card-link'>Налаштувати</a></li>"
-                            list += "  </ul>"
-                            list += "</div>"
-
-                        } else {
+                        let t: string = Relay.relay.getTemplate(item.visual);
+                        if (t === undefined) {
                             list += "<li class='nav-item'>";
                             list += item.name;
                             list += "</li>";
+                        } else {
+                            list += Relay.relay.fillTemplate(t, item);
                         }
                     }
                 };
@@ -79,74 +66,83 @@
         return undefined;
     }
 
-    public loadTemplateByName(name: string): void {
+    public loadTemplateByName(name: string, onDone: any): void {
 
         $.get(Relay.relay.rooturl + "template?name=" + name).done(
             function (data: any, status: any) {
                 let item: keyValue = new keyValue();
-                item.key = data.name;
-                item.value = data.html;
-                Relay.relay.templates.push(item)
-                Relay.relay.loadTemplate();
+                item.key = name;
+                item.value = data;
+                Relay.relay.templates.push(item);
+                onDone();
             }
         ).fail(function (data: any, status: any) {
             $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
             $(".switch-checkbox").click(function () {
-                Relay.relay.loadTemplate();
+                Relay.relay.loadTriggerTemplate();
             });
         }
         );
 
     }
 
-    public loadTemplate(): void {
+    public loadTriggerTemplate(): void {
         let allReady: boolean = true;
-        for (let i: number = 0; i < this.triggers.length; i++) {
-            let item: Trigger = this.triggers[i];
-            let t: string = this.getTemplate(item.template);
+        for (let i: number = 0; i < Relay.relay.triggers.length; i++) {
+            let item: Trigger = Relay.relay.triggers[i];
+            let t: string = Relay.relay.getTemplate(item.template);
             if (t === undefined) {
                 allReady = false;
-                this.loadTemplateByName(item.template);
+                Relay.relay.loadTemplateByName(item.template, Relay.relay.loadTriggerTemplate);
                 return;
             }
 
-            t = this.getTemplate(item.editingtemplate);
+            t = Relay.relay.getTemplate(item.editingtemplate);
             if (t === undefined) {
                 allReady = false;
-                this.loadTemplateByName(item.editingtemplate);
+                Relay.relay.loadTemplateByName(item.editingtemplate, Relay.relay.loadTriggerTemplate);
                 return;
             }
         };
         if (allReady === true) {
             let list: string = "";
 
-            for (let i: number = 0; i < this.triggers.length; i++) {
-                let item: Trigger = this.triggers[i];
-                let t: string = this.getTemplate(item.template);
-                list += "<div style='display:inline-block;' class='holder' id='trigger_" + item.uid + "' data-index='" + i.toString() + "'>" + this.fillTemplate(t, item) + "</div>";
+            for (let i: number = 0; i < Relay.relay.triggers.length; i++) {
+                let item: Trigger = Relay.relay.triggers[i];
+                let t: string = Relay.relay.getTemplate(item.template);
+                list += "<div style='display:inline-block;' class='holder' id='trigger_" + item.uid + "' data-index='" + i.toString() + "'>" + Relay.relay.fillTemplate(t, item) + "</div>";
             }
 
             $(".process-list").html(list);
             $(".btn-edit").click((e) => {
                 Relay.relay.edit(e);
-            })
+            });
+            $(".switch-checkbox[data-action='on']").prop("checked", true);
         }
     }
 
     private fillTemplate(t: string, item: Trigger): string {
-        return t.replace("#name#", item.name)
-            .replace("#action#", item.action)
-            .replace("#type#", item.type)
-            .replace("#desc#", item.desc)
+        let ret: string = t;
+        for (var key in item) {
+            let s: string = item[key];
+            let k: string = "@" + key + "@";
+            while (ret.indexOf(k) >= 0) {
+                ret = ret.replace(k, s);
+            }
+        }
+        return ret;
     }
 
     public edit(e: any): void {
         console.log("edit");
         let holder: JQuery = $(e.target).closest(".holder");
+        holder.data("edit", true);
+        $('.btn-edit').attr("disabled", "disabled");
         let i: number = holder.data("index");
         let item: Trigger = this.triggers[i];
         let t: string = this.getTemplate(item.editingtemplate);
         holder.html(this.fillTemplate(t, item));
+        $(".switch-checkbox[data-action='on']").prop("checked", true);
     }
 
     public loadSetup(setup: any, index: number): void {
@@ -156,7 +152,7 @@
                     let item: Trigger = data.items[i];
                     Relay.relay.triggers.push(item);
                 };
-                Relay.relay.loadTemplate();
+                Relay.relay.loadTriggerTemplate();
             }
         ).fail(function (data: any, status: any) {
             $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
