@@ -1,5 +1,4 @@
-
-class Relay {
+п»їclass Relay {
 
     private rooturl: String = "api/";
     public static relay: Relay = new Relay();
@@ -7,10 +6,10 @@ class Relay {
     public init(): void {
         let setup: any = this.getUrlParameter("setup");
         if (setup === undefined) {
-            $("#pageHeader").html("Стан виходів");
+            $("#pageHeader").html("РЎС‚Р°РЅ РІРёС…РѕРґС–РІ");
             this.loadProcesses();
         } else {
-            $("#pageHeader").html("Налаштування");
+            $("#pageHeader").html("РќР°Р»Р°С€С‚СѓРІР°РЅРЅСЏ");
             this.loadSetup(setup, this.getUrlParameter("index"));
         }
     }
@@ -25,9 +24,9 @@ class Relay {
                     if (item.visual) {
                         if (item.visual == "switch") {
                             list += "<div class='card m-3' style='width: 18rem; display:inline-block;'>"
-                            list += "  <img class='card-img-top light-off' src='/content/idea.svg' alt='Вимикач' id='switch_img_" + item.index + "' data-state='" + item.state + "'>"
+                            list += "  <img class='card-img-top light-off' src='/content/idea.svg' alt='Р’РёРјРёРєР°С‡' id='switch_img_" + item.index + "' data-state='" + item.state + "'>"
                             list += "  <div class='card-body'>"
-                            list += "    <h5 class='card-title'>Вихід №" + item.index + "</h5>"
+                            list += "    <h5 class='card-title'>Р’РёС…С–Рґ в„–" + item.index + "</h5>"
 
                             list += "<label class=" + item.type + ">";
                             list += "<input type='checkbox' class='switch-checkbox' id='switch_" + item.index + "'data-switch='" + item.index + "' data-state='" + item.state + "'/>";
@@ -36,7 +35,7 @@ class Relay {
 
                             list += "  </div>"
                             list += "  <ul class='list-group list-group-flush'>"
-                            list += "    <li class='list-group-item'><a href='/index.html?setup=switch&index=" + item.index + "' class='card-link'>Налаштувати</a></li>"
+                            list += "    <li class='list-group-item'><a href='/index.html?setup=switch&index=" + item.index + "' class='card-link'>РќР°Р»Р°С€С‚СѓРІР°С‚Рё</a></li>"
                             list += "  </ul>"
                             list += "</div>"
 
@@ -59,7 +58,7 @@ class Relay {
                 });
             }
         ).fail(function (data: any, status: any) {
-            $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
+            $(".process-list").html("РќРµ РІРґР°Р»РѕСЃСЊ Р·Р°РІР°РЅС‚Р°Р¶РёС‚Рё. <button class'btn btn-primary refresh'>РџРѕРІС‚РѕСЂРёС‚Рё</button>");
             $(".switch-checkbox").click(function () {
                 Relay.relay.loadProcesses();
             });
@@ -91,7 +90,7 @@ class Relay {
                 Relay.relay.loadTemplate();
             }
         ).fail(function (data: any, status: any) {
-            $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
+            $(".process-list").html("РќРµ РІРґР°Р»РѕСЃСЊ Р·Р°РІР°РЅС‚Р°Р¶РёС‚Рё. <button class'btn btn-primary refresh'>РџРѕРІС‚РѕСЂРёС‚Рё</button>");
             $(".switch-checkbox").click(function () {
                 Relay.relay.loadTemplate();
             });
@@ -108,12 +107,14 @@ class Relay {
             if (t === undefined) {
                 allReady = false;
                 this.loadTemplateByName(item.template);
+                return;
             }
 
             t = this.getTemplate(item.editingtemplate);
             if (t === undefined) {
                 allReady = false;
                 this.loadTemplateByName(item.editingtemplate);
+                return;
             }
         };
         if (allReady === true) {
@@ -122,12 +123,12 @@ class Relay {
             for (let i: number = 0; i < this.triggers.length; i++) {
                 let item: Trigger = this.triggers[i];
                 let t: string = this.getTemplate(item.template);
-                list += this.fillTemplate(t, item);
+                list += "<div style='display:inline-block;' class='holder' id='trigger_" + item.uid + "' data-index='" + i.toString() + "'>" + this.fillTemplate(t, item) + "</div>";
             }
 
             $(".process-list").html(list);
             $(".btn-edit").click((e) => {
-                Relay.relay.edit(this);
+                Relay.relay.edit(e);
             })
         }
     }
@@ -139,9 +140,13 @@ class Relay {
             .replace("#desc#", item.desc)
     }
 
-    public edit(e:any): void {
+    public edit(e: any): void {
         console.log("edit");
-
+        let holder: JQuery = $(e.target).closest(".holder");
+        let i: number = holder.data("index");
+        let item: Trigger = this.triggers[i];
+        let t: string = this.getTemplate(item.editingtemplate);
+        holder.html(this.fillTemplate(t, item));
     }
 
     public loadSetup(setup: any, index: number): void {
@@ -154,7 +159,7 @@ class Relay {
                 Relay.relay.loadTemplate();
             }
         ).fail(function (data: any, status: any) {
-            $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
+            $(".process-list").html("РќРµ РІРґР°Р»РѕСЃСЊ Р·Р°РІР°РЅС‚Р°Р¶РёС‚Рё. <button class'btn btn-primary refresh'>РџРѕРІС‚РѕСЂРёС‚Рё</button>");
             $(".switch-checkbox").click(function () {
                 Relay.relay.loadSetup(setup, index);
             });
@@ -242,7 +247,7 @@ class Relay {
 
             }).fail(function (data: any, status: any) {
                 //alert("Error: " + data + "\nStatus: " + status);
-                $(".wifi-list").html("Не вдалось завантажити список мереж.<br />Поновіть сторінку, щоб повторити спробу.");
+                $(".wifi-list").html("РќРµ РІРґР°Р»РѕСЃСЊ Р·Р°РІР°РЅС‚Р°Р¶РёС‚Рё СЃРїРёСЃРѕРє РјРµСЂРµР¶.<br />РџРѕРЅРѕРІС–С‚СЊ СЃС‚РѕСЂС–РЅРєСѓ, С‰РѕР± РїРѕРІС‚РѕСЂРёС‚Рё СЃРїСЂРѕР±Сѓ.");
             });
     }
 
@@ -263,6 +268,7 @@ class keyValue {
 }
 
 class Trigger {
+    public uid: string;
     public name: string;
     public desc: string;
     public type: string;
