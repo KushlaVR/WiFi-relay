@@ -25,24 +25,47 @@ namespace WebAdmin.Controllers
             }
 
             public string uid { get; set; }
+            public string type { get; set; } = "abstract";
             public string name { get; set; }
-            public string desc { get; set; }
-            /// <summary>
-            /// once, day, weekDay, 
-            /// </summary>
-            public string type { get; set; } = "once";
-
-            /// <summary>
-            /// on, off
-            /// </summary>
-            public string action { get; set; }
-
-
             public string template { get; set; } = "trigger";
             public string editingtemplate { get; set; } = "edittrigger";
 
 
         }
+
+        public class OnOffTrigger : Trigger
+        {
+            public OnOffTrigger()
+            {
+                type = "onoff";
+                template = "onoff";
+                editingtemplate = "onoffedit";
+            }
+
+            public string action { get; set; }
+            public string days { get; set; } = "1,2,3,4,5"; //пн-пт
+            public string time { get; set; } = "480";//08:00 = 8*60 + 00 = 480
+        }
+
+        public class PWMTrigger : Trigger
+        {
+
+            public PWMTrigger()
+            {
+                type = "pwm";
+                template = "pwm";
+                editingtemplate = "pwmedit";
+            }
+
+            public string days { get; set; } = "1,2,3,4,5"; //пн-пт
+            public string onlength { get; set; } = "5";// 00:05
+            public string offlength { get; set; } = "15";// 00:05
+
+
+
+
+        }
+
 
         public class MQTTProcess
         {
@@ -54,6 +77,7 @@ namespace WebAdmin.Controllers
         }
 
         private static List<MQTTProcess> items;
+        private static Dictionary<MQTTProcess, List<Trigger>> triggers;
         private IHostingEnvironment _env;
         public ApiController(IHostingEnvironment env)
         {
@@ -61,10 +85,21 @@ namespace WebAdmin.Controllers
             if (items == null)
             {
                 items = new List<MQTTProcess>();
-                items.Add(new MQTTProcess() { name = "out1", index = "1" });
+                triggers = new Dictionary<MQTTProcess, List<Trigger>>();
+                MQTTProcess item = new MQTTProcess() { name = "out1", index = "1" };
+                items.Add(item);
+                triggers.Add(item, new List<Trigger>());
+                triggers[item].Add(new OnOffTrigger() { name = "Включати 8:00", action = "on", time = "480" });
+                triggers[item].Add(new OnOffTrigger() { name = "Виключати 9:00", action = "off", time = "540" });
+
                 items.Add(new MQTTProcess() { name = "out2", index = "2" });
                 items.Add(new MQTTProcess() { name = "out3", index = "3" });
-                items.Add(new MQTTProcess() { name = "led", index = "4", state = "ON" });
+
+                item = new MQTTProcess() { name = "led", index = "4", state = "ON" };
+                items.Add(item);
+                triggers.Add(item, new List<Trigger>());
+                triggers[item].Add(new PWMTrigger());
+
             }
 
         }
@@ -151,16 +186,87 @@ namespace WebAdmin.Controllers
 
 
         [HttpGet()]
-        public IActionResult setup(string type, int? index)
+        public IActionResult setup()
         {
-            List<Trigger> list = new List<Trigger>();
-            list.Add(new Trigger() { name = "Включити зранку", type = "day", action = "on", desc = "Щодня" });
-            list.Add(new Trigger() { name = "Виключити зранку", type = "day", action = "off", desc = "Щодня" });
-            list.Add(new Trigger() { name = "Включити вечером", type = "once", action = "on", desc = "Разово" });
-            list.Add(new Trigger() { name = "Включити вечером", type = "once", action = "off", desc = "Разово" });
-            list.Add(new Trigger() { name = "Включити", type = "hour", action = "on", desc = "Щогодини" });
-            list.Add(new Trigger() { name = "Виключити", type = "hour", action = "off", desc = "Щогодини" });
-            return Json(new { items = list.ToArray() });
+
+            string type = Request.Query["type"];
+            string sindex = Request.Query["index"];
+            if (type == "switch")
+            {
+                List<Trigger> list = new List<Trigger>();
+                MQTTProcess item = items[int.Parse(sindex) - 1];
+                return Json(new { items = triggers[item].ToArray() });
+            }
+            else if (type == "save")
+            {
+                MQTTProcess item = items[int.Parse(Request.Query["switch"]) - 1];
+                string uid = Request.Query["uid"];
+                if (uid == "0")
+                {
+                    if (!string.IsNullOrEmpty(Request.Query["time"]))
+                    {
+
+                        OnOffTrigger tr = new OnOffTrigger();
+                        tr.time = Request.Query["time"];
+                        tr.days = Request.Query["days"];
+                        tr.name = Request.Query["name"];
+                        if (Request.Query["action"] == "true")
+                        {
+                            tr.action = "on";
+                        }
+                        else
+                        {
+                            tr.action = "off";
+                        }
+                        triggers[item].Add(tr);
+                        return new JsonResult(new { status = "OK" });
+                    }
+                    else if (!string.IsNullOrEmpty(Request.Query["onlength"]))
+                    {
+
+                        PWMTrigger tr = new PWMTrigger();
+                        tr.onlength = Request.Query["onlength"];
+                        tr.offlength = Request.Query["offlength"];
+                        tr.days = Request.Query["days"];
+                        tr.name = Request.Query["name"];
+                        triggers[item].Add(tr);
+                        return new JsonResult(new { status = "OK" });
+                    }
+
+                }
+                foreach (Trigger t in triggers[item])
+                {
+                    if (t.uid == uid)
+                    {
+                        if (t.type == "onoff")
+                        {
+                            OnOffTrigger tr = t as OnOffTrigger;
+                            tr.time = Request.Query["time"];
+                            tr.days = Request.Query["days"];
+                            tr.name = Request.Query["name"];
+                            if (Request.Query["action"] == "true")
+                            {
+                                tr.action = "on";
+                            }
+                            else
+                            {
+                                tr.action = "off";
+                            }
+                            return new JsonResult(new { status = "OK" });
+                        } else if (t.type == "pwm")
+                        {
+                            PWMTrigger tr = t as PWMTrigger;
+                            tr.onlength = Request.Query["onlength"];
+                            tr.offlength = Request.Query["offlength"];
+                            tr.days = Request.Query["days"];
+                            tr.name = Request.Query["name"];
+                            return new JsonResult(new { status = "OK" });
+                        }
+                    }
+                }
+            }
+            return NotFound();
+
         }
 
     }

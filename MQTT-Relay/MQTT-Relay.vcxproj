@@ -81,6 +81,10 @@
     <DebuggerFlavor>VisualMicroDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="data\html\content\idea.svg" />
+    <None Include="data\html\content\_edittrigger.html" />
+    <None Include="data\html\content\_switch.html" />
+    <None Include="data\html\content\_trigger.html" />
     <None Include="data\html\css\bootstrap.js" />
     <None Include="data\html\css\bootstrap.css" />
     <None Include="data\html\css\clockpicker.css" />

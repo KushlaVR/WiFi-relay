@@ -73,7 +73,7 @@ input:checked + .slider:before {
     }
 
     .wifi-item .encryption {
-        float:right;
+        float: right;
     }
 
 .process-list .nav-item .name {
@@ -81,9 +81,18 @@ input:checked + .slider:before {
     vertical-align: middle;
 }
 
-.light-on{
-
+.light-on {
 }
-.light-off{
-    filter:grayscale(100%);
+
+.light-off {
+    filter: grayscale(100%);
+}
+
+.holder {
+    display: inline-block;
+}
+
+.converter-time {
+    text-align: center;
+    width: 100px !important;
 }

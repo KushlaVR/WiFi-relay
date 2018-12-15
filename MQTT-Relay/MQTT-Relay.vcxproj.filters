@@ -37,6 +37,10 @@
     <None Include="data\html\js\relay.ts" />
     <None Include="data\html\js\tsconfig.json" />
     <None Include="data\wifi.json" />
+    <None Include="data\html\content\_edittrigger.html" />
+    <None Include="data\html\content\_switch.html" />
+    <None Include="data\html\content\_trigger.html" />
+    <None Include="data\html\content\idea.svg" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.MQTT-Relay.vsarduino.h">
