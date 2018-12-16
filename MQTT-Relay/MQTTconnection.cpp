@@ -3,7 +3,7 @@
 #include "Adafruit_MQTT_Client.h"
 #include "MQTTconnection.h"
 
-
+MQTTconnection mqtt_connection;
 
 MQTTconnection::MQTTconnection()
 {

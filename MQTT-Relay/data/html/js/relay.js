@@ -45,10 +45,26 @@ var Relay = (function () {
                     Relay.relay.turnOff($(this).data("switch"));
                 }
             });
+            TimeConverter.Convert();
         }).fail(function (data, status) {
             $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
             $(".switch-checkbox").click(function () {
                 Relay.relay.loadProcesses();
+            });
+        });
+    };
+    Relay.prototype.loadSetup = function (setup, index) {
+        $.get(Relay.relay.rooturl + "setup?type=switch&index=" + index.toString()).done(function (data, status) {
+            for (var i = 0; i < data.items.length; i++) {
+                var item = data.items[i];
+                Relay.relay.triggers.push(item);
+            }
+            ;
+            Relay.relay.loadTriggerTemplate();
+        }).fail(function (data, status) {
+            $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
+            $(".switch-checkbox").click(function () {
+                Relay.relay.loadSetup(setup, index);
             });
         });
     };
@@ -95,18 +111,98 @@ var Relay = (function () {
         }
         ;
         if (allReady === true) {
+            var t = Relay.relay.getTemplate("newitem");
+            if (t === undefined) {
+                allReady = false;
+                Relay.relay.loadTemplateByName("newitem", Relay.relay.loadTriggerTemplate);
+                return;
+            }
+        }
+        if (allReady === true) {
             var list = "";
+            list += Relay.relay.getTemplate("newitem");
             for (var i = 0; i < Relay.relay.triggers.length; i++) {
                 var item = Relay.relay.triggers[i];
                 var t = Relay.relay.getTemplate(item.template);
-                list += "<div style='display:inline-block;' class='holder' id='trigger_" + item.uid + "' data-index='" + i.toString() + "'>" + Relay.relay.fillTemplate(t, item) + "</div>";
+                list += "<div class='holder' id='trigger_" + item.uid + "' data-index='" + i.toString() + "' data-uid='" + item.uid + "'>" + Relay.relay.fillTemplate(t, item) + "</div>";
             }
             $(".process-list").html(list);
             $(".btn-edit").click(function (e) {
                 Relay.relay.edit(e);
             });
-            $(".switch-checkbox[data-action='on']").prop("checked", true);
+            $(".btn-add").click(function (e) {
+                Relay.relay.add(e);
+            });
+            $(".switch-checkbox[data-state='on']").prop("checked", true);
+            var cp = $('.clockpicker');
+            cp.clockpicker();
+            TimeConverter.Convert();
         }
+    };
+    Relay.prototype.add = function (e) {
+        console.log("add");
+        var item = $(e.target).data("newitem");
+        var t = this.getTemplate(item.editingtemplate);
+        if (t === undefined) {
+            Relay.relay.loadTemplateByName(item.editingtemplate, function () {
+                Relay.relay.add(e);
+            });
+            return;
+        }
+        var iDiv = document.createElement('div');
+        iDiv.id = 'trigger_0';
+        iDiv.className = 'holder';
+        $(".process-list")[0].appendChild(iDiv);
+        var holder = $(iDiv);
+        holder.data("uid", 0);
+        holder.data("edit", true);
+        holder.html(this.fillTemplate(t, item));
+        $('.btn-edit').attr("disabled", "disabled");
+        $('.btn-save').click(function (e) {
+            Relay.relay.save(e);
+        });
+        $(".switch-checkbox[data-state='on']").prop("checked", true);
+        var cp = $('.clockpicker');
+        cp.clockpicker();
+        TimeConverter.Convert();
+    };
+    Relay.prototype.edit = function (e) {
+        console.log("edit");
+        var holder = $(e.target).closest(".holder");
+        holder.data("edit", true);
+        var i = holder.data("index");
+        var item = this.triggers[i];
+        var t = this.getTemplate(item.editingtemplate);
+        holder.html(this.fillTemplate(t, item));
+        $('.btn-edit').attr("disabled", "disabled");
+        $('.btn-save').click(function (e) {
+            Relay.relay.save(e);
+        });
+        $(".switch-checkbox[data-state='on']").prop("checked", true);
+        var cp = $('.clockpicker');
+        cp.clockpicker();
+        TimeConverter.Convert();
+    };
+    Relay.prototype.save = function (e) {
+        console.log("save");
+        var holder = $(e.target).closest(".holder");
+        var form = $("form", holder);
+        var fields = $("[name]", form);
+        var url = Relay.relay.rooturl + "setup?type=save&switch=" + this.getUrlParameter("index") + "&uid=" + holder.data("uid");
+        for (var i = 0; i < fields.length; i++) {
+            var v = void 0;
+            var f = $(fields[i]);
+            if (f.hasClass("converter-time"))
+                v = TimeConverter.ConvertBack(fields[i]);
+            else
+                v = TextConverter.ConvertBack(fields[i]);
+            url += "&" + fields[i].getAttribute("name") + "=" + encodeURIComponent(v);
+        }
+        $.get(url).done(function (data, status) {
+            location.reload();
+        }).fail(function (data, status) {
+            alert(data);
+        });
     };
     Relay.prototype.fillTemplate = function (t, item) {
         var ret = t;
@@ -118,32 +214,6 @@ var Relay = (function () {
             }
         }
         return ret;
-    };
-    Relay.prototype.edit = function (e) {
-        console.log("edit");
-        var holder = $(e.target).closest(".holder");
-        holder.data("edit", true);
-        $('.btn-edit').attr("disabled", "disabled");
-        var i = holder.data("index");
-        var item = this.triggers[i];
-        var t = this.getTemplate(item.editingtemplate);
-        holder.html(this.fillTemplate(t, item));
-        $(".switch-checkbox[data-action='on']").prop("checked", true);
-    };
-    Relay.prototype.loadSetup = function (setup, index) {
-        $.get(Relay.relay.rooturl + "setup?type=switch&index=" + index.toString()).done(function (data, status) {
-            for (var i = 0; i < data.items.length; i++) {
-                var item = data.items[i];
-                Relay.relay.triggers.push(item);
-            }
-            ;
-            Relay.relay.loadTriggerTemplate();
-        }).fail(function (data, status) {
-            $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
-            $(".switch-checkbox").click(function () {
-                Relay.relay.loadSetup(setup, index);
-            });
-        });
     };
     Relay.prototype.getUrlParameter = function (sParam) {
         var sPageURL = window.location.search.substring(1);
@@ -234,5 +304,70 @@ var Trigger = (function () {
     function Trigger() {
     }
     return Trigger;
+}());
+var TimeConverter = (function () {
+    function TimeConverter() {
+    }
+    TimeConverter.Convert = function () {
+        var inputs = $(".converter-time")
+            .each(function (index, elem) {
+            var el = $(elem);
+            if (el.data("converted") === "1")
+                return;
+            var v;
+            if (elem.tagName === "INPUT") {
+                v = el.val();
+            }
+            else {
+                v = elem.innerHTML;
+            }
+            var res = "";
+            var i = parseInt(v, 10);
+            res = TimeConverter.pad((Math.floor(i / 60)).toString(), 2) + ":" + TimeConverter.pad((i % 60).toString(), 2);
+            el.data("converted", "1");
+            if (elem.tagName === "INPUT") {
+                el.attr("value", res);
+            }
+            else {
+                elem.innerHTML = res;
+            }
+        });
+    };
+    TimeConverter.ConvertBack = function (elem) {
+        var el = $(elem);
+        if (el.data("converted") === "1") {
+            var v = void 0;
+            if (elem.tagName === "INPUT") {
+                v = el.val();
+            }
+            else {
+                v = elem.innerHTML;
+            }
+            var parts = v.split(":");
+            var res = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+            return res.toString();
+        }
+        return el.val();
+    };
+    TimeConverter.pad = function (value, size) {
+        var s = value;
+        while (s.length < (size || 2)) {
+            s = "0" + s;
+        }
+        return s;
+    };
+    return TimeConverter;
+}());
+var TextConverter = (function () {
+    function TextConverter() {
+    }
+    TextConverter.ConvertBack = function (elem) {
+        var el = $(elem);
+        if (el.attr("type") === "checkbox") {
+            return el.prop("checked");
+        }
+        return el.val();
+    };
+    return TextConverter;
 }());
 //# sourceMappingURL=relay.js.map

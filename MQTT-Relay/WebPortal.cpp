@@ -106,10 +106,6 @@ void WebPortal::setup() {
 
 	/* Setup web pages: root, wifi config pages, SO captive portal detectors and not found. */
 	on("/", handleRoot);
-	on("/api/wifi", handleWifi);
-	on("/api/wifisave", handleWifiSave);
-	on("/api/template", handleTemplate);
-	on("/api/setup", handleSetup);
 	on("/generate_204", handleRoot);  //Android captive portal. Maybe not needed. Might be handled by notFound handler.
 	on("/fwlink", handleRoot);  //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
 	on("/update", handleUpdate);
@@ -233,79 +229,6 @@ boolean WebPortal::captivePortal() {
 	return false;
 }
 
-/** Wifi config page handler */
-void WebPortal::handleWifi() {
-
-	Serial.println("scan start");
-	int n = WiFi.scanNetworks();
-
-	server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-	server.sendHeader("Pragma", "no-cache");
-	server.sendHeader("Expires", "-1");
-	server.setContentLength(CONTENT_LENGTH_UNKNOWN);
-	Serial.println("scan done");
-	JsonString ret = JsonString();
-	ret.beginObject();
-	if (n > 0) {
-		ret.beginArray("ssid");
-		for (int i = 0; i < n; i++) {
-			ret.beginObject();
-			ret.AddValue("name", WiFi.SSID(i));
-			ret.AddValue("encryption", String(WiFi.encryptionType(i)));
-			ret.AddValue("rssi", String(WiFi.RSSI(i)));
-			//server.sendContent(String() + "\r\n<tr><td>SSID " + WiFi.SSID(i) + String((WiFi.encryptionType(i) == ENC_TYPE_NONE) ? " " : " *") + " (" + WiFi.RSSI(i) + ")</td></tr>");
-			ret.endObject();
-		}
-		ret.endArray();
-	};
-	ret.endObject();
-	server.send(200, "application/json", ret);
-}
-
-/** Handle the WLAN save form and redirect to WLAN config page again */
-void WebPortal::handleWifiSave() {
-	Serial.println("wifi save");
-	server.ssid = server.arg("n");
-	server.password = server.arg("p");
-	server.sendHeader("Location", "/", true);
-	server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-	server.sendHeader("Pragma", "no-cache");
-	server.sendHeader("Expires", "-1");
-	server.send(302, "text/plain", "");    // Empty content inhibits Content-length header so we have to close the socket ourselves.
-	server.client().stop(); // Stop is needed because we sent no content length
-
-	if (server.ssid.length() == 0) {
-		SPIFFS.remove("/wifi.json");
-		Serial.println("wifi config removed");
-	}
-	else {
-		File f = SPIFFS.open("/wifi.json", "w");
-		f.seek(0);
-		f.print("{\"wlan_id\":\"");
-		f.print(server.ssid);
-		f.print("\",\"wlan_pwd\":\"");
-		f.print(server.password);
-		f.println("\"}");
-		f.flush();
-		f.close();
-
-		Serial.print("{\"wlan_id\":\"");
-		Serial.print(server.ssid);
-		Serial.print("\",\"wlan_pwd\":\"");
-		Serial.print(server.password);
-		Serial.println("\"}");
-		Serial.println("OK!");
-		Serial.println("wifi config saved.");
-
-
-	}
-
-	//saveCredentials();
-	//server.connect = strlen(ssid) > 0; // Request WLAN connect with new credentials if there is a SSID
-
-}
-
-
 
 
 uint16_t httpsPort = 443;
@@ -333,51 +256,6 @@ void WebPortal::handleUpdate() {
 		handleNotFound();
 		return;
 	}
-}
-
-void WebPortal::handleTemplate() {
-	String name = "";
-	if (server.hasArg("name")) {
-		name = server.arg("name");
-		String path = "/html/content/_" + name + ".html";
-		Serial.printf("path=%s\n", path.c_str());
-
-		if (SPIFFS.exists(path)) {
-			Serial.printf("exist=%s\n", path.c_str());
-			char* contentType = server.getContentType(path);
-			File f = SPIFFS.open(path, "r");
-			server.sendFile(f, contentType, false);
-			f.close();
-			return;
-		}
-	}
-	handleNotFound();
-}
-
-
-void WebPortal::handleSetup() {
-	String name = "";
-	if (server.hasArg("type")) {
-		name = server.arg("type");
-		Serial.printf("setup: name=%s\n", name.c_str());
-		int index = server.arg("index").toInt();
-
-		JsonString ret = "";
-
-		ret.beginObject();
-
-		ret.beginArray("items");
-		ret.endArray();
-
-		ret.endObject();
-
-
-		Serial.printf("setup: ret=%s\n", ret.c_str());
-
-		server.send(200, "application/json", ret);
-		return;
-	}
-	handleNotFound();
 }
 
 

@@ -15,17 +15,18 @@
 #include "WebPortal.h"
 #include "Json.h"
 #include "NTPreciver.h"
+#include "ApiController.h"
+#include <TimeLib.h>
 
-MQTTconnection mqtt_connection = MQTTconnection();
 /****************************** Feeds ***************************************/
 // Setup a feed called 'photocell' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
 Adafruit_MQTT_Publish * photocell;// = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/photocell");
 
-void handleGetSwitches();
-void handleSetSwitches();
+
 
 NTPreciver NTP;
+ApiController api;
 
 void setup() {
 	Serial.begin(115200);
@@ -48,7 +49,6 @@ void setup() {
 
 	server.setup();
 	mqtt_connection.setup();
-	NTP.setup();
 
 	mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out1", D5));
 	mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out2", D6));
@@ -57,71 +57,9 @@ void setup() {
 
 	photocell = new Adafruit_MQTT_Publish(mqtt_connection.connection, "/feeds/photocell");
 
-	server.on("/api/switches", HTTPMethod::HTTP_GET, handleGetSwitches);
-	server.on("/api/switches", HTTPMethod::HTTP_POST, handleSetSwitches);
+	api.setup();
+	NTP.setup();
 
-}
-
-
-void handleGetSwitches() {
-	Serial.println("switches GET:");
-
-	server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-	server.sendHeader("Pragma", "no-cache");
-	server.sendHeader("Expires", "-1");
-	server.setContentLength(CONTENT_LENGTH_UNKNOWN);
-	JsonString ret = JsonString();
-	ret.beginObject();
-	MQTTprocess * proc = mqtt_connection.getFirstProcess();
-	ret.beginArray("items");
-	while (proc != nullptr) {
-		ret.beginObject();
-		proc->printInfo(&ret);
-		ret.endObject();
-		proc = proc->next;
-	};
-	ret.endArray();
-	ret.endObject();
-	server.send(200, "application/json", ret);
-}
-
-void handleSetSwitches() {
-	Serial.println("switches GET:");
-	if (server.hasArg("index") && server.hasArg("state")) {
-		
-		int index = server.arg("index").toInt();
-
-		MQTTprocess * proc = mqtt_connection.getFirstProcess();
-		int i = 1;
-		while (proc != nullptr) {
-			if (i == index) break;
-			proc = proc->next;
-			i++;
-		};
-
-		if (proc == nullptr) {
-			WebPortal::handleNotFound();
-			return;
-		}
-
-		if (proc->type != "switch") {
-			WebPortal::handleNotFound();
-			return;
-		}
-		MQTTswitch * sw = (MQTTswitch *)proc;
-		sw->setState(server.arg("state")=="on");
-		server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-		server.sendHeader("Pragma", "no-cache");
-		server.sendHeader("Expires", "-1");
-		server.setContentLength(CONTENT_LENGTH_UNKNOWN);
-		JsonString ret = JsonString();
-		ret.beginObject();
-		ret.AddValue("status", "OK");
-		ret.endObject();
-		server.send(200, "application/json", ret);
-		return;
-	}
-	WebPortal::handleNotFound();
 }
 
 
@@ -137,10 +75,20 @@ void loop() {
 		if ((millis() - lastInfo) > 5000) {
 			lastInfo = millis();
 			// Now we can publish stuff!
+
+
+			time_t t = now();
+			String s;
+			if (timeStatus() == timeSet)
+				s = String(year(t)) + "." + String(month(t)) + "." + String(day(t)) + " " +
+				String(hour(t)) + ":" + String(minute(t)) + ":" + String(second(t));
+			else
+				s = "time not set. millis=" + String(millis());
+
 			Serial.print(F("\nSending photocell val "));
-			Serial.print(x);
+			Serial.print(s);
 			Serial.print("...");
-			if (!photocell->publish(x++)) {
+			if (!photocell->publish(s.c_str())) {
 				Serial.println(F("Failed"));
 			}
 			else {
@@ -158,44 +106,3 @@ void loop() {
 		*/
 	}
 }
-
-/*
-
-void setup() {
-  Serial.begin(115200);
-  Serial.println();
-  SPIFFS.begin();
-  Dir dir = SPIFFS.openDir("/");
-
-  pinMode(BUILTIN_LED, OUTPUT);
-  digitalWrite(BUILTIN_LED, LOW);
-
-  File file = SPIFFS.open("/blinkESP.bin", "r");
-
-
-  uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-  if (!Update.begin(maxSketchSpace, U_FLASH)) { //start with max available size
-    Update.printError(Serial);
-    Serial.println("ERROR");
-  }
- 
-  while (file.available()) {
-    uint8_t ibuffer[128];
-    file.read((uint8_t *)ibuffer, 128);
-    Serial.println((char *)ibuffer);
-    Update.write(ibuffer, sizeof(ibuffer));
-  
-  }
-
-  
-  Serial.print(Update.end(true));
-  digitalWrite(BUILTIN_LED, HIGH);
-  file.close();
-}
-
-void loop() {
-  
-}
-
-
-*/

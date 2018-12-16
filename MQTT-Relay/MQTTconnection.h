@@ -31,3 +31,4 @@ public:
 	MQTTprocess * getFirstProcess() { return firstProcess; };
 };
 
+extern MQTTconnection mqtt_connection;

@@ -12,7 +12,7 @@ class NTPreciver
 
 	IPAddress timeServerIP; // time.nist.gov NTP server address
 	const char* ntpServerName = "time.nist.gov";
-
+	
 
 	byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming and outgoing packets
 
@@ -23,7 +23,7 @@ public:
 	NTPreciver();
 	~NTPreciver();
 
-	unsigned long unixTime;
+	const int timeZone = 2; 
 
 	void setup();
 	void loop();

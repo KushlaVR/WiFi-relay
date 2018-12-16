@@ -9,10 +9,9 @@
 #include "Json.h"
 
 /* Set these to your desired softAP credentials. They are not configurable at runtime */
-//#ifndef APSSID
-//#define APSSID "KushlaVR"
+#ifndef APPSK
 #define APPSK  "12345678"
-//#endif
+#endif
 
 class WebPortal :public ESP8266WebServer
 {
@@ -35,8 +34,6 @@ private:
 
 	void connectWifi();
 
-	void sendFile(File file, char* contenttype, bool addGzHeader);
-	char * getContentType(String filename);
 public:
 	WebPortal();
 	~WebPortal();
@@ -60,6 +57,8 @@ public:
 	void loop();
 
 
+	void sendFile(File file, char* contenttype, bool addGzHeader);
+	char * getContentType(String filename);
 
 
 	/** Is this an IP? */
@@ -74,8 +73,6 @@ public:
 	static void handleWifiSave();
 	static void handleNotFound();
 	static void handleUpdate();
-	static void handleTemplate();
-	static void handleSetup();
 	static void updateFiles(String url);
 	static void updateFile(String url, String file);
 

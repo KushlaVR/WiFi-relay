@@ -1,9 +1,11 @@
+#include <TimeLib.h>
 #include "NTPreciver.h"
 
 
 
 NTPreciver::NTPreciver()
 {
+	setSyncInterval(SECS_PER_HOUR);
 }
 
 
@@ -17,6 +19,8 @@ void NTPreciver::setup()
 }
 
 void NTPreciver::loop() {
+	if (timeStatus() == timeSet) return;
+	
 	if (start == 0) {
 		WiFi.hostByName(ntpServerName, timeServerIP);
 		start = millis();
@@ -24,7 +28,6 @@ void NTPreciver::loop() {
 		Serial.println("NTP: send");
 	}
 	else {
-		if (unixTime > 0) return;
 
 		if ((millis() - start) > 500) {
 			int cb = udp.parsePacket();
@@ -39,16 +42,9 @@ void NTPreciver::loop() {
 				unsigned long secsSince1900 = highWord << 16 | lowWord;
 				Serial.print("Seconds since Jan 1 1900 = ");
 				Serial.println(secsSince1900);
-
-				// now convert NTP time into everyday time:
-				Serial.print("Unix time = ");
-				// Unix time starts on Jan 1 1970. In seconds, that's 2208988800:
-				const unsigned long seventyYears = 2208988800UL;
-				// subtract seventy years:
-				unsigned long epoch = secsSince1900 - seventyYears;
-				// print Unix time:
-				Serial.println(epoch);
-				unixTime = epoch;
+				time_t t = secsSince1900 - 2208988800UL + timeZone * SECS_PER_HOUR;
+				setTime(t);
+				start = 0;
 			}
 			else if ((millis() - start) > 5000) {
 				//timeout

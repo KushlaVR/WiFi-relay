@@ -41,6 +41,11 @@
     <None Include="data\html\content\_switch.html" />
     <None Include="data\html\content\_trigger.html" />
     <None Include="data\html\content\idea.svg" />
+    <None Include="data\html\content\_pwmedit.html" />
+    <None Include="data\html\content\_newitem.html" />
+    <None Include="data\html\content\_onoff.html" />
+    <None Include="data\html\content\_onoffedit.html" />
+    <None Include="data\html\content\_pwm.html" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.MQTT-Relay.vsarduino.h">
@@ -64,6 +69,15 @@
     <ClInclude Include="NTPreciver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ApiController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Trigger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WebPortal.cpp">
@@ -84,6 +98,12 @@
     <ClCompile Include="NTPreciver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ApiController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Trigger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\html\files.txt" />
@@ -92,5 +112,10 @@
     <Image Include="data\html\favicon.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MQTT-Relay.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
