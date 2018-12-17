@@ -27,7 +27,7 @@ public:
 	bool loop();
 	void process();
 
-	void Register(MQTTprocess * device);
+	MQTTprocess * Register(MQTTprocess * device);
 	MQTTprocess * getFirstProcess() { return firstProcess; };
 };
 

@@ -17,6 +17,7 @@
 #include "NTPreciver.h"
 #include "ApiController.h"
 #include <TimeLib.h>
+#include "Trigger.h"
 
 /****************************** Feeds ***************************************/
 // Setup a feed called 'photocell' for publishing.
@@ -29,6 +30,9 @@ NTPreciver NTP;
 ApiController api;
 
 void setup() {
+	setTime(18, 0, 0, 17, 12, 2018);
+	setSyncInterval(1);
+
 	Serial.begin(115200);
 	pinMode(BUILTIN_LED, OUTPUT);
 	digitalWrite(BUILTIN_LED, HIGH);
@@ -50,16 +54,35 @@ void setup() {
 	server.setup();
 	mqtt_connection.setup();
 
-	mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out1", D5));
-	mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out2", D6));
-	mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out3", D7));
-	mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "led", LED_BUILTIN));
+	MQTTswitch * out1 = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out1", D5));
+	MQTTswitch * out2 = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out2", D6));
+	MQTTswitch * out3 = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out3", D7));
+	MQTTswitch * led = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "led", LED_BUILTIN));
+
+	Trigger::loadConfig(out1);
+	Trigger::loadConfig(out4);
+	Trigger::loadConfig(out3);
+	Trigger::loadConfig(led);
+	/*
+	OnOffTrigger * t;
+
+	t = new OnOffTrigger();
+	t->proc = led;
+	t->action = HIGH;
+	t->time = 18 * 60 + 1;//18:01
+	t->Register();
+
+	t = new OnOffTrigger();
+	t->proc = led;
+	t->action = LOW;
+	t->time = 18 * 60 + 2;//18:02
+	t->Register();
+	/**/
 
 	photocell = new Adafruit_MQTT_Publish(mqtt_connection.connection, "/feeds/photocell");
 
 	api.setup();
 	NTP.setup();
-
 }
 
 
@@ -72,7 +95,7 @@ void loop() {
 	if (mqtt_connection.loop()) {
 		mqtt_connection.process();
 
-		if ((millis() - lastInfo) > 5000) {
+		if ((millis() - lastInfo) > 10000) {
 			lastInfo = millis();
 			// Now we can publish stuff!
 
@@ -105,4 +128,6 @@ void loop() {
 		}
 		*/
 	}
+	time_t t = now();
+	Trigger::processNext(&t);
 }

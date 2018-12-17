@@ -107,7 +107,7 @@ void MQTTconnection::process()
 
 
 
-void MQTTconnection::Register(MQTTprocess * device) {
+MQTTprocess * MQTTconnection::Register(MQTTprocess * device) {
 
 	Serial.print("Register: ");
 	Serial.println(device->name);
@@ -130,5 +130,5 @@ void MQTTconnection::Register(MQTTprocess * device) {
 	}
 	device->Register(connection);
 	Serial.println("OK;");
-
+	return device;
 }

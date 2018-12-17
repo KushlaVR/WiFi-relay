@@ -44,7 +44,7 @@ bool MQTTswitch::process(Adafruit_MQTT_Subscribe * subscription)
 		String value = String((char *)onoffbutton_set->lastread);
 		Serial.print(F("Got: "));
 		Serial.println(value);
-		setState(value=="ON");
+		setState(value == "ON");
 		return true;
 	}
 
@@ -109,11 +109,11 @@ bool MQTTswitch::publish_state(const char * state) {
 	this->state = String(state);
 	// Now we can publish stuff!
 	if (!onoffbutton_state->publish(state)) {
-		Serial.println(F("state - Failed"));
+		Serial.printf("Publish %s state - Failse!\n", state);
 		return true;
 	}
 	else {
-		Serial.println(F("state - send!"));
+		Serial.printf("Publised %s state - send!\n", state);
 	}
 	return false;
 }

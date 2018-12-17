@@ -46,7 +46,7 @@ void NTPreciver::loop() {
 				setTime(t);
 				start = 0;
 			}
-			else if ((millis() - start) > 5000) {
+			else if ((millis() - start) > 6000) {
 				//timeout
 				Serial.println("NTP: timeout");
 				start = 0;
