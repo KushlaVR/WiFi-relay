@@ -73,11 +73,11 @@ void MQTTswitch::printInfo(JsonString * ret)
 void MQTTswitch::setState(bool newState)
 {
 	if (newState) {
-		digitalWrite(pin, LOW);
+		digitalWrite(pin, onPinValue);
 		publish_state("ON");
 	}
 	else {
-		digitalWrite(pin, HIGH);
+		digitalWrite(pin, offPinValue);
 		publish_state("OFF");
 	}
 }

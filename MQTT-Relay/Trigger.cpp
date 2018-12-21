@@ -80,10 +80,10 @@ void Trigger::loadConfig(MQTTswitch * proc)
 		Serial.println(dir.fileName());
 		if (dir.fileSize()) {
 			File f = dir.openFile("r");
-			String fName = String(f.name);
+			String fName = String(f.name());
 			if (fName.startsWith("onoff")) {
 				OnOffTrigger * t = new OnOffTrigger();
-				t->load(f);
+				//t->load(f);
 			}
 		}
 	}

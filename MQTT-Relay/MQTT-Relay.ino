@@ -58,9 +58,12 @@ void setup() {
 	MQTTswitch * out2 = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out2", D6));
 	MQTTswitch * out3 = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out3", D7));
 	MQTTswitch * led = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "led", LED_BUILTIN));
+	
+	led->onPinValue = LOW;
+	led->offPinValue = HIGH;
 
 	Trigger::loadConfig(out1);
-	Trigger::loadConfig(out4);
+	Trigger::loadConfig(out2);
 	Trigger::loadConfig(out3);
 	Trigger::loadConfig(led);
 	/*
