@@ -37,6 +37,15 @@ var Relay = (function () {
             $(".process-list").html(list);
             $(".switch-checkbox[data-state='ON']").prop("checked", true);
             $("img[data-state='ON']").removeClass("light-off");
+            $(".switch-img").click(function () {
+                var cb = $(".switch-checkbox", $(this).closest(".card"));
+                if (cb.data("state") == "ON") {
+                    Relay.relay.turnOff(cb.data("switch"));
+                }
+                else {
+                    Relay.relay.turnOn(cb.data("switch"));
+                }
+            });
             $(".switch-checkbox").change(function () {
                 if (this.checked) {
                     Relay.relay.turnOn($(this).data("switch"));
@@ -235,6 +244,7 @@ var Relay = (function () {
         $.post(Relay.relay.rooturl + "switches" + "?index=" + i.toString() + "&state=on").done(function (data, status) {
             $("#switch_" + i.toString()).data("state", "ON");
             $("#switch_img_" + i.toString()).removeClass("light-off").addClass("light-on");
+            $("#switch_" + i.toString()).prop("checked", true);
         }).fail(function (data, status) {
             $("#switch_" + i.toString()).prop("checked", false);
         });
@@ -247,6 +257,7 @@ var Relay = (function () {
         $.post(Relay.relay.rooturl + "switches" + "?index=" + i.toString() + "&state=off").done(function (data, status) {
             $("#switch_" + i.toString()).data("state", "OFF");
             $("#switch_img_" + i.toString()).removeClass("light-on").addClass("light-off");
+            $("#switch_" + i.toString()).prop("checked", false);
         }).fail(function (data, status) {
             $("#switch_" + i.toString()).prop("checked", true);
         });

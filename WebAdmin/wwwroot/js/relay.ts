@@ -36,6 +36,14 @@
                 $(".process-list").html(list);
                 $(".switch-checkbox[data-state='ON']").prop("checked", true);
                 $("img[data-state='ON']").removeClass("light-off");
+                $(".switch-img").click(function () {
+                    let cb = $(".switch-checkbox", $(this).closest(".card"));
+                    if (cb.data("state") == "ON") {
+                        Relay.relay.turnOff(cb.data("switch"));
+                    } else {
+                        Relay.relay.turnOn(cb.data("switch"));
+                    }
+                });
                 $(".switch-checkbox").change(function () {
                     if (this.checked) {
                         Relay.relay.turnOn($(this).data("switch"))
@@ -268,6 +276,7 @@
             function (data: any, status: any) {
                 $("#switch_" + i.toString()).data("state", "ON");
                 $("#switch_img_" + i.toString()).removeClass("light-off").addClass("light-on")
+                $("#switch_" + i.toString()).prop("checked", true);
             }
         ).fail(
             function (data: any, status: any) {
@@ -286,6 +295,7 @@
             function (data: any, status: any) {
                 $("#switch_" + i.toString()).data("state", "OFF");
                 $("#switch_img_" + i.toString()).removeClass("light-on").addClass("light-off")
+                $("#switch_" + i.toString()).prop("checked", false);
             }
         ).fail(
             function (data: any, status: any) {

@@ -30,8 +30,8 @@ NTPreciver NTP;
 ApiController api;
 
 void setup() {
-	setTime(18, 0, 0, 17, 12, 2018);
-	setSyncInterval(1);
+	//setTime(18, 0, 0, 17, 12, 2018);
+	//setSyncInterval(1);
 
 	Serial.begin(115200);
 	pinMode(BUILTIN_LED, OUTPUT);

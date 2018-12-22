@@ -76,6 +76,10 @@ input:checked + .slider:before {
         float: right;
     }
 
+.switch-img {
+    cursor: pointer;
+}
+
 .process-list .nav-item .name {
     margin-right: 10px;
     vertical-align: middle;
