@@ -7,6 +7,7 @@
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 #include "MQTTprocess.h"
+#include "Trigger.h"
 #include "ApiController.h"
 
 
@@ -125,11 +126,36 @@ void ApiController::handleSetup() {
 		Serial.printf("setup: name=%s\n", name.c_str());
 		int index = server.arg("index").toInt();
 
+		MQTTprocess * proc = mqtt_connection.getFirstProcess();
+		int i = index - 1;
+		while (i > 0) {
+			if (proc->next != nullptr) {
+				proc = proc->next;
+				i--;
+			}
+			else {
+				WebPortal::handleNotFound();
+				return;
+			}
+		}
+
 		JsonString ret = "";
+
+
 
 		ret.beginObject();
 
 		ret.beginArray("items");
+
+		Trigger * t = Trigger::getFirstTrigger();
+		while (t != nullptr) {
+			if (t->proc == proc) {
+				ret.beginObject();
+				t->printInfo(&ret);
+				ret.endObject();
+			}
+			t = t->getNextTrigger();
+		}
 		ret.endArray();
 
 		ret.endObject();
@@ -147,7 +173,7 @@ void ApiController::handleSetup() {
 
 void ApiController::handleGetSwitches() {
 	Serial.println("switches GET:");
-	
+
 	server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 	server.sendHeader("Pragma", "no-cache");
 	server.sendHeader("Expires", "-1");
@@ -173,7 +199,7 @@ void ApiController::handleSetSwitches() {
 
 		int index = server.arg("index").toInt();
 
-		MQTTprocess * proc =mqtt_connection.getFirstProcess();
+		MQTTprocess * proc = mqtt_connection.getFirstProcess();
 		int i = 1;
 		while (proc != nullptr) {
 			if (i == index) break;

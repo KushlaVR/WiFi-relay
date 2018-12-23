@@ -1,0 +1,6 @@
+{
+  "name": "Evry day led on at 21:00",
+  "days": "255",
+  "time": "1260",
+  "action": "1"
+}

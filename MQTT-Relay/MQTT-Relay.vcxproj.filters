@@ -46,6 +46,8 @@
     <None Include="data\html\content\_onoff.html" />
     <None Include="data\html\content\_onoffedit.html" />
     <None Include="data\html\content\_pwm.html" />
+    <None Include="data\config\led\01onoff.json" />
+    <None Include="data\config\led\02onoff.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.MQTT-Relay.vsarduino.h">

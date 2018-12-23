@@ -1,7 +1,9 @@
 #pragma once
+#include <FS.h>
 #include <Time.h>
 #include "MQTTprocess.h"
 #include "MQTTswitch.h"
+#include "Json.h"
 
 
 class Trigger
@@ -26,8 +28,12 @@ public:
 	unsigned char days = 0xFF;
 
 	virtual void loop(time_t * time) {};
+	virtual void load(File * f) {};
+	virtual void printInfo(JsonString * ret);
+	Trigger * getNextTrigger() { return next; };
 
 
+	static Trigger * getFirstTrigger();
 	static void processNext(time_t * time);
 	static void loadConfig(MQTTswitch * proc);
 };
@@ -43,5 +49,7 @@ public:
 	unsigned char action = LOW;
 
 	void loop(time_t * time);
+	void load(File * f);
+	void printInfo(JsonString * ret);
 };
 

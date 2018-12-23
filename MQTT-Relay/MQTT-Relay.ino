@@ -30,7 +30,7 @@ NTPreciver NTP;
 ApiController api;
 
 void setup() {
-	//setTime(18, 0, 0, 17, 12, 2018);
+	setTime(21, 0, 0, 17, 12, 2018);
 	//setSyncInterval(1);
 
 	Serial.begin(115200);

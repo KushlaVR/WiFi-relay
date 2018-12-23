@@ -52,10 +52,73 @@
         <div class="row">
             <div class="col-sm-12">
                 <h2>Триканальне wifi реле</h2>
-                <h5>Призначення та можливості</h5>
-                <div class="fakeimg">Fake Image</div>
-                <p>Some text..</p>
-                <p>Sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.</p>
+                <h5>Налаштування для Home Assistant</h5>
+                <p><b>relayCC50E30D08DC</b> - назва реле</p>
+                <p><b>relayCC50E30D08DC</b> - назва реле</p>
+                <p><b>VIKO</b> - Назва елемента</p>
+                <p>
+
+                    #<b>relayCC50E30D08DC</b><br />
+                    - platform: mqtt<br />
+                    name: "<b>VIKO</b> led"<br />
+                    icon: "mdi:lightbulb-on"<br />
+                    state_topic: "/switches/<b>relayCC50E30D08DC</b>/led"<br />
+                    command_topic: "/switches/<b>relayCC50E30D08DC</b>/led/set"<br />
+                    availability_topic: "/switches/<b>relayCC50E30D08DC</b>/led/available"<br />
+                    payload_on: "ON"<br />
+                    payload_off: "OFF"<br />
+                    state_on: "ON"<br />
+                    state_off: "OFF"<br />
+                    optimistic: false<br />
+                    qos: 0<br />
+                    retain: true<br />
+                    <br />
+                    #<b>relayCC50E30D08DC</b><br />
+                    - platform: mqtt<br />
+                    name: "<b>VIKO</b> ch-1"<br />
+                    icon: "mdi:lightbulb-on"<br />
+                    state_topic: "/switches/<b>relayCC50E30D08DC</b>/out1"<br />
+                    command_topic: "/switches/<b>relayCC50E30D08DC</b>/out1/set"<br />
+                    availability_topic: "/switches/<b>relayCC50E30D08DC</b>/out1/available"<br />
+                    payload_on: "ON"<br />
+                    payload_off: "OFF"<br />
+                    state_on: "ON"<br />
+                    state_off: "OFF"<br />
+                    optimistic: false<br />
+                    qos: 0<br />
+                    retain: true<br />
+                    <br />
+                    #<b>relayCC50E30D08DC</b><br />
+                    - platform: mqtt<br />
+                    name: "<b>VIKO</b> ch-2"<br />
+                    icon: "mdi:lightbulb-on"<br />
+                    state_topic: "/switches/<b>relayCC50E30D08DC</b>/out2"<br />
+                    command_topic: "/switches/<b>relayCC50E30D08DC</b>/out2/set"<br />
+                    availability_topic: "/switches/<b>relayCC50E30D08DC</b>/out2/available"<br />
+                    payload_on: "ON"<br />
+                    payload_off: "OFF"<br />
+                    state_on: "ON"<br />
+                    state_off: "OFF"<br />
+                    optimistic: false<br />
+                    qos: 0<br />
+                    retain: true<br />
+
+                    #<b>relayCC50E30D08DC</b><br />
+                    - platform: mqtt<br />
+                    name: "<b>VIKO</b> ch-3"<br />
+                    icon: "mdi:lightbulb-on"<br />
+                    state_topic: "/switches/<b>relayCC50E30D08DC</b>/out3"<br />
+                    command_topic: "/switches/<b>relayCC50E30D08DC</b>/out3/set"<br />
+                    availability_topic: "/switches/<b>relayCC50E30D08DC</b>/out3/available"<br />
+                    payload_on: "ON"<br />
+                    payload_off: "OFF"<br />
+                    state_on: "ON"<br />
+                    state_off: "OFF"<br />
+                    optimistic: false<br />
+                    qos: 0<br />
+                    retain: true<br />
+                    <br />
+                </p>
                 <br>
 
             </div>
