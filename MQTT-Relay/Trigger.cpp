@@ -7,13 +7,13 @@
 
 static int _uid;
 static Trigger * _firstTrigger = nullptr;
+static Trigger * _lastTrigger = nullptr;
 static Trigger * _currentProcesing = nullptr;
 
 Trigger::Trigger()
 {
 	_uid++;
 	uid = _uid;
-	//Register();
 }
 
 Trigger::~Trigger()
@@ -22,26 +22,28 @@ Trigger::~Trigger()
 
 void Trigger::Register()
 {
-	Serial.println("register 1");
+	//Serial.println("register 1");
 	if (_firstTrigger == nullptr) {
-		Serial.println("register 2");
+		//Serial.println("register 2");
 		_firstTrigger = this;
 		_firstTrigger->next = nullptr;
+		_lastTrigger = this;
 	}
 	else {
-		Serial.println("register 3");
+		//Serial.println("register 3");
 		Trigger * t = _firstTrigger;
 		while (t != nullptr) {
-			Serial.println("register 4");
+			//Serial.println("register 4");
 			if (t->next == nullptr) {
-				Serial.println("register 5");
+				//Serial.println("register 5");
 				t->next = this;
 				this->next = nullptr;
 				t = nullptr;
+				_lastTrigger = this;
 			}
 			else
 			{
-				Serial.println("register 6");
+				//Serial.println("register 6");
 				t = t->next;
 			}
 		}
@@ -72,18 +74,44 @@ void Trigger::Unregister()
 	}
 }
 
-void Trigger::printInfo(JsonString * ret)
+void Trigger::printInfo(JsonString * ret, bool detailed)
 {
 	ret->AddValue("name", name);
-	ret->AddValue("type", type);
 	ret->AddValue("uid", String(uid));
-	ret->AddValue("template", _tempate);
-	ret->AddValue("editingtemplate", _editingTempate);
+	ret->AddValue("days", String(days));
+	if (detailed) {
+		ret->AddValue("type", type);
+		ret->AddValue("template", _tempate);
+		ret->AddValue("editingtemplate", _editingTempate);
+	}
+}
+
+bool Trigger::save()
+{
+	Serial.println("Trigger save...");
+	String num = String(uid);
+	if (num.length() < 2) num = "0" + num;
+
+	String fileName = "/config/" + proc->name + "/" + num + String(type) + ".json";
+	Serial.println(fileName.c_str());
+	File f = SPIFFS.open(fileName, "w");
+	JsonString ret = "";
+	printInfo(&ret, false);
+	f.print(ret);
+	f.flush();
+	f.close();
+	Serial.println("Saved OK.");
+	return true;
 }
 
 Trigger * Trigger::getFirstTrigger()
 {
 	return _firstTrigger;
+}
+
+Trigger * Trigger::getLastTrigger()
+{
+	return _lastTrigger;
 }
 
 void Trigger::processNext(time_t * time)
@@ -119,7 +147,6 @@ void Trigger::loadConfig(MQTTswitch * proc)
 			}
 		}
 	}
-
 }
 
 
@@ -168,15 +195,21 @@ void OnOffTrigger::load(File * f) {
 
 }
 
-void OnOffTrigger::printInfo(JsonString * ret)
+void OnOffTrigger::printInfo(JsonString * ret, bool detailed)
 {
-	Trigger::printInfo(ret);
+	Trigger::printInfo(ret, detailed);
 	ret->AddValue("time", String(time));
-	if (action == HIGH) {
-		ret->AddValue("action", "on");
+	if (detailed) {
+		if (action == HIGH)
+			ret->AddValue("action", "on");
+		else
+			ret->AddValue("action", "off");
 	}
 	else {
-		ret->AddValue("action", "off");
+		if (action == HIGH)
+			ret->AddValue("action", "1");
+		else
+			ret->AddValue("action", "0");
 	}
 
 }

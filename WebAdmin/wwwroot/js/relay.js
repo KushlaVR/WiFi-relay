@@ -54,7 +54,7 @@ var Relay = (function () {
                     Relay.relay.turnOff($(this).data("switch"));
                 }
             });
-            TimeConverter.Convert();
+            Relay.ConvertAll();
         }).fail(function (data, status) {
             $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
             $(".switch-checkbox").click(function () {
@@ -145,7 +145,7 @@ var Relay = (function () {
             $(".switch-checkbox[data-state='on']").prop("checked", true);
             var cp = $('.clockpicker');
             cp.clockpicker();
-            TimeConverter.Convert();
+            Relay.ConvertAll();
         }
     };
     Relay.prototype.add = function (e) {
@@ -173,7 +173,7 @@ var Relay = (function () {
         $(".switch-checkbox[data-state='on']").prop("checked", true);
         var cp = $('.clockpicker');
         cp.clockpicker();
-        TimeConverter.Convert();
+        Relay.ConvertAll();
     };
     Relay.prototype.edit = function (e) {
         console.log("edit");
@@ -190,19 +190,21 @@ var Relay = (function () {
         $(".switch-checkbox[data-state='on']").prop("checked", true);
         var cp = $('.clockpicker');
         cp.clockpicker();
-        TimeConverter.Convert();
+        Relay.ConvertAll();
     };
     Relay.prototype.save = function (e) {
         console.log("save");
         var holder = $(e.target).closest(".holder");
         var form = $("form", holder);
         var fields = $("[name]", form);
-        var url = Relay.relay.rooturl + "setup?type=save&switch=" + this.getUrlParameter("index") + "&uid=" + holder.data("uid");
+        var url = Relay.relay.rooturl + "setup?switch=" + this.getUrlParameter("index") + "&uid=" + holder.data("uid");
         for (var i = 0; i < fields.length; i++) {
             var v = void 0;
             var f = $(fields[i]);
             if (f.hasClass("converter-time"))
                 v = TimeConverter.ConvertBack(fields[i]);
+            else if (f.hasClass("converter-week-days"))
+                v = WeekDaysConverter.ConvertBack(fields[i]);
             else
                 v = TextConverter.ConvertBack(fields[i]);
             url += "&" + fields[i].getAttribute("name") + "=" + encodeURIComponent(v);
@@ -293,6 +295,10 @@ var Relay = (function () {
             $(".wifi-list").html("Не вдалось завантажити список мереж.<br />Поновіть сторінку, щоб повторити спробу.");
         });
     };
+    Relay.ConvertAll = function () {
+        TimeConverter.Convert();
+        WeekDaysConverter.Convert();
+    };
     Relay.relay = new Relay();
     return Relay;
 }());
@@ -380,5 +386,63 @@ var TextConverter = (function () {
         return el.val();
     };
     return TextConverter;
+}());
+var WeekDaysConverter = (function () {
+    function WeekDaysConverter() {
+    }
+    WeekDaysConverter.Convert = function () {
+        var inputs = $(".converter-week-days")
+            .each(function (index, elem) {
+            var el = $(elem);
+            if (el.data("converted") === "1")
+                return;
+            var v;
+            if (elem.tagName === "INPUT") {
+                v = el.val();
+            }
+            else {
+                v = elem.innerHTML;
+            }
+            var res = "";
+            var i = parseInt(v, 10);
+            for (var day = 0; day < 7; day++) {
+                if ((i & (1 << day)) != 0) {
+                    if (res.length > 0)
+                        res += ", ";
+                    res += WeekDaysConverter.weekday[day];
+                }
+            }
+            el.data("converted", "1");
+            if (elem.tagName === "INPUT") {
+                el.attr("value", res);
+            }
+            else {
+                elem.innerHTML = res;
+            }
+        });
+    };
+    WeekDaysConverter.ConvertBack = function (elem) {
+        var el = $(elem);
+        if (el.data("converted") === "1") {
+            var v = void 0;
+            if (elem.tagName === "INPUT") {
+                v = el.val();
+            }
+            else {
+                v = elem.innerHTML;
+            }
+            var parts = v.split(",");
+            var res = 0;
+            for (var i = 0; i < parts.length; i++) {
+                var n = WeekDaysConverter.weekday.indexOf(parts[i].trim());
+                if (n >= 0)
+                    res += (1 << n);
+            }
+            return res.toString();
+        }
+        return el.val();
+    };
+    WeekDaysConverter.weekday = ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+    return WeekDaysConverter;
 }());
 //# sourceMappingURL=relay.js.map

@@ -43,7 +43,7 @@ namespace WebAdmin.Controllers
             }
 
             public string action { get; set; }
-            public string days { get; set; } = "1,2,3,4,5"; //пн-пт
+            public string days { get; set; } = "255"; //пн-пт
             public string time { get; set; } = "480";//08:00 = 8*60 + 00 = 480
         }
 
@@ -57,7 +57,7 @@ namespace WebAdmin.Controllers
                 editingtemplate = "pwmedit";
             }
 
-            public string days { get; set; } = "1,2,3,4,5"; //пн-пт
+            public string days { get; set; } = "255"; //пн-пт
             public string onlength { get; set; } = "5";// 00:05
             public string offlength { get; set; } = "15";// 00:05
 
@@ -197,76 +197,91 @@ namespace WebAdmin.Controllers
                 MQTTProcess item = items[int.Parse(sindex) - 1];
                 return Json(new { items = triggers[item].ToArray() });
             }
-            else if (type == "save")
+            else if (type == "onoff")
             {
                 MQTTProcess item = items[int.Parse(Request.Query["switch"]) - 1];
                 string uid = Request.Query["uid"];
+
                 if (uid == "0")
                 {
-                    if (!string.IsNullOrEmpty(Request.Query["time"]))
+
+                    OnOffTrigger tr = new OnOffTrigger();
+                    tr.time = Request.Query["time"];
+                    tr.days = Request.Query["days"];
+                    tr.name = Request.Query["name"];
+                    if (Request.Query["action"] == "true")
                     {
-
-                        OnOffTrigger tr = new OnOffTrigger();
-                        tr.time = Request.Query["time"];
-                        tr.days = Request.Query["days"];
-                        tr.name = Request.Query["name"];
-                        if (Request.Query["action"] == "true")
-                        {
-                            tr.action = "on";
-                        }
-                        else
-                        {
-                            tr.action = "off";
-                        }
-                        triggers[item].Add(tr);
-                        return new JsonResult(new { status = "OK" });
+                        tr.action = "on";
                     }
-                    else if (!string.IsNullOrEmpty(Request.Query["onlength"]))
+                    else
                     {
-
-                        PWMTrigger tr = new PWMTrigger();
-                        tr.onlength = Request.Query["onlength"];
-                        tr.offlength = Request.Query["offlength"];
-                        tr.days = Request.Query["days"];
-                        tr.name = Request.Query["name"];
-                        triggers[item].Add(tr);
-                        return new JsonResult(new { status = "OK" });
+                        tr.action = "off";
                     }
-
+                    triggers[item].Add(tr);
+                    return new JsonResult(new { status = "OK" });
                 }
-                foreach (Trigger t in triggers[item])
+                else
                 {
-                    if (t.uid == uid)
+                    foreach (Trigger t in triggers[item])
                     {
-                        if (t.type == "onoff")
+                        if (t.uid == uid)
                         {
-                            OnOffTrigger tr = t as OnOffTrigger;
-                            tr.time = Request.Query["time"];
-                            tr.days = Request.Query["days"];
-                            tr.name = Request.Query["name"];
-                            if (Request.Query["action"] == "true")
+                            if (t.type == "onoff")
                             {
-                                tr.action = "on";
+                                OnOffTrigger tr = t as OnOffTrigger;
+                                tr.time = Request.Query["time"];
+                                tr.days = Request.Query["days"];
+                                tr.name = Request.Query["name"];
+                                if (Request.Query["action"] == "true")
+                                {
+                                    tr.action = "on";
+                                }
+                                else
+                                {
+                                    tr.action = "off";
+                                }
+                                return new JsonResult(new { status = "OK" });
                             }
-                            else
-                            {
-                                tr.action = "off";
-                            }
-                            return new JsonResult(new { status = "OK" });
-                        } else if (t.type == "pwm")
+                        }
+                    }
+                }
+
+            }
+            else if (type == "pwm")
+            {
+                MQTTProcess item = items[int.Parse(Request.Query["switch"]) - 1];
+                string uid = Request.Query["uid"];
+
+                if (uid == "0")
+                {
+                    PWMTrigger tr = new PWMTrigger();
+                    tr.onlength = Request.Query["onlength"];
+                    tr.offlength = Request.Query["offlength"];
+                    tr.days = Request.Query["days"];
+                    tr.name = Request.Query["name"];
+                    triggers[item].Add(tr);
+                    return new JsonResult(new { status = "OK" });
+                }
+                else
+                {
+                    foreach (Trigger t in triggers[item])
+                    {
+                        if (t.uid == uid)
                         {
-                            PWMTrigger tr = t as PWMTrigger;
-                            tr.onlength = Request.Query["onlength"];
-                            tr.offlength = Request.Query["offlength"];
-                            tr.days = Request.Query["days"];
-                            tr.name = Request.Query["name"];
-                            return new JsonResult(new { status = "OK" });
+                            if (t.type == "pwm")
+                            {
+                                PWMTrigger tr = t as PWMTrigger;
+                                tr.onlength = Request.Query["onlength"];
+                                tr.offlength = Request.Query["offlength"];
+                                tr.days = Request.Query["days"];
+                                tr.name = Request.Query["name"];
+                                return new JsonResult(new { status = "OK" });
+                            }
                         }
                     }
                 }
             }
             return NotFound();
-
         }
 
     }

@@ -29,13 +29,16 @@ public:
 
 	virtual void loop(time_t * time) {};
 	virtual void load(File * f) {};
-	virtual void printInfo(JsonString * ret);
+	virtual void printInfo(JsonString * ret, bool detailed);
 	Trigger * getNextTrigger() { return next; };
-
+	bool save();
 
 	static Trigger * getFirstTrigger();
+	static Trigger * getLastTrigger();
+
 	static void processNext(time_t * time);
 	static void loadConfig(MQTTswitch * proc);
+
 };
 
 class OnOffTrigger : public Trigger {
@@ -50,6 +53,6 @@ public:
 
 	void loop(time_t * time);
 	void load(File * f);
-	void printInfo(JsonString * ret);
+	void printInfo(JsonString * ret, bool detailed);
 };
 

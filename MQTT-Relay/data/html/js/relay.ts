@@ -51,7 +51,7 @@
                         Relay.relay.turnOff($(this).data("switch"))
                     }
                 });
-                TimeConverter.Convert();
+                Relay.ConvertAll();
             }
         ).fail(function (data: any, status: any) {
             $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
@@ -161,7 +161,7 @@
             $(".switch-checkbox[data-state='on']").prop("checked", true);
             let cp: any = $('.clockpicker');
             cp.clockpicker();
-            TimeConverter.Convert();
+            Relay.ConvertAll();
         }
     }
 
@@ -196,7 +196,7 @@
         $(".switch-checkbox[data-state='on']").prop("checked", true);
         let cp: any = $('.clockpicker');
         cp.clockpicker();
-        TimeConverter.Convert();
+        Relay.ConvertAll();
     }
 
     public edit(e: any): void {
@@ -217,7 +217,7 @@
         $(".switch-checkbox[data-state='on']").prop("checked", true);
         let cp: any = $('.clockpicker');
         cp.clockpicker();
-        TimeConverter.Convert();
+        Relay.ConvertAll();
     }
 
     public save(e: any): void {
@@ -225,11 +225,13 @@
         let holder: JQuery = $(e.target).closest(".holder");
         let form: JQuery = $("form", holder);
         let fields = $("[name]", form);
-        let url: string = Relay.relay.rooturl + "setup?type=save&switch=" + this.getUrlParameter("index") + "&uid=" + holder.data("uid");
+        let url: string = Relay.relay.rooturl + "setup?switch=" + this.getUrlParameter("index") + "&uid=" + holder.data("uid");
         for (let i: number = 0; i < fields.length; i++) {
             let v: string;
             let f = $(fields[i]);
-            if (f.hasClass("converter-time")) v = TimeConverter.ConvertBack(fields[i]); else v = TextConverter.ConvertBack(fields[i]);
+            if (f.hasClass("converter-time")) v = TimeConverter.ConvertBack(fields[i]);
+            else if (f.hasClass("converter-week-days")) v = WeekDaysConverter.ConvertBack(fields[i]);
+            else v = TextConverter.ConvertBack(fields[i]);
             url += "&" + fields[i].getAttribute("name") + "=" + encodeURIComponent(v);
         }
         $.get(url).done(function (data: any, status: any) {
@@ -339,6 +341,11 @@
             });
     }
 
+    public static ConvertAll() {
+        TimeConverter.Convert();
+        WeekDaysConverter.Convert();
+    }
+
 }
 
 class WIFI_list {
@@ -410,7 +417,6 @@ class TimeConverter {
         return el.val();
     }
 
-
     public static pad(value: string, size: number): string {
         var s = value;
         while (s.length < (size || 2)) { s = "0" + s; }
@@ -428,6 +434,68 @@ class TextConverter {
         let el = $(elem);
         if (el.attr("type") === "checkbox") {
             return el.prop("checked");
+        }
+        return el.val();
+    }
+
+}
+
+class WeekDaysConverter {
+
+
+    //static weekday: any = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    static weekday: string[] = ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"]
+
+    public static Convert(): void {
+
+        let inputs = $(".converter-week-days")
+            .each((index: number, elem: Element): void => {
+                let el = $(elem);
+                if (el.data("converted") === "1") return;
+
+                let v: string;
+                if (elem.tagName === "INPUT") {
+                    v = el.val();
+                } else {
+                    v = elem.innerHTML;
+                }
+
+                let res: string = "";
+                let i: number = parseInt(v, 10);
+
+                for (let day: number = 0; day < 7; day++) {
+                    if ((i & (1 << day)) != 0) {
+                        if (res.length > 0) res += ", ";
+                        res += WeekDaysConverter.weekday[day];
+                    }
+                }
+
+                el.data("converted", "1");
+                if (elem.tagName === "INPUT") {
+                    el.attr("value", res);
+                } else {
+                    elem.innerHTML = res;
+                }
+            });
+    }
+
+
+    public static ConvertBack(elem: Element): string {
+        let el = $(elem);
+        if (el.data("converted") === "1") {
+            let v: string;
+            if (elem.tagName === "INPUT") {
+                v = el.val();
+            } else {
+                v = elem.innerHTML;
+            }
+            let parts = v.split(",");
+            let res: number = 0;
+            for (let i: number = 0; i < parts.length; i++) {
+                let n: number = WeekDaysConverter.weekday.indexOf(parts[i].trim());
+                if (n >= 0) res += (1 << n);
+            }
+            return res.toString();
         }
         return el.val();
     }

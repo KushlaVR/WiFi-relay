@@ -120,53 +120,135 @@ void ApiController::handleTemplate() {
 
 
 void ApiController::handleSetup() {
-	String name = "";
+	String type = "";
 	if (server.hasArg("type")) {
-		name = server.arg("type");
-		Serial.printf("setup: name=%s\n", name.c_str());
-		int index = server.arg("index").toInt();
-
-		MQTTprocess * proc = mqtt_connection.getFirstProcess();
-		int i = index - 1;
-		while (i > 0) {
-			if (proc->next != nullptr) {
-				proc = proc->next;
-				i--;
-			}
-			else {
-				WebPortal::handleNotFound();
-				return;
-			}
+		type = server.arg("type");
+		if (type == "switch") {
+			Serial.printf("setup: type=%s\n", type.c_str());
+			if (ApiController::handleGetSwitchSetup()) return;
 		}
-
-		JsonString ret = "";
-
-
-
-		ret.beginObject();
-
-		ret.beginArray("items");
-
-		Trigger * t = Trigger::getFirstTrigger();
-		while (t != nullptr) {
-			if (t->proc == proc) {
-				ret.beginObject();
-				t->printInfo(&ret);
-				ret.endObject();
-			}
-			t = t->getNextTrigger();
+		else if (type == "onoff") {
+			Serial.printf("setup: type=%s\n", type.c_str());
+			if (ApiController::handleSetTrigger(type)) return;
 		}
-		ret.endArray();
-
-		ret.endObject();
-
-
-		Serial.printf("setup: ret=%s\n", ret.c_str());
-
-		server.send(200, "application/json", ret);
-		return;
+		else if (type == "pwm") {
+			Serial.printf("setup: type=%s\n", type.c_str());
+			if (ApiController::handleSetTrigger(type)) return;
+		}
 	}
 	WebPortal::handleNotFound();
+}
+
+bool ApiController::handleGetSwitchSetup()
+{
+	int index = server.arg("index").toInt();
+
+	MQTTprocess * proc = mqtt_connection.getFirstProcess();
+	int i = index - 1;
+	while (i > 0) {
+		if (proc->next != nullptr) {
+			proc = proc->next;
+			i--;
+		}
+		else {
+			return false;
+		}
+	}
+
+	JsonString ret = "";
+	ret.beginObject();
+	ret.beginArray("items");
+	Trigger * t = Trigger::getFirstTrigger();
+	while (t != nullptr) {
+		if (t->proc == proc) {
+			ret.beginObject();
+			t->printInfo(&ret, true);
+			ret.endObject();
+		}
+		t = t->getNextTrigger();
+	}
+	ret.endArray();
+	ret.endObject();
+
+	Serial.printf("setup: ret=%s\n", ret.c_str());
+	server.send(200, "application/json", ret);
+	return true;
+}
+
+bool ApiController::handleSetTrigger(String type)
+{
+	int index = -1;
+	int uid = 0;
+	if (server.hasArg("switch")) index = server.arg("switch").toInt();
+	if (server.hasArg("uid")) uid = server.arg("uid").toInt();
+
+	MQTTprocess * proc = mqtt_connection.getFirstProcess();
+	int i = 1;
+	while (proc != nullptr) {
+		if (i == index) break;
+		proc = proc->next;
+		i++;
+	};
+
+	if (proc == nullptr) {
+		return false;
+	};
+
+	Serial.printf("Process=%s\n", proc->name.c_str());
+
+	if (type == "onoff") {
+
+		OnOffTrigger * tr = nullptr;
+
+		if (uid == 0) {
+			Serial.println("new trigger");
+			//new trigger
+			tr = new OnOffTrigger();
+			tr->proc = (MQTTswitch *)proc;
+			tr->Register();
+		}
+		else {
+			Serial.println("Try ti find trigger...");
+			Trigger * t = Trigger::getFirstTrigger();
+			while (t != nullptr && tr == nullptr) {
+				if (t->proc == proc) {
+					if (t->uid == uid) {
+						if (!(String(t->type) == "onoff")) return false;
+						tr = (OnOffTrigger *)t;
+						Serial.println("Found. OK!");
+					}
+				}
+				t = t->getNextTrigger();
+			}
+		}
+		
+		Serial.println("Fill up trigger");
+		if (server.hasArg("name")) tr->name = server.arg("name");
+		Serial.printf("name=%s\n",tr->name.c_str());
+		Serial.printf("days=%s\n", server.arg("days").c_str());
+		if (server.hasArg("days")) tr->days = server.arg("days").toInt();
+		Serial.printf("days=%i\n", tr->days);
+		if (server.hasArg("time")) tr->time = server.arg("time").toInt();
+		Serial.printf("time=%i\n", tr->time);
+
+		String action = "";
+		if (server.hasArg("action")) action = server.arg("action");
+		if (action == "true")
+			tr->action = HIGH;
+		else
+			tr->action = LOW;
+		if (tr->save()) {
+			JsonString ret = JsonString();
+			ret.beginObject();
+			ret.AddValue("status", "OK");
+			ret.endObject();
+			server.send(200, "application/json", ret);
+		}
+	}
+	else if (type == "pwm") {
+
+	}
+	return false;
 }
 
 
