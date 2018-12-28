@@ -65,7 +65,7 @@ void MQTTswitch::Register(Adafruit_MQTT_Client * connection)
 void MQTTswitch::printInfo(JsonString * ret)
 {
 	MQTTprocess::printInfo(ret);
-	ret->AddValue("state", state);
+	ret->AddValue("state", (state ? "ON" : "OFF"));
 	ret->AddValue("index", String(index));
 	ret->AddValue("visual", "switch");
 }
@@ -85,7 +85,7 @@ void MQTTswitch::setState(bool newState)
 bool MQTTswitch::schedule()
 {
 	ulong m = millis();
-	if ((m - lastReport) > 5000UL) {
+	if (lastReport == 0 || (m - lastReport) > repotPeriod) {
 		if (publish_available()) lastReport = m;
 	}
 }
@@ -106,7 +106,7 @@ bool MQTTswitch::publish_available() {
 
 
 bool MQTTswitch::publish_state(const char * state) {
-	this->state = String(state);
+	this->state = (String(state) == "ON");
 	// Now we can publish stuff!
 	if (!onoffbutton_state->publish(state)) {
 		Serial.printf("Publish %s state - Failse!\n", state);

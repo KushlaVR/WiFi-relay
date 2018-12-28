@@ -81,8 +81,9 @@
     <DebuggerFlavor>VisualMicroDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="data\config\led\02onoff.json" />
-    <None Include="data\config\led\01onoff.json" />
+    <None Include="data\config\led\03pwm.json" />
+    <None Include="data\config\out1\02onoff.json" />
+    <None Include="data\config\out1\01onoff.json" />
     <None Include="data\html\content\idea.svg" />
     <None Include="data\html\content\_edittrigger.html" />
     <None Include="data\html\content\_newitem.html" />

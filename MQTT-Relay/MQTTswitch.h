@@ -22,6 +22,7 @@ class MQTTswitch : public MQTTprocess
 	retain: true
 	*/
 	ulong lastReport = 0;
+	ulong repotPeriod = 300000UL;
 	int index;
 	char * feed_sate;
 	char * feed_set;
@@ -33,14 +34,14 @@ class MQTTswitch : public MQTTprocess
 
 	uint8_t pin;
 
-	String state = "OFF";
+	bool state = false;
 
 	bool publish_available();
 	bool publish_state(const char * state);
 public:
 	uint8_t onPinValue = HIGH;
-	uint8_t offPinValue = LOW; 
-	
+	uint8_t offPinValue = LOW;
+
 	MQTTswitch(String feed, String name, uint8_t pin);
 	MQTTswitch(char * feed, char * name, uint8_t pin);
 	~MQTTswitch();
@@ -50,7 +51,7 @@ public:
 	void printInfo(JsonString * ret);
 	void setState(bool newState);
 	bool schedule();
+	bool isOn() { return state; };
 
-
-};;
+};
 

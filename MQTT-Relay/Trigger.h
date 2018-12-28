@@ -22,8 +22,6 @@ public:
 
 	int uid;
 	char * type = nullptr;
-	char * _tempate = nullptr;
-	char * _editingTempate = nullptr;
 	String name = "";
 	unsigned char days = 0xFF;
 
@@ -56,3 +54,20 @@ public:
 	void printInfo(JsonString * ret, bool detailed);
 };
 
+class PWMTrigger : public Trigger {
+	unsigned char stage = 0;
+	time_t lastFire = 0;
+
+public:
+
+	PWMTrigger();
+	~PWMTrigger();
+
+	unsigned long onlength = 0;
+	unsigned long offlength = 0;
+
+	void loop(time_t * time);
+	void load(File * f);
+	void printInfo(JsonString * ret, bool detailed);
+
+};

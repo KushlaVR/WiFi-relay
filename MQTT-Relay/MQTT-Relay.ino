@@ -98,7 +98,7 @@ void loop() {
 	if (mqtt_connection.loop()) {
 		mqtt_connection.process();
 
-		if ((millis() - lastInfo) > 10000) {
+		if ((millis() - lastInfo) > 60000) {
 			lastInfo = millis();
 			// Now we can publish stuff!
 

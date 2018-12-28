@@ -81,8 +81,8 @@ void Trigger::printInfo(JsonString * ret, bool detailed)
 	ret->AddValue("days", String(days));
 	if (detailed) {
 		ret->AddValue("type", type);
-		ret->AddValue("template", _tempate);
-		ret->AddValue("editingtemplate", _editingTempate);
+		ret->AddValue("template", type);
+		ret->AddValue("editingtemplate", String(type) + "edit");
 	}
 }
 
@@ -138,8 +138,14 @@ void Trigger::loadConfig(MQTTswitch * proc)
 			fName = fName.substring(3);
 			Serial.printf("config found num=%s name=%s \n", fNum.c_str(), fName.c_str());
 
+			Trigger * t = nullptr;
 			if (fName.startsWith("onoff")) {
-				OnOffTrigger * t = new OnOffTrigger();
+				t = new OnOffTrigger();
+			}
+			else if (fName.startsWith("pwm")) {
+				t = new PWMTrigger();
+			}
+			if (t != nullptr) {
 				t->uid = fNum.toInt();
 				t->load(&f);
 				t->proc = proc;
@@ -154,8 +160,6 @@ void Trigger::loadConfig(MQTTswitch * proc)
 OnOffTrigger::OnOffTrigger() :Trigger()
 {
 	type = "onoff";
-	_tempate = "onoff";
-	_editingTempate = "onoffedit";
 }
 
 OnOffTrigger::~OnOffTrigger()
@@ -192,7 +196,6 @@ void OnOffTrigger::load(File * f) {
 	else {
 		action = LOW;
 	}
-
 }
 
 void OnOffTrigger::printInfo(JsonString * ret, bool detailed)
@@ -212,4 +215,68 @@ void OnOffTrigger::printInfo(JsonString * ret, bool detailed)
 			ret->AddValue("action", "0");
 	}
 
+}
+
+PWMTrigger::PWMTrigger()
+{
+	type = "pwm";
+	lastFire = 0;
+	stage = 0;
+}
+
+PWMTrigger::~PWMTrigger()
+{
+}
+
+void PWMTrigger::loop(time_t * time)
+{
+	//if (year(lastFire) == year(*time) && month(lastFire) == month(*time) && day(lastFire) == day(*time)) return;//Якщо сьогодні вже спрацював, то нічого не робимо
+
+	int d = weekday(*time);
+	if (days & (1 << d)) {//Дань тиждня підходящий
+		unsigned long deltaT = *time - lastFire;
+		unsigned int t = (unsigned int)hour(deltaT) * 60UL + (unsigned int)minute(deltaT);
+		//Serial.println(t);
+		if (t < onlength) {
+			if (stage == 0) {
+				stage++;
+				if (!proc->isOn()) {
+					Serial.printf("Trigger %i - %s ON\n", uid, type);
+					proc->setState(true);
+				}
+			}
+		}
+		else if (t < (onlength + offlength))
+		{
+			if (stage == 1) {
+				stage++;
+				if (proc->isOn()) {
+					Serial.printf("Trigger %i - %s OFF\n", uid, type);
+					proc->setState(false);
+				}
+			}
+		}
+		else {
+			Serial.printf("Trigger %i - %s new Period\n", uid, type);
+			lastFire = *time;
+			stage = 0;
+		}
+	}
+}
+
+void PWMTrigger::load(File * f)
+{
+	Trigger::load(f);
+	JsonString s = JsonString(f->readString());
+	name = s.getValue("name");
+	days = (unsigned char)(s.getValue("days").toInt());
+	onlength = s.getValue("onlength").toInt();
+	offlength = s.getValue("offlength").toInt();
+}
+
+void PWMTrigger::printInfo(JsonString * ret, bool detailed)
+{
+	Trigger::printInfo(ret, detailed);
+	ret->AddValue("onlength", String(onlength));
+	ret->AddValue("offlength", String(offlength));
 }

@@ -196,57 +196,91 @@ bool ApiController::handleSetTrigger(String type)
 
 	Serial.printf("Process=%s\n", proc->name.c_str());
 
-	if (type == "onoff") {
+	Trigger * trigger = nullptr;
 
-		OnOffTrigger * tr = nullptr;
-
-		if (uid == 0) {
-			Serial.println("new trigger");
-			//new trigger
-			tr = new OnOffTrigger();
-			tr->proc = (MQTTswitch *)proc;
-			tr->Register();
+	if (uid == 0) {
+		Serial.println("new trigger");
+		if (type == "onoff")
+			trigger = new OnOffTrigger();
+		else if (type == "pwm") {
+			trigger = new PWMTrigger();
 		}
 		else {
-			Serial.println("Try ti find trigger...");
-			Trigger * t = Trigger::getFirstTrigger();
-			while (t != nullptr && tr == nullptr) {
-				if (t->proc == proc) {
-					if (t->uid == uid) {
-						if (!(String(t->type) == "onoff")) return false;
-						tr = (OnOffTrigger *)t;
-						Serial.println("Found. OK!");
-					}
-				}
-				t = t->getNextTrigger();
-			}
+			return false;
 		}
-		
-		Serial.println("Fill up trigger");
-		if (server.hasArg("name")) tr->name = server.arg("name");
-		Serial.printf("name=%s\n",tr->name.c_str());
-		Serial.printf("days=%s\n", server.arg("days").c_str());
-		if (server.hasArg("days")) tr->days = server.arg("days").toInt();
-		Serial.printf("days=%i\n", tr->days);
-		if (server.hasArg("time")) tr->time = server.arg("time").toInt();
-		Serial.printf("time=%i\n", tr->time);
+		trigger->proc = (MQTTswitch *)proc;
+		trigger->Register();
+	}
+	else {
+		Serial.println("Try ti find trigger...");
+		Trigger * t = Trigger::getFirstTrigger();
+		while (t != nullptr && trigger == nullptr) {
+			if (t->proc == proc) {
+				if (t->uid == uid) {
+					if (!(String(t->type) == type)) return false;
+					trigger = t;
+					Serial.println("Found. OK!");
+				}
+			}
+			t = t->getNextTrigger();
+		}
+	}
+
+	if (trigger == nullptr) return false;
+
+	Serial.println("Fill up trigger");
+
+	if (server.hasArg("name")) {
+		trigger->name = server.arg("name");
+		Serial.printf("name=%s\n", trigger->name.c_str());
+	}
+
+	if (server.hasArg("days")) {
+		trigger->days = server.arg("days").toInt();
+		Serial.printf("days=%i\n", trigger->days);
+	}
+
+
+	if (type == "onoff") {
+		OnOffTrigger * tr = (OnOffTrigger *)trigger;
+
+		if (server.hasArg("time")) {
+			tr->time = server.arg("time").toInt();
+			Serial.printf("time=%i\n", tr->time);
+		}
 
 		String action = "";
-		if (server.hasArg("action")) action = server.arg("action");
-		if (action == "true")
-			tr->action = HIGH;
-		else
-			tr->action = LOW;
-		if (tr->save()) {
-			JsonString ret = JsonString();
-			ret.beginObject();
-			ret.AddValue("status", "OK");
-			ret.endObject();
-			server.send(200, "application/json", ret);
+		if (server.hasArg("action")) {
+			action = server.arg("action");
+			if (action == "true")
+				tr->action = HIGH;
+			else
+				tr->action = LOW;
 		}
 	}
 	else if (type == "pwm") {
+		PWMTrigger * tr = (PWMTrigger *)trigger;
 
+		if (server.hasArg("onlength")) {
+			tr->onlength = server.arg("onlength").toInt();
+			Serial.printf("onlength=%i\n", tr->onlength);
+		}
+
+		if (server.hasArg("offlength")) {
+			tr->offlength = server.arg("offlength").toInt();
+			Serial.printf("offlength=%i\n", tr->offlength);
+		}
+
+	}
+
+	Serial.println("save trigger");
+	if (trigger->save()) {
+		JsonString ret = JsonString();
+		ret.beginObject();
+		ret.AddValue("status", "OK");
+		ret.endObject();
+		server.send(200, "application/json", ret);
+		return true;
 	}
 	return false;
 }
