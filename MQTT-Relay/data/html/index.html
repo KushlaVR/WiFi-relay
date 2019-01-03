@@ -65,8 +65,33 @@
             <div class="row">
                 <div class="col-sm-12 text-secondary text-right">Версія: v 1.1.pre alpa</div>
             </div>
+            <div class="row">
+                <div class="col-sm-12 text-secondary text-right">Час на приладі: <span id="systime"></span></div>
+            </div>
         </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="questionModal" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Запитання</h4>
+                    <button type="button" class="close btn-cancel" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-text">Some text in the modal.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-yes">Так</button>
+                    <button type="button" class="btn btn-primary btn-no" data-dismiss="modal">Ні</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <script type="text/javascript">
         $('.clockpicker').clockpicker();
         Relay.relay.init();

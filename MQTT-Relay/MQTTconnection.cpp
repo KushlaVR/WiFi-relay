@@ -22,20 +22,20 @@ void MQTTconnection::setup() {
 		File f = SPIFFS.open("/mqtt.json", "r");
 		f.seek(0);
 		JsonString json = JsonString(f.readString());
-		
+
 		String b = json.getValue("broker");
 		broker = (char *)calloc(b.length() + 1, 1);
-		b.toCharArray(broker, b.length()+1);
-		if (b.length()>0) {
+		b.toCharArray(broker, b.length() + 1);
+		if (b.length() > 0) {
 			String p = json.getValue("port");
 			port = p.toInt();
-			
+
 			String u = json.getValue("user");
 			user = (char *)calloc(u.length() + 1, 1);
-			u.toCharArray(user, u.length()+1);
+			u.toCharArray(user, u.length() + 1);
 
 			String k = json.getValue("key");
-			key = (char *)calloc(k.length()+1, 1);
+			key = (char *)calloc(k.length() + 1, 1);
 			k.toCharArray(key, k.length());
 
 			Serial.print("broker:"); Serial.println(broker);
@@ -67,14 +67,20 @@ bool MQTTconnection::loop() {
 		if (connection == nullptr) return false;
 		int8_t ret;
 		// Stop if already connected.
-		if (connection->connected()) return true;
+		if (connection->connected()) {
+			numberOfTry = 0;
+			return true;
+		};
 		Serial.print("Connecting to MQTT... ");
 		if ((ret = connection->connect()) != 0) { // connect will return 0 for connected
+			numberOfTry++;
+			if (numberOfTry > 120) numberOfTry = 120;
 			Serial.print("Can't connecto to MQTT broker:");
 			Serial.println(connection->connectErrorString(ret));
-			Serial.println("Next try in 5 seconds...");
+			Serial.printf("Next try in %i seconds...\n", numberOfTry * 5);
 			connection->disconnect();
-			connectInterval = 5000UL;
+			connectInterval = 1000UL * numberOfTry*5UL;
+			lastConnect = millis();
 			return false;
 		}
 		Serial.println("MQTT Connected!");

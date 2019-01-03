@@ -152,7 +152,7 @@ namespace WebAdmin.Controllers
 
         public IActionResult wifisave(string n, string p)
         {
-            return new JsonResult(new { result = "ok" });
+            return new JsonResult(new { result = "ok", systime = DateTime.Now.ToString("HH:mm:ss") });
         }
 
         [HttpGet()]
@@ -169,7 +169,7 @@ namespace WebAdmin.Controllers
                 if (index.Value <= items.Count)
                 {
                     items[index.Value - 1].state = state.ToUpper();
-                    return new JsonResult(new { status = "OK" });
+                    return new JsonResult(new { status = "OK", systime = DateTime.Now.ToString("HH:mm:ss") });
                 }
             }
             return NotFound();
@@ -188,10 +188,24 @@ namespace WebAdmin.Controllers
         [HttpGet()]
         public IActionResult setup()
         {
-
+            string delete = Request.Query["delete"];
             string type = Request.Query["type"];
             string sindex = Request.Query["index"];
-            if (type == "switch")
+            if (!String.IsNullOrEmpty(delete))
+            {
+                //string uid = Request.Query["uid"];
+                MQTTProcess item = items[int.Parse(Request.Query["switch"]) - 1];
+                for (int i = triggers[item].Count - 1; i >= 0; i--)
+                {
+                    Trigger t = triggers[item][i];
+                    if (t.uid == delete)
+                    {
+                        triggers[item].RemoveAt(i);
+                        return new JsonResult(new { status = "OK", systime = DateTime.Now.ToString("HH:mm:ss") });
+                    }
+                }
+            }
+            else if (type == "switch")
             {
                 List<Trigger> list = new List<Trigger>();
                 MQTTProcess item = items[int.Parse(sindex) - 1];
@@ -218,7 +232,7 @@ namespace WebAdmin.Controllers
                         tr.action = "off";
                     }
                     triggers[item].Add(tr);
-                    return new JsonResult(new { status = "OK" });
+                    return new JsonResult(new { status = "OK", systime = DateTime.Now.ToString("HH:mm:ss") });
                 }
                 else
                 {
@@ -240,7 +254,7 @@ namespace WebAdmin.Controllers
                                 {
                                     tr.action = "off";
                                 }
-                                return new JsonResult(new { status = "OK" });
+                                return new JsonResult(new { status = "OK", systime = DateTime.Now.ToString("HH:mm:ss") });
                             }
                         }
                     }
@@ -260,7 +274,7 @@ namespace WebAdmin.Controllers
                     tr.days = Request.Query["days"];
                     tr.name = Request.Query["name"];
                     triggers[item].Add(tr);
-                    return new JsonResult(new { status = "OK" });
+                    return new JsonResult(new { status = "OK", systime = DateTime.Now.ToString("HH:mm:ss") });
                 }
                 else
                 {
@@ -275,12 +289,13 @@ namespace WebAdmin.Controllers
                                 tr.offlength = Request.Query["offlength"];
                                 tr.days = Request.Query["days"];
                                 tr.name = Request.Query["name"];
-                                return new JsonResult(new { status = "OK" });
+                                return new JsonResult(new { status = "OK", systime = DateTime.Now.ToString("HH:mm:ss") });
                             }
                         }
                     }
                 }
             }
+
             return NotFound();
         }
 

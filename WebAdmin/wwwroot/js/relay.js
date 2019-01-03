@@ -14,9 +14,16 @@ var Relay = (function () {
             $("#pageHeader").html("Налаштування");
             this.loadSetup(setup, this.getUrlParameter("index"));
         }
+        var qm = $("#questionModal");
+        if (qm.length > 0)
+            Relay.questionTemplate = $("#questionModal")[0].innerHTML;
     };
     Relay.prototype.loadProcesses = function () {
         $.get(Relay.relay.rooturl + "switches").done(function (data, status) {
+            if (data.systime) {
+                $("#systime").html(data.systime);
+            }
+            ;
             var w = data;
             var list = "";
             for (var i = 0; i < w.items.length; i++) {
@@ -56,6 +63,10 @@ var Relay = (function () {
             });
             Relay.ConvertAll();
         }).fail(function (data, status) {
+            if (data.systime) {
+                $("#systime").html(data.systime);
+            }
+            ;
             $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
             $(".switch-checkbox").click(function () {
                 Relay.relay.loadProcesses();
@@ -64,6 +75,10 @@ var Relay = (function () {
     };
     Relay.prototype.loadSetup = function (setup, index) {
         $.get(Relay.relay.rooturl + "setup?type=switch&index=" + index.toString()).done(function (data, status) {
+            if (data.systime) {
+                $("#systime").html(data.systime);
+            }
+            ;
             for (var i = 0; i < data.items.length; i++) {
                 var item = data.items[i];
                 Relay.relay.triggers.push(item);
@@ -71,6 +86,10 @@ var Relay = (function () {
             ;
             Relay.relay.loadTriggerTemplate();
         }).fail(function (data, status) {
+            if (data.systime) {
+                $("#systime").html(data.systime);
+            }
+            ;
             $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
             $(".switch-checkbox").click(function () {
                 Relay.relay.loadSetup(setup, index);
@@ -89,12 +108,20 @@ var Relay = (function () {
     };
     Relay.prototype.loadTemplateByName = function (name, onDone) {
         $.get(Relay.relay.rooturl + "template?name=" + name).done(function (data, status) {
+            if (data.systime) {
+                $("#systime").html(data.systime);
+            }
+            ;
             var item = new keyValue();
             item.key = name;
             item.value = data;
             Relay.relay.templates.push(item);
             onDone();
         }).fail(function (data, status) {
+            if (data.systime) {
+                $("#systime").html(data.systime);
+            }
+            ;
             $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
             $(".switch-checkbox").click(function () {
                 Relay.relay.loadTriggerTemplate();
@@ -141,6 +168,9 @@ var Relay = (function () {
             });
             $(".btn-add").click(function (e) {
                 Relay.relay.add(e);
+            });
+            $('.btn-delete').click(function (e) {
+                Relay.relay.delete(e);
             });
             $(".switch-checkbox[data-state='on']").prop("checked", true);
             var cp = $('.clockpicker');
@@ -212,7 +242,29 @@ var Relay = (function () {
         $.get(url).done(function (data, status) {
             location.reload();
         }).fail(function (data, status) {
+            if (data.systime) {
+                $("#systime").html(data.systime);
+            }
+            ;
             alert(data);
+        });
+    };
+    Relay.prototype.delete = function (e) {
+        var _this = this;
+        console.log("delete");
+        Relay.ask("Вилучити тригер зі списку?", function () {
+            var holder = $(e.target).closest(".holder");
+            var form = $("form", holder);
+            var url = Relay.relay.rooturl + "setup?switch=" + _this.getUrlParameter("index") + "&delete=" + holder.data("uid");
+            $.get(url).done(function (data, status) {
+                location.reload();
+            }).fail(function (data, status) {
+                if (data.systime) {
+                    $("#systime").html(data.systime);
+                }
+                ;
+                alert(data);
+            });
         });
     };
     Relay.prototype.fillTemplate = function (t, item) {
@@ -244,6 +296,10 @@ var Relay = (function () {
             return;
         console.log("turn on");
         $.post(Relay.relay.rooturl + "switches" + "?index=" + i.toString() + "&state=on").done(function (data, status) {
+            if (data.systime) {
+                $("#systime").html(data.systime);
+            }
+            ;
             $("#switch_" + i.toString()).data("state", "ON");
             $("#switch_img_" + i.toString()).removeClass("light-off").addClass("light-on");
             $("#switch_" + i.toString()).prop("checked", true);
@@ -257,6 +313,10 @@ var Relay = (function () {
             return;
         console.log("turn off");
         $.post(Relay.relay.rooturl + "switches" + "?index=" + i.toString() + "&state=off").done(function (data, status) {
+            if (data.systime) {
+                $("#systime").html(data.systime);
+            }
+            ;
             $("#switch_" + i.toString()).data("state", "OFF");
             $("#switch_img_" + i.toString()).removeClass("light-on").addClass("light-off");
             $("#switch_" + i.toString()).prop("checked", false);
@@ -298,6 +358,32 @@ var Relay = (function () {
     Relay.ConvertAll = function () {
         TimeConverter.Convert();
         WeekDaysConverter.Convert();
+    };
+    Relay.ask = function (question, yes, no) {
+        if (no === void 0) { no = null; }
+        var questionModal = $("#questionModal");
+        questionModal.html(Relay.questionTemplate);
+        var modaTitle = $(".modal-title", questionModal);
+        var modalText = $(".modal-text", questionModal);
+        var btnYes = $(".btn-yes", questionModal);
+        var btnNo = $(".btn-no", questionModal);
+        var btnCancel = $(".btn-cancel", questionModal);
+        modalText.html(question);
+        questionModal.addClass("in").attr("style", "display:block;opacity:1");
+        btnYes.click(function () {
+            yes();
+            return false;
+        });
+        btnNo.click(function () {
+            if (no)
+                no();
+            questionModal.removeClass("in").removeAttr("style");
+            return false;
+        });
+        btnCancel.click(function () {
+            questionModal.removeClass("in").removeAttr("style");
+            return false;
+        });
     };
     Relay.relay = new Relay();
     return Relay;

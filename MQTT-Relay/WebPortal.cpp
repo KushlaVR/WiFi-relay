@@ -8,7 +8,9 @@
 #include <DNSServer.h>
 #include <ESP8266mDNS.h>
 #include <FS.h>
+#include <TimeLib.h>
 #include "Json.h"
+#include "Utils.h"
 
 
 
@@ -169,6 +171,29 @@ bool WebPortal::handleFileRead(String path) {
 	Serial.println("Not found!!! " + path);
 	return false;
 }
+
+void WebPortal::jsonOk(JsonString *json)
+{
+	server.send(200, "application/json", *json);
+}
+
+void WebPortal::Ok()
+{
+	server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+	server.sendHeader("Pragma", "no-cache");
+	server.sendHeader("Expires", "-1");
+	server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+
+	JsonString ret = "";
+	ret.beginObject();
+	ret.AddValue("systime", Utils::FormatTime(now()));
+	ret.AddValue("status", "ok");
+	ret.endObject();
+
+	server.send(200, "application/json", ret);
+
+}
+
 
 char* WebPortal::getContentType(String filename) {
 	if (hasArg("download")) return "application/octet-stream";

@@ -94,7 +94,7 @@ input:checked + .slider:before {
 }
 
 .holder {
-    display: inline-block;
+    //display: inline-block;
 }
 
     .holder .form-group {
@@ -108,10 +108,16 @@ input:checked + .slider:before {
 
 .card-header.on {
     background: #28a745;
-    color:white;
+    color: white;
 }
 
 .card-header.off {
     background: #bd2130;
     color: white;
+}
+
+
+#questionModal {
+    background: #495057d6;
+    padding-top:100px
 }

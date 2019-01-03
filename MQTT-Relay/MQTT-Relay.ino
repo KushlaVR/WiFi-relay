@@ -18,6 +18,7 @@
 #include "ApiController.h"
 #include <TimeLib.h>
 #include "Trigger.h"
+#include "Utils.h"
 
 /****************************** Feeds ***************************************/
 // Setup a feed called 'photocell' for publishing.
@@ -30,8 +31,9 @@ NTPreciver NTP;
 ApiController api;
 
 void setup() {
-	setTime(21, 0, 0, 17, 12, 2018);
 	//setSyncInterval(1);
+	//setTime(21, 0, 0, 17, 12, 2018);
+	//setSyncInterval(3600);
 
 	Serial.begin(115200);
 	pinMode(BUILTIN_LED, OUTPUT);
@@ -66,22 +68,7 @@ void setup() {
 	Trigger::loadConfig(out2);
 	Trigger::loadConfig(out3);
 	Trigger::loadConfig(led);
-	/*
-	OnOffTrigger * t;
-
-	t = new OnOffTrigger();
-	t->proc = led;
-	t->action = HIGH;
-	t->time = 18 * 60 + 1;//18:01
-	t->Register();
-
-	t = new OnOffTrigger();
-	t->proc = led;
-	t->action = LOW;
-	t->time = 18 * 60 + 2;//18:02
-	t->Register();
-	/**/
-
+	
 	photocell = new Adafruit_MQTT_Publish(mqtt_connection.connection, "/feeds/photocell");
 
 	api.setup();
@@ -107,7 +94,7 @@ void loop() {
 			String s;
 			if (timeStatus() == timeSet)
 				s = String(year(t)) + "." + String(month(t)) + "." + String(day(t)) + " " +
-				String(hour(t)) + ":" + String(minute(t)) + ":" + String(second(t));
+					Utils::FormatTime(t);
 			else
 				s = "time not set. millis=" + String(millis());
 

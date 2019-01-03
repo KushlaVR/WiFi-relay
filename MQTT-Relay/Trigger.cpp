@@ -72,6 +72,7 @@ void Trigger::Unregister()
 			t = t->next;
 		}
 	}
+	if (_currentProcesing == this) _currentProcesing = this->next;
 }
 
 void Trigger::printInfo(JsonString * ret, bool detailed)
@@ -155,6 +156,28 @@ void Trigger::loadConfig(MQTTswitch * proc)
 	}
 }
 
+int Trigger::generateNewUid()
+{
+	int ret = 1;
+	int maxUid = 0;
+	Trigger * t = _firstTrigger;
+	while (t != nullptr) {
+		if (t->uid > maxUid) maxUid = t->uid;
+		if (t->uid == ret) {
+			ret++;
+			t = _firstTrigger;
+		}
+		else {
+			t = t->next;
+		}
+	}
+	if (_uid != maxUid) {
+		Serial.printf("Max UID reseed %i => %i", _uid, maxUid);
+		_uid = maxUid;
+	}
+	return ret;
+}
+
 
 
 OnOffTrigger::OnOffTrigger() :Trigger()
@@ -230,7 +253,6 @@ PWMTrigger::~PWMTrigger()
 
 void PWMTrigger::loop(time_t * time)
 {
-	//if (year(lastFire) == year(*time) && month(lastFire) == month(*time) && day(lastFire) == day(*time)) return;//Якщо сьогодні вже спрацював, то нічого не робимо
 
 	int d = weekday(*time);
 	if (days & (1 << d)) {//Дань тиждня підходящий

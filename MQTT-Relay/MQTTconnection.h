@@ -9,6 +9,7 @@
 
 class MQTTconnection
 {
+	int numberOfTry = 0;
 	ulong lastConnect;
 	ulong connectInterval;
 	char * broker;

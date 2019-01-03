@@ -9,6 +9,8 @@
 #include "MQTTprocess.h"
 #include "Trigger.h"
 #include "ApiController.h"
+#include "Utils.h"
+#include <TimeLib.h>
 
 
 ApiController::ApiController()
@@ -56,7 +58,7 @@ void ApiController::handleWifi() {
 		ret.endArray();
 	};
 	ret.endObject();
-	server.send(200, "application/json", ret);
+	server.jsonOk(&ret);
 }
 
 /** Handle the WLAN save form and redirect to WLAN config page again */
@@ -121,21 +123,25 @@ void ApiController::handleTemplate() {
 
 void ApiController::handleSetup() {
 	String type = "";
-	if (server.hasArg("type")) {
-		type = server.arg("type");
-		if (type == "switch") {
-			Serial.printf("setup: type=%s\n", type.c_str());
-			if (ApiController::handleGetSwitchSetup()) return;
-		}
-		else if (type == "onoff") {
-			Serial.printf("setup: type=%s\n", type.c_str());
-			if (ApiController::handleSetTrigger(type)) return;
-		}
-		else if (type == "pwm") {
-			Serial.printf("setup: type=%s\n", type.c_str());
-			if (ApiController::handleSetTrigger(type)) return;
-		}
+	if (server.hasArg("delete")) {
+		if (ApiController::handleGetDeleteTrigger()) return;
 	}
+	else
+		if (server.hasArg("type")) {
+			type = server.arg("type");
+			if (type == "switch") {
+				Serial.printf("setup: type=%s\n", type.c_str());
+				if (ApiController::handleGetSwitchSetup()) return;
+			}
+			else if (type == "onoff") {
+				Serial.printf("setup: type=%s\n", type.c_str());
+				if (ApiController::handleSetTrigger(type)) return;
+			}
+			else if (type == "pwm") {
+				Serial.printf("setup: type=%s\n", type.c_str());
+				if (ApiController::handleSetTrigger(type)) return;
+			}
+		}
 	WebPortal::handleNotFound();
 }
 
@@ -157,6 +163,7 @@ bool ApiController::handleGetSwitchSetup()
 
 	JsonString ret = "";
 	ret.beginObject();
+	ret.AddValue("systime", Utils::FormatTime(now()));
 	ret.beginArray("items");
 	Trigger * t = Trigger::getFirstTrigger();
 	while (t != nullptr) {
@@ -171,8 +178,58 @@ bool ApiController::handleGetSwitchSetup()
 	ret.endObject();
 
 	Serial.printf("setup: ret=%s\n", ret.c_str());
-	server.send(200, "application/json", ret);
+	server.jsonOk(&ret);
 	return true;
+}
+
+bool ApiController::handleGetDeleteTrigger()
+{
+	int index = -1;
+	int uid = 0;
+	if (server.hasArg("delete")) uid = server.arg("delete").toInt();
+	if (uid == 0) return false;
+	if (server.hasArg("switch")) index = server.arg("switch").toInt();
+
+	MQTTprocess * proc = mqtt_connection.getFirstProcess();
+	int i = 1;
+	while (proc != nullptr) {
+		if (i == index) break;
+		proc = proc->next;
+		i++;
+	};
+
+	if (proc == nullptr) {
+		return false;
+	};
+
+	Serial.printf("Process=%s\n", proc->name.c_str());
+
+	Trigger * trigger = nullptr;
+
+	Serial.println("Try ti find trigger...");
+	Trigger * t = Trigger::getFirstTrigger();
+	while (t != nullptr && trigger == nullptr) {
+		if (t->proc == proc) {
+			if (t->uid == uid) {
+				t->Unregister();
+				
+				String num = String(t->uid);
+				if (num.length() < 2) num = "0" + num;
+
+				String fileName = "/config/" + proc->name + "/" + num + String(t->type) + ".json";
+				if (SPIFFS.exists(fileName)) SPIFFS.remove(fileName);
+
+				t = nullptr;
+				Serial.println("Trigger unregistered. OK!");
+				server.Ok();
+				return true;
+			}
+		}
+		t = t->getNextTrigger();
+	}
+
+
+	return false;
 }
 
 bool ApiController::handleSetTrigger(String type)
@@ -208,6 +265,7 @@ bool ApiController::handleSetTrigger(String type)
 		else {
 			return false;
 		}
+		trigger->uid = Trigger::generateNewUid();
 		trigger->proc = (MQTTswitch *)proc;
 		trigger->Register();
 	}
@@ -275,11 +333,7 @@ bool ApiController::handleSetTrigger(String type)
 
 	Serial.println("save trigger");
 	if (trigger->save()) {
-		JsonString ret = JsonString();
-		ret.beginObject();
-		ret.AddValue("status", "OK");
-		ret.endObject();
-		server.send(200, "application/json", ret);
+		server.Ok();
 		return true;
 	}
 	return false;
@@ -297,6 +351,7 @@ void ApiController::handleGetSwitches() {
 	JsonString ret = JsonString();
 	ret.beginObject();
 	MQTTprocess * proc = mqtt_connection.getFirstProcess();
+	ret.AddValue("systime", Utils::FormatTime(now()));
 	ret.beginArray("items");
 	while (proc != nullptr) {
 		ret.beginObject();
@@ -306,7 +361,7 @@ void ApiController::handleGetSwitches() {
 	};
 	ret.endArray();
 	ret.endObject();
-	server.send(200, "application/json", ret);
+	server.jsonOk(&ret);
 }
 
 void ApiController::handleSetSwitches() {
@@ -334,15 +389,7 @@ void ApiController::handleSetSwitches() {
 		}
 		MQTTswitch * sw = (MQTTswitch *)proc;
 		sw->setState(server.arg("state") == "on");
-		server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-		server.sendHeader("Pragma", "no-cache");
-		server.sendHeader("Expires", "-1");
-		server.setContentLength(CONTENT_LENGTH_UNKNOWN);
-		JsonString ret = JsonString();
-		ret.beginObject();
-		ret.AddValue("status", "OK");
-		ret.endObject();
-		server.send(200, "application/json", ret);
+		server.Ok();
 		return;
 	}
 	WebPortal::handleNotFound();

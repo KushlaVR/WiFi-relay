@@ -69,14 +69,15 @@ public:
 
 	static boolean captivePortal();
 	static void handleRoot();
-	static void handleWifi();
-	static void handleWifiSave();
 	static void handleNotFound();
 	static void handleUpdate();
 	static void updateFiles(String url);
 	static void updateFile(String url, String file);
 
 	static bool handleFileRead(String path);
+	static void jsonOk(JsonString * json);
+	static void Ok();
+
 };
 
 extern WebPortal server;

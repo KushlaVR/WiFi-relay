@@ -26,6 +26,7 @@ public:
 	static void handleTemplate();
 	static void handleSetup();
 	static bool handleGetSwitchSetup();
+	static bool handleGetDeleteTrigger();
 	static bool handleSetTrigger(String type);
 
 	static void handleGetSwitches();
