@@ -7,23 +7,26 @@
 #include <ESP8266mDNS.h>
 #include <EEPROM.h>
 #include <FS.h>
+#include <OneWire.h>
+#include <TimeLib.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
+#include "Sensor.h"
 #include "MQTTconnection.h"
 #include "MQTTprocess.h"
 #include "MQTTswitch.h"
+#include "MQTTSensor.h"
 #include "WebPortal.h"
 #include "Json.h"
 #include "NTPreciver.h"
 #include "ApiController.h"
-#include <TimeLib.h>
 #include "Trigger.h"
 #include "Utils.h"
 
 /****************************** Feeds ***************************************/
 // Setup a feed called 'photocell' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
-Adafruit_MQTT_Publish * photocell;// = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/photocell");
+//Adafruit_MQTT_Publish * photocell;// = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/photocell");
 
 
 
@@ -60,7 +63,8 @@ void setup() {
 	MQTTswitch * out2 = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out2", D6));
 	MQTTswitch * out3 = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out3", D7));
 	MQTTswitch * led = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "led", LED_BUILTIN));
-	
+	MQTTSensor * temp = (MQTTSensor *)mqtt_connection.Register(new MQTTSensor(String(server.myHostname), "temperature", "t1"));
+
 	led->onPinValue = LOW;
 	led->offPinValue = HIGH;
 
@@ -68,11 +72,12 @@ void setup() {
 	Trigger::loadConfig(out2);
 	Trigger::loadConfig(out3);
 	Trigger::loadConfig(led);
-	
-	photocell = new Adafruit_MQTT_Publish(mqtt_connection.connection, "/feeds/photocell");
+
+	//photocell = new Adafruit_MQTT_Publish(mqtt_connection.connection, "/feeds/photocell");
 
 	api.setup();
 	NTP.setup();
+	DS18X20::findAll();
 }
 
 
@@ -94,10 +99,10 @@ void loop() {
 			String s;
 			if (timeStatus() == timeSet)
 				s = String(year(t)) + "." + String(month(t)) + "." + String(day(t)) + " " +
-					Utils::FormatTime(t);
+				Utils::FormatTime(t);
 			else
 				s = "time not set. millis=" + String(millis());
-
+			/*
 			Serial.print(F("\nSending photocell val "));
 			Serial.print(s);
 			Serial.print("...");
@@ -106,7 +111,7 @@ void loop() {
 			}
 			else {
 				Serial.println(F("OK!"));
-			}
+			}*/
 		}
 
 
@@ -120,4 +125,6 @@ void loop() {
 	}
 	time_t t = now();
 	Trigger::processNext(&t);
+	Sensor::processNext();
 }
+

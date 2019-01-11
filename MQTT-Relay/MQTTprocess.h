@@ -12,6 +12,7 @@ public:
 
 	String name;
 	String type = "process";
+	String variable;
 
 	virtual bool process(Adafruit_MQTT_Subscribe * subscription) {};
 	virtual bool schedule() {};
