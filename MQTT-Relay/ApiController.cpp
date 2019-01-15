@@ -141,6 +141,10 @@ void ApiController::handleSetup() {
 				Serial.printf("setup: type=%s\n", type.c_str());
 				if (ApiController::handleSetTrigger(type)) return;
 			}
+			else if (type == "termo") {
+				Serial.printf("setup: type=%s\n", type.c_str());
+				if (ApiController::handleSetTrigger(type)) return;
+			}
 		}
 	WebPortal::handleNotFound();
 }
@@ -262,6 +266,9 @@ bool ApiController::handleSetTrigger(String type)
 		else if (type == "pwm") {
 			trigger = new PWMTrigger();
 		}
+		else if (type == "termo") {
+			trigger = new Termostat();
+		}
 		else {
 			return false;
 		}
@@ -330,7 +337,35 @@ bool ApiController::handleSetTrigger(String type)
 		}
 
 	}
+	else if (type == "termo") {
+		Termostat * tr = (Termostat *)trigger;
 
+		if (server.hasArg("start")) {
+			tr->start = server.arg("start").toInt();
+			Serial.printf("start=%i\n", tr->start);
+		}
+
+		if (server.hasArg("end")) {
+			tr->end = server.arg("end").toInt();
+			Serial.printf("end=%i\n", tr->end);
+		}
+
+		if (server.hasArg("variable")) {
+			tr->variable = server.arg("variable");
+			Serial.printf("variable=%s\n", tr->variable.c_str());
+		}
+
+		if (server.hasArg("min")) {
+			tr->min = server.arg("min").toInt();
+			Serial.printf("min=%i\n", tr->min);
+		}
+
+		if (server.hasArg("max")) {
+			tr->max = server.arg("max").toInt();
+			Serial.printf("max=%i\n", tr->max);
+		}
+
+	}
 	Serial.println("save trigger");
 	if (trigger->save()) {
 		server.Ok();

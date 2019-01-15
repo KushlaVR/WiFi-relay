@@ -1,6 +1,6 @@
-{
-  "name": "Every day led on at 21:00",
-  "days": "255",
-  "time": "1260",
+﻿{
+  "name": "07:00 По будніх",
+  "days": "62",
+  "time": "420",
   "action": "1"
 }

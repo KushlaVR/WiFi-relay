@@ -3,6 +3,7 @@
 #include "Adafruit_MQTT_Client.h"
 #include "Json.h"
 #include "MQTTprocess.h"
+#include "MQTTconnection.h"
 
 class MQTTswitch : public MQTTprocess
 {

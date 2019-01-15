@@ -43,7 +43,7 @@ namespace WebAdmin.Controllers
             }
 
             public string action { get; set; }
-            public string days { get; set; } = "255"; //пн-пт
+            public string days { get; set; } = "127"; //пн-пт+сб+нд
             public string time { get; set; } = "480";//08:00 = 8*60 + 00 = 480
         }
 
@@ -57,23 +57,51 @@ namespace WebAdmin.Controllers
                 editingtemplate = "pwmedit";
             }
 
-            public string days { get; set; } = "255"; //пн-пт
+            public string days { get; set; } = "127"; //пн-пт+сб+нд
             public string onlength { get; set; } = "5";// 00:05
             public string offlength { get; set; } = "15";// 00:05
-
-
-
-
         }
 
+        public class Termostat: Trigger
+        {
+            public Termostat()
+            {
+                type = "termo";
+                template = "termo";
+                editingtemplate = "termoedit";
+            }
+
+            public string days { get; set; } = "127"; //пн-пт+сб+нд
+            public string start { get; set; } = "0";
+            public string end { get; set; } = "0";
+            public string variable { get; set; } = "t1";
+            public string max { get; set; } = "32";
+            public string min { get; set; } = "27";
+        }
 
         public class MQTTProcess
         {
             public string name { get; set; }
             public string visual { get; set; } = "switch";
             public string type { get; set; } = "switch";
-            public string state { get; set; } = "OFF";
+        }
+
+        public class MQTTSwitch : MQTTProcess
+        {
             public string index { get; set; } = "0";
+            public string state { get; set; } = "OFF";
+
+        }
+
+        public class MQTTSensor : MQTTProcess
+        {
+            public MQTTSensor()
+            {
+                type = "sensor";
+                visual = "tsens";
+            }
+            public string value { get; set; } = "23.5";
+
         }
 
         private static List<MQTTProcess> items;
@@ -86,19 +114,22 @@ namespace WebAdmin.Controllers
             {
                 items = new List<MQTTProcess>();
                 triggers = new Dictionary<MQTTProcess, List<Trigger>>();
-                MQTTProcess item = new MQTTProcess() { name = "out1", index = "1" };
+                MQTTProcess item = new MQTTSwitch() { name = "out1", index = "1" };
                 items.Add(item);
                 triggers.Add(item, new List<Trigger>());
                 triggers[item].Add(new OnOffTrigger() { name = "Включати 8:00", action = "on", time = "480" });
                 triggers[item].Add(new OnOffTrigger() { name = "Виключати 9:00", action = "off", time = "540" });
 
-                items.Add(new MQTTProcess() { name = "out2", index = "2" });
-                items.Add(new MQTTProcess() { name = "out3", index = "3" });
+                items.Add(new MQTTSwitch() { name = "out2", index = "2" });
+                items.Add(new MQTTSwitch() { name = "out3", index = "3" });
 
-                item = new MQTTProcess() { name = "led", index = "4", state = "ON" };
+                item = new MQTTSwitch() { name = "led", index = "4", state = "ON" };
                 items.Add(item);
                 triggers.Add(item, new List<Trigger>());
-                triggers[item].Add(new PWMTrigger());
+                triggers[item].Add(new Termostat());
+
+
+                items.Add(new MQTTSensor() { name = "t1" });
 
             }
 
@@ -168,7 +199,8 @@ namespace WebAdmin.Controllers
             {
                 if (index.Value <= items.Count)
                 {
-                    items[index.Value - 1].state = state.ToUpper();
+                    MQTTSwitch sw = (items[index.Value - 1] as MQTTSwitch);
+                    sw.state = state.ToUpper();
                     return new JsonResult(new { status = "OK", systime = DateTime.Now.ToString("HH:mm:ss") });
                 }
             }
@@ -295,7 +327,46 @@ namespace WebAdmin.Controllers
                     }
                 }
             }
+            else if (type == "termo")
+            {
+                MQTTProcess item = items[int.Parse(Request.Query["switch"]) - 1];
+                string uid = Request.Query["uid"];
 
+                if (uid == "0")
+                {
+                    Termostat tr = new Termostat();
+                    tr.start = Request.Query["start"];
+                    tr.end = Request.Query["end"];
+                    tr.min = Request.Query["min"];
+                    tr.max = Request.Query["max"];
+                    tr.variable = Request.Query["variable"];
+                    tr.days = Request.Query["days"];
+                    tr.name = Request.Query["name"];
+                    triggers[item].Add(tr);
+                    return new JsonResult(new { status = "OK", systime = DateTime.Now.ToString("HH:mm:ss") });
+                }
+                else
+                {
+                    foreach (Trigger t in triggers[item])
+                    {
+                        if (t.uid == uid)
+                        {
+                            if (t.type == "termo")
+                            {
+                                Termostat tr = t as Termostat;
+                                tr.start = Request.Query["start"];
+                                tr.end = Request.Query["end"];
+                                tr.min = Request.Query["min"];
+                                tr.max = Request.Query["max"];
+                                tr.variable = Request.Query["variable"];
+                                tr.days = Request.Query["days"];
+                                tr.name = Request.Query["name"];
+                                return new JsonResult(new { status = "OK", systime = DateTime.Now.ToString("HH:mm:ss") });
+                            }
+                        }
+                    }
+                }
+            }
             return NotFound();
         }
 

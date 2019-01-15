@@ -23,10 +23,13 @@ public:
 	MQTTconnection();
 	~MQTTconnection();
 
+	bool serverOnline = false;
+
 	Adafruit_MQTT_Client * connection;// (&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 	void setup();
 	bool loop();
 	void process();
+	void schedule();
 
 	MQTTprocess * Register(MQTTprocess * device);
 	MQTTprocess * getFirstProcess() { return firstProcess; };

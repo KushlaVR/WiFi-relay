@@ -60,6 +60,7 @@ void MQTTconnection::setup() {
 }
 
 bool MQTTconnection::loop() {
+	serverOnline = false;
 	if (WiFi.status() != WL_CONNECTED) return false;
 	if ((millis() - lastConnect) > connectInterval) {
 		// Function to connect and reconnect as necessary to the MQTT server.
@@ -69,6 +70,7 @@ bool MQTTconnection::loop() {
 		// Stop if already connected.
 		if (connection->connected()) {
 			numberOfTry = 0;
+			serverOnline = true;
 			return true;
 		};
 		Serial.print("Connecting to MQTT... ");
@@ -79,13 +81,14 @@ bool MQTTconnection::loop() {
 			Serial.println(connection->connectErrorString(ret));
 			Serial.printf("Next try in %i seconds...\n", numberOfTry * 5);
 			connection->disconnect();
-			connectInterval = 1000UL * numberOfTry*5UL;
+			connectInterval = 1000UL * numberOfTry * 5UL;
 			lastConnect = millis();
 			return false;
 		}
 		Serial.println("MQTT Connected!");
 		connectInterval = 0UL;
 		lastConnect = millis();
+		serverOnline = true;
 		return true;
 	}
 	return false;
@@ -103,8 +106,12 @@ void MQTTconnection::process()
 			dev = dev->next;
 		}
 	}
+}
+
+void MQTTconnection::schedule()
+{
 	//process scheduled tasks
-	dev = firstProcess;
+	MQTTprocess * dev = firstProcess;
 	while (dev != nullptr) {
 		dev->schedule();
 		dev = dev->next;

@@ -1,3 +1,4 @@
+
 #include "MQTTSensor.h"
 
 
@@ -41,15 +42,25 @@ bool MQTTSensor::schedule()
 	return false;
 }
 
+void MQTTSensor::printInfo(JsonString * ret)
+{
+	MQTTprocess::printInfo(ret);
+	ret->AddValue("visual", "tsens");
+	float d = Variable::getValue(variable);
+	ret->AddValue("value", String(d));
+}
+
 bool MQTTSensor::publish_value(double d)
 {
-	// Now we can publish stuff!
-	if (!sensor_state->publish(d)) {
-		Serial.println(F("publish_value - Failed"));
-	}
-	else {
-		Serial.printf("publish_value %f - send!\n", d);
-		return true;
+	if (mqtt_connection.serverOnline) {
+		// Now we can publish stuff!
+		if (!sensor_state->publish(d)) {
+			Serial.println(F("publish_value - Failed"));
+		}
+		else {
+			Serial.printf("publish_value %f - send!\n", d);
+			return true;
+		}
 	}
 	return false;
 }

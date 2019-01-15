@@ -93,6 +93,21 @@ input:checked + .slider:before {
     filter: grayscale(100%);
 }
 
+
+.temperature-img {
+    margin: 40px;
+    width: 200px;
+}
+
+.temperature-value {
+    position: absolute;
+    top: 97px;
+    width: 100%;
+    font-weight: bold;
+    color: white;
+    font-size: 50px;
+}
+
 .holder {
     //display: inline-block;
 }
@@ -106,6 +121,10 @@ input:checked + .slider:before {
     width: 100px !important;
 }
 
+.card {
+    vertical-align: top;
+}
+
 .card-header.on {
     background: #28a745;
     color: white;
@@ -115,7 +134,6 @@ input:checked + .slider:before {
     background: #bd2130;
     color: white;
 }
-
 
 #questionModal {
     background: #495057d6;

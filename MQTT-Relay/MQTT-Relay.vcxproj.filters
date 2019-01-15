@@ -47,8 +47,12 @@
     <None Include="data\html\content\_onoffedit.html" />
     <None Include="data\html\content\_pwm.html" />
     <None Include="data\config\out1\01onoff.json" />
-    <None Include="data\config\out1\02onoff.json" />
-    <None Include="data\config\led\03pwm.json" />
+    <None Include="data\config\out1\06onoff.json" />
+    <None Include="data\config\out1\07onoff.json" />
+    <None Include="data\config\out1\04onoff.json" />
+    <None Include="data\html\content\_termo.html" />
+    <None Include="data\html\content\_termoedit.html" />
+    <None Include="data\config\led\03termo.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.MQTT-Relay.vsarduino.h">
@@ -93,6 +97,9 @@
     <ClInclude Include="MQTTSensor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SerialController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WebPortal.cpp">
@@ -129,6 +136,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MQTTSensor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SerialController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -2,13 +2,13 @@ var Relay = (function () {
     function Relay() {
         this.rooturl = "api/";
         this.templates = new Array();
-        this.triggers = new Array();
+        this.elements = new Array();
     }
     Relay.prototype.init = function () {
         var setup = this.getUrlParameter("setup");
         if (setup === undefined) {
             $("#pageHeader").html("Стан виходів");
-            this.loadTemplateByName("switch", this.loadProcesses);
+            this.loadProcesses();
         }
         else {
             $("#pageHeader").html("Налаштування");
@@ -28,40 +28,10 @@ var Relay = (function () {
             var list = "";
             for (var i = 0; i < w.items.length; i++) {
                 var item = w.items[i];
-                if (item.visual) {
-                    var t = Relay.relay.getTemplate(item.visual);
-                    if (t === undefined) {
-                        list += "<li class='nav-item'>";
-                        list += item.name;
-                        list += "</li>";
-                    }
-                    else {
-                        list += Relay.relay.fillTemplate(t, item);
-                    }
-                }
+                Relay.relay.elements.push(item);
             }
             ;
-            $(".process-list").html(list);
-            $(".switch-checkbox[data-state='ON']").prop("checked", true);
-            $("img[data-state='ON']").removeClass("light-off");
-            $(".switch-img").click(function () {
-                var cb = $(".switch-checkbox", $(this).closest(".card"));
-                if (cb.data("state") == "ON") {
-                    Relay.relay.turnOff(cb.data("switch"));
-                }
-                else {
-                    Relay.relay.turnOn(cb.data("switch"));
-                }
-            });
-            $(".switch-checkbox").change(function () {
-                if (this.checked) {
-                    Relay.relay.turnOn($(this).data("switch"));
-                }
-                else {
-                    Relay.relay.turnOff($(this).data("switch"));
-                }
-            });
-            Relay.ConvertAll();
+            Relay.relay.loadProcessTemplate();
         }).fail(function (data, status) {
             if (data.systime) {
                 $("#systime").html(data.systime);
@@ -81,7 +51,7 @@ var Relay = (function () {
             ;
             for (var i = 0; i < data.items.length; i++) {
                 var item = data.items[i];
-                Relay.relay.triggers.push(item);
+                Relay.relay.elements.push(item);
             }
             ;
             Relay.relay.loadTriggerTemplate();
@@ -128,24 +98,83 @@ var Relay = (function () {
             });
         });
     };
-    Relay.prototype.loadTriggerTemplate = function () {
-        var allReady = true;
-        for (var i = 0; i < Relay.relay.triggers.length; i++) {
-            var item = Relay.relay.triggers[i];
-            var t = Relay.relay.getTemplate(item.template);
-            if (t === undefined) {
-                allReady = false;
-                Relay.relay.loadTemplateByName(item.template, Relay.relay.loadTriggerTemplate);
-                return;
+    Relay.prototype.allElementsTemplateLoaded = function (onDone) {
+        for (var i = 0; i < Relay.relay.elements.length; i++) {
+            var item = Relay.relay.elements[i];
+            var templateName = item.template;
+            var t = void 0;
+            if (!(templateName === undefined)) {
+                t = Relay.relay.getTemplate(templateName);
+                if (t === undefined) {
+                    Relay.relay.loadTemplateByName(templateName, onDone);
+                    return false;
+                }
             }
-            t = Relay.relay.getTemplate(item.editingtemplate);
-            if (t === undefined) {
-                allReady = false;
-                Relay.relay.loadTemplateByName(item.editingtemplate, Relay.relay.loadTriggerTemplate);
-                return;
+            templateName = item.editingtemplate;
+            if (!(templateName === undefined)) {
+                t = Relay.relay.getTemplate(templateName);
+                if (t === undefined) {
+                    Relay.relay.loadTemplateByName(templateName, onDone);
+                    return false;
+                }
+            }
+            templateName = item.visual;
+            if (!(templateName === undefined)) {
+                t = Relay.relay.getTemplate(templateName);
+                if (t === undefined) {
+                    Relay.relay.loadTemplateByName(templateName, onDone);
+                    return false;
+                }
             }
         }
         ;
+        return true;
+    };
+    Relay.prototype.loadProcessTemplate = function () {
+        var allReady = Relay.relay.allElementsTemplateLoaded(Relay.relay.loadProcessTemplate);
+        if (allReady === false)
+            return;
+        var list = "";
+        for (var i = 0; i < Relay.relay.elements.length; i++) {
+            var item = Relay.relay.elements[i];
+            if (item.visual) {
+                var t = Relay.relay.getTemplate(item.visual);
+                if (t === undefined) {
+                    list += "<li class='nav-item'>";
+                    list += item.name;
+                    list += "</li>";
+                }
+                else {
+                    list += Relay.relay.fillTemplate(t, item);
+                }
+            }
+            $(".process-list").html(list);
+            $(".switch-checkbox[data-state='ON']").prop("checked", true);
+            $("img[data-state='ON']").removeClass("light-off");
+            $(".switch-img").click(function () {
+                var cb = $(".switch-checkbox", $(this).closest(".card"));
+                if (cb.data("state") == "ON") {
+                    Relay.relay.turnOff(cb.data("switch"));
+                }
+                else {
+                    Relay.relay.turnOn(cb.data("switch"));
+                }
+            });
+            $(".switch-checkbox").change(function () {
+                if (this.checked) {
+                    Relay.relay.turnOn($(this).data("switch"));
+                }
+                else {
+                    Relay.relay.turnOff($(this).data("switch"));
+                }
+            });
+            Relay.ConvertAll();
+        }
+    };
+    Relay.prototype.loadTriggerTemplate = function () {
+        var allReady = Relay.relay.allElementsTemplateLoaded(Relay.relay.loadTriggerTemplate);
+        if (allReady === false)
+            return;
         if (allReady === true) {
             var t = Relay.relay.getTemplate("newitem");
             if (t === undefined) {
@@ -157,8 +186,8 @@ var Relay = (function () {
         if (allReady === true) {
             var list = "";
             list += Relay.relay.getTemplate("newitem");
-            for (var i = 0; i < Relay.relay.triggers.length; i++) {
-                var item = Relay.relay.triggers[i];
+            for (var i = 0; i < Relay.relay.elements.length; i++) {
+                var item = Relay.relay.elements[i];
                 var t = Relay.relay.getTemplate(item.template);
                 list += "<div class='holder' id='trigger_" + item.uid + "' data-index='" + i.toString() + "' data-uid='" + item.uid + "'>" + Relay.relay.fillTemplate(t, item) + "</div>";
             }
@@ -210,7 +239,7 @@ var Relay = (function () {
         var holder = $(e.target).closest(".holder");
         holder.data("edit", true);
         var i = holder.data("index");
-        var item = this.triggers[i];
+        var item = this.elements[i];
         var t = this.getTemplate(item.editingtemplate);
         holder.html(this.fillTemplate(t, item));
         $('.btn-edit').attr("disabled", "disabled");

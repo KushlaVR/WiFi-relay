@@ -31,3 +31,24 @@ String Utils::FormatTime(time_t time)
 
 	return ret;
 }
+
+
+String Utils::FormatDate(time_t time)
+{
+	long y = year(time);
+	int m = month(time);
+	int d = day(time);
+	String ret = "";
+
+	ret += String(y);
+	ret += ".";
+
+	if (m < 10) ret = ret + "0";
+	ret += String(m);
+	ret += ".";
+
+	if (d < 10) ret = ret + "0";
+	ret += String(d);
+
+	return ret;
+}

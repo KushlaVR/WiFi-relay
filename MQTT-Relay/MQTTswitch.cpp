@@ -93,13 +93,15 @@ bool MQTTswitch::schedule()
 
 
 bool MQTTswitch::publish_available() {
-	// Now we can publish stuff!
-	if (!onoffbutton_available->publish("online")) {
-		Serial.println(F("available - Failed"));
-	}
-	else {
-		Serial.println(F("available - send!"));
-		return true;
+	if (mqtt_connection.serverOnline) {
+		// Now we can publish stuff!
+		if (!onoffbutton_available->publish("online")) {
+			Serial.println(F("available - Failed"));
+		}
+		else {
+			Serial.println(F("available - send!"));
+			return true;
+		}
 	}
 	return false;
 }
@@ -107,13 +109,15 @@ bool MQTTswitch::publish_available() {
 
 bool MQTTswitch::publish_state(const char * state) {
 	this->state = (String(state) == "ON");
-	// Now we can publish stuff!
-	if (!onoffbutton_state->publish(state)) {
-		Serial.printf("Publish %s state - Failse!\n", state);
-		return true;
-	}
-	else {
-		Serial.printf("Publised %s state - send!\n", state);
+	if (mqtt_connection.serverOnline) {
+		// Now we can publish stuff!
+		if (!onoffbutton_state->publish(state)) {
+			Serial.printf("Publish %s state - Failse!\n", state);
+			return true;
+		}
+		else {
+			Serial.printf("Publised %s state - send!\n", state);
+		}
 	}
 	return false;
 }

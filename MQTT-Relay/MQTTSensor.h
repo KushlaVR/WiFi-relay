@@ -8,6 +8,7 @@
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 #include "MQTTprocess.h"
+#include "MQTTconnection.h"
 #include "Variable.h"
 
 class MQTTSensor: public MQTTprocess
@@ -27,6 +28,8 @@ public:
 
 	void Register(Adafruit_MQTT_Client * connection);
 	bool schedule();
+	void printInfo(JsonString * ret);
+
 
 	bool publish_value(double d);
 };

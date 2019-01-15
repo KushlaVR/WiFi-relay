@@ -9,6 +9,7 @@
 class Trigger
 {
 private:
+	int sort;
 
 	Trigger * next;
 public:
@@ -28,6 +29,7 @@ public:
 	virtual void loop(time_t * time) {};
 	virtual void load(File * f) {};
 	virtual void printInfo(JsonString * ret, bool detailed);
+	virtual int getSort() { return sort; };
 	Trigger * getNextTrigger() { return next; };
 	bool save();
 
@@ -52,6 +54,7 @@ public:
 	void loop(time_t * time);
 	void load(File * f);
 	void printInfo(JsonString * ret, bool detailed);
+	int getSort() { return time; };
 };
 
 class PWMTrigger : public Trigger {
@@ -69,5 +72,28 @@ public:
 	void loop(time_t * time);
 	void load(File * f);
 	void printInfo(JsonString * ret, bool detailed);
+
+};
+
+
+class Termostat : public Trigger {
+
+	bool state = false;
+
+public:
+	Termostat();
+	~Termostat() {};
+
+	unsigned long start = 0;
+	unsigned long end = 0;
+
+	String variable = "t1";
+
+	int min = 0;
+	int max = 0;
+
+	void printInfo(JsonString * ret, bool detailed);
+	void load(File * f);
+	void loop(time_t * time);
 
 };

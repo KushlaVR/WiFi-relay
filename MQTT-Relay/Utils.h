@@ -13,5 +13,6 @@ public:
 	~Utils();
 
 	static String FormatTime(time_t time);
+	static String FormatDate(time_t time);
 };
 

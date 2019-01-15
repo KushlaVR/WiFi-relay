@@ -3,8 +3,10 @@
 #include "MQTTswitch.h"
 #include <TimeLib.h>
 #include <FS.h>
+#include "Variable.h"
 #include "Json.h"
 
+static int _sort;
 static int _uid;
 static Trigger * _firstTrigger = nullptr;
 static Trigger * _lastTrigger = nullptr;
@@ -13,7 +15,9 @@ static Trigger * _currentProcesing = nullptr;
 Trigger::Trigger()
 {
 	_uid++;
+	_sort++;
 	uid = _uid;
+	sort = _sort;
 }
 
 Trigger::~Trigger()
@@ -130,6 +134,8 @@ void Trigger::loadConfig(MQTTswitch * proc)
 	Serial.printf("Loding %s config\n", proc->name.c_str());
 	String dirName = "/config/" + proc->name;
 	Dir dir = SPIFFS.openDir(dirName);
+	Trigger * t = nullptr;
+
 	while (dir.next()) {
 		Serial.println(dir.fileName());
 		if (dir.fileSize()) {
@@ -139,18 +145,61 @@ void Trigger::loadConfig(MQTTswitch * proc)
 			fName = fName.substring(3);
 			Serial.printf("config found num=%s name=%s \n", fNum.c_str(), fName.c_str());
 
-			Trigger * t = nullptr;
 			if (fName.startsWith("onoff")) {
 				t = new OnOffTrigger();
 			}
 			else if (fName.startsWith("pwm")) {
 				t = new PWMTrigger();
 			}
+			else if (fName.startsWith("termo")) {
+				t = new Termostat();
+			}
 			if (t != nullptr) {
 				t->uid = fNum.toInt();
 				t->load(&f);
 				t->proc = proc;
 				t->Register();
+			}
+		}
+	}
+	//На диску елементи можуть бути роміщені у довільному порядку
+	//Після зчитування їх треба посортувати (наприклад бульбашковим методом)
+	t = nullptr;
+	Trigger * n;//next
+	Trigger * p;//prev
+	bool was_swap = true;//були випадки переміни місцями елементів колекції
+	while (true) {
+		if (t == nullptr) {//Починаємо з першого елемента
+			if (was_swap) {
+				t = _firstTrigger;
+				p = nullptr;
+				was_swap = false;
+			}
+			else {
+				//за попередні ітерації елементи не переставлялись, значить масив посортовано
+				return;
+			}
+		}
+		if (t != nullptr) {
+			n = t->next;
+			if (n != nullptr) {//є наступний елемент, значить ми ще не досягли кінця
+				if (t->getSort() > n->getSort()) {//t => груба бульбашка ніж n, вона виринає над n
+					was_swap = true;//міняємо місцями два елемента
+					t->next = n->next;
+					n->next = t;
+					if (p != nullptr)
+						p->next = n;
+					else
+						_firstTrigger = n;
+					p = n;
+				}
+				else {
+					p = t;
+					t = t->next;
+				}
+			}
+			else {
+				t = nullptr;//Кінець масиву, починаємо з початку
 			}
 		}
 	}
@@ -193,7 +242,7 @@ void OnOffTrigger::loop(time_t * time)
 {
 	if (year(lastFire) == year(*time) && month(lastFire) == month(*time) && day(lastFire) == day(*time)) return;//Якщо сьогодні вже спрацював, то нічого не робимо
 
-	int d = weekday(*time);
+	int d = weekday(*time) - 1;
 	if (days & (1 << d)) {//Дань тиждня підходящий
 		unsigned int t = (unsigned int)hour(*time) * 60UL + (unsigned int)minute(*time);//хвилин від початку доби
 		//Serial.printf("t=%i, time=%i\n", t, this->time);
@@ -254,7 +303,7 @@ PWMTrigger::~PWMTrigger()
 void PWMTrigger::loop(time_t * time)
 {
 
-	int d = weekday(*time);
+	int d = weekday(*time) - 1;
 	if (days & (1 << d)) {//Дань тиждня підходящий
 		unsigned long deltaT = *time - lastFire;
 		unsigned int t = (unsigned int)hour(deltaT) * 60UL + (unsigned int)minute(deltaT);
@@ -301,4 +350,89 @@ void PWMTrigger::printInfo(JsonString * ret, bool detailed)
 	Trigger::printInfo(ret, detailed);
 	ret->AddValue("onlength", String(onlength));
 	ret->AddValue("offlength", String(offlength));
+}
+
+Termostat::Termostat()
+{
+	type = "termo";
+}
+
+void Termostat::printInfo(JsonString * ret, bool detailed)
+{
+	Trigger::printInfo(ret, detailed);
+	ret->AddValue("start", String(start));
+	ret->AddValue("end", String(end));
+	ret->AddValue("variable", variable);
+	ret->AddValue("min", String(min));
+	ret->AddValue("max", String(max));
+}
+
+void Termostat::load(File * f)
+{
+	Trigger::load(f);
+	JsonString s = JsonString(f->readString());
+	name = s.getValue("name");
+	days = (unsigned char)(s.getValue("days").toInt());
+	start = s.getValue("start").toInt();
+	end = s.getValue("end").toInt();
+	variable = s.getValue("variable");
+	min = s.getValue("min").toInt();
+	max = s.getValue("max").toInt();
+}
+
+void Termostat::loop(time_t * time)
+{
+	int d = weekday(*time) - 1;
+	if (days == 127 || days & (1 << d)) {//Дань тиждня підходящий
+		unsigned int t = (unsigned int)hour(*time) * 60UL + (unsigned int)minute(*time);
+		if ((start == end/*цілий день*/) || (t >= start && t <= end)) {//час підходящий
+			float v = Variable::getValue(variable);
+			if (v < min) {//температура впала нижче мінімума
+				if (!proc->isOn()) {
+					Serial.printf("Trigger %i - %s Temperature too low => ON\n", uid, type);
+					proc->setState(true);
+					state = true;
+				}
+			}
+			else {
+				if (v > max) {//температура вище максимума
+					if (proc->isOn()) {
+						Serial.printf("Trigger %i - %s Temperature too high => OFF\n", uid, type);
+						proc->setState(false);
+						state = false;
+					}
+				}
+			}
+		}
+		else if (start > end) { //Початок більше кінця. Наприклад з 22:00 до 05:00
+			if (t >= start || t <= end) {
+				float v = Variable::getValue(variable);
+				if (v < min) {//температура впала нижче мінімума
+					if (!proc->isOn()) {
+						Serial.printf("Trigger %i - %s Temperature too low => ON\n", uid, type);
+						proc->setState(true);
+						state = true;
+					}
+				}
+				else {
+					if (v > max) {//температура вище максимума
+						if (proc->isOn()) {
+							Serial.printf("Trigger %i - %s Temperature too high => OFF\n", uid, type);
+							proc->setState(false);
+							state = false;
+						}
+					}
+				}
+			}
+		}
+		else {
+			if (state) {
+				if (proc->isOn()) {
+					Serial.printf("Trigger %i - %s OFF\n", uid, type);
+					proc->setState(false);
+					state = false;
+				}
+			}
+		}
+	}
 }

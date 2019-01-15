@@ -20,6 +20,7 @@
 #include "Json.h"
 #include "NTPreciver.h"
 #include "ApiController.h"
+#include "SerialController.h"
 #include "Trigger.h"
 #include "Utils.h"
 
@@ -32,6 +33,7 @@
 
 NTPreciver NTP;
 ApiController api;
+SerialController serial;
 
 void setup() {
 	//setSyncInterval(1);
@@ -85,46 +87,24 @@ uint32_t x = 0;
 unsigned long lastInfo = 0;
 
 void loop() {
+	serial.loop();
 	server.loop();
 	NTP.loop();
-	if (mqtt_connection.loop()) {
-		mqtt_connection.process();
-
-		if ((millis() - lastInfo) > 60000) {
-			lastInfo = millis();
-			// Now we can publish stuff!
-
-
-			time_t t = now();
-			String s;
-			if (timeStatus() == timeSet)
-				s = String(year(t)) + "." + String(month(t)) + "." + String(day(t)) + " " +
-				Utils::FormatTime(t);
-			else
-				s = "time not set. millis=" + String(millis());
-			/*
-			Serial.print(F("\nSending photocell val "));
-			Serial.print(s);
-			Serial.print("...");
-			if (!photocell->publish(s.c_str())) {
-				Serial.println(F("Failed"));
-			}
-			else {
-				Serial.println(F("OK!"));
-			}*/
-		}
-
-
-		// ping the server to keep the mqtt connection alive
-		// NOT required if you are publishing once every KEEPALIVE seconds
-		/*
-		if(! mqtt.ping()) {
-		mqtt.disconnect();
-		}
-		*/
-	}
+	bool mqttAvailable = mqtt_connection.loop();
+	if (mqttAvailable) mqtt_connection.process();
+	mqtt_connection.schedule();
 	time_t t = now();
 	Trigger::processNext(&t);
 	Sensor::processNext();
+
+	if ((millis() - lastInfo) > 60000) {
+		lastInfo = millis();
+		String s;
+		if (timeStatus() == timeSet)
+			s = String(year(t)) + "." + String(month(t)) + "." + String(day(t)) + " " +
+			Utils::FormatTime(t);
+		else
+			s = "time not set. millis=" + String(millis());
+	}
 }
 
