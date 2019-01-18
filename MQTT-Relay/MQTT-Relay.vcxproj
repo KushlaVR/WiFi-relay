@@ -121,6 +121,8 @@
     <None Include="MQTT-Relay.ino">
       <FileType>CppCode</FileType>
     </None>
+    <None Include="Release 2019-01-18\MQTT-Relay.ino.bin" />
+    <None Include="Release 2019-01-18\MQTT-Relay.ino.spiffs.bin" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApiController.h" />

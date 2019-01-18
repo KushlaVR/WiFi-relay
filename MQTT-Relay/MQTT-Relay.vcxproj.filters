@@ -53,6 +53,12 @@
     <None Include="data\html\content\_termo.html" />
     <None Include="data\html\content\_termoedit.html" />
     <None Include="data\config\led\03termo.json" />
+    <None Include="Release 2019-01-18\MQTT-Relay.ino.spiffs.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Release 2019-01-18\MQTT-Relay.ino.bin">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.MQTT-Relay.vsarduino.h">
