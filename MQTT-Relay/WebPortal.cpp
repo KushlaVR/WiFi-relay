@@ -272,6 +272,8 @@ String host = "raw.githubusercontent.com";
 //const char * fingerprint = "CC AA 48 48 66 46 0E 91 53 2C 9C 7C 23 2A B1 74 4D 29 9D 33";//TOD: read from settings file (can see in browser certificate info)
 
 void WebPortal::handleUpdate() {
+	Serial.println("Update files");
+
 	String url = "";
 	if (server.hasArg("url")) {
 		url = server.arg("url");
@@ -284,9 +286,9 @@ void WebPortal::handleUpdate() {
 	else {
 		if (SPIFFS.exists("/html/files.txt")) {
 			File f = SPIFFS.open("/html/files.txt", "r");
-			host = f.readStringUntil('\10');
+			host = f.readStringUntil('\n');
 			host.trim();
-			url = f.readStringUntil('\10');
+			url = f.readStringUntil('\n');
 			url.trim();
 			f.close();
 		}
@@ -295,6 +297,12 @@ void WebPortal::handleUpdate() {
 		host = defaultHost;
 		url = defaultURL;
 	}
+	
+	Serial.print("HOST=");
+	Serial.println(host);
+	Serial.print("URL=");
+	Serial.println(url);
+
 	if (url.length() > 0) {
 		server.Ok();
 		Serial.printf("url=%s", url.c_str());
@@ -312,7 +320,7 @@ void WebPortal::updateFiles(String url) {
 	updateFile(url, "/html/files.txt");
 	if (SPIFFS.exists("/html/files.txt")) {
 		File f = SPIFFS.open("/html/files.txt", "r");
-		host = f.readStringUntil('\10');
+		host = f.readStringUntil('\n');
 		host.trim(); 
 		url = f.readStringUntil('\n');
 		url.trim();
@@ -337,9 +345,11 @@ void WebPortal::updateFile(String url, String file) {
 
 void WebPortal::loadURLtoFile(BearSSL::WiFiClientSecure * client, const char * host, const uint16_t port, const char * path, String toFile)
 {
-	Serial.println(path);
-	Serial.printf("Trying: %s:443...", host);
-	Serial.printf("path:\n", path);
+	Serial.print("Loadnig: ");
+	Serial.println(toFile);
+	//Serial.println(path);
+	//Serial.printf("Trying: %s:443...", host);
+	//Serial.printf("path:\n", path);
 	client->connect(host, port);
 	if (!client->connected()) {
 		Serial.printf("*** Can't connect. ***\n-------\n");
@@ -365,7 +375,7 @@ void WebPortal::loadURLtoFile(BearSSL::WiFiClientSecure * client, const char * h
 					return;
 				}
 			}
-			Serial.println(line);
+			//Serial.println(line);
 			if (line == "\r") {
 				Serial.println("headers received");
 				break;
@@ -382,8 +392,7 @@ void WebPortal::loadURLtoFile(BearSSL::WiFiClientSecure * client, const char * h
 				break;
 			}
 			f.write(tmp, rlen);
-			Serial.print("Portion: ");
-			Serial.println(rlen);
+			if (rlen > 0) Serial.print(".");
 		}
 		f.flush();
 		f.close();
