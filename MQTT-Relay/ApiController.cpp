@@ -216,7 +216,7 @@ bool ApiController::handleGetDeleteTrigger()
 		if (t->proc == proc) {
 			if (t->uid == uid) {
 				t->Unregister();
-				
+
 				String num = String(t->uid);
 				if (num.length() < 2) num = "0" + num;
 
@@ -400,7 +400,7 @@ void ApiController::handleGetSwitches() {
 }
 
 void ApiController::handleSetSwitches() {
-	Serial.println("switches GET:");
+	Serial.print("switches SET:");
 	if (server.hasArg("index") && server.hasArg("state")) {
 
 		int index = server.arg("index").toInt();
@@ -423,8 +423,23 @@ void ApiController::handleSetSwitches() {
 			return;
 		}
 		MQTTswitch * sw = (MQTTswitch *)proc;
-		sw->setState(server.arg("state") == "on");
-		server.Ok();
+		String state = server.arg("state");
+		if (state == "on") {
+			sw->setState(true);
+		}
+		else if (state == "x") {
+			sw->setState(!sw->isOn());
+		}
+		else {
+			sw->setState(false);
+		}
+		state = ((sw->isOn()) ? "on" : "off");
+		Serial.print("index=");
+		Serial.print(index);
+		Serial.print("; state=");
+		Serial.print(state);
+		Serial.println();
+		server.Ok("state", state);
 		return;
 	}
 	WebPortal::handleNotFound();

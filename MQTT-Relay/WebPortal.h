@@ -77,6 +77,7 @@ public:
 	static bool handleFileRead(String path);
 	static void jsonOk(JsonString * json);
 	static void Ok();
+	static void Ok(String name, String value);
 
 };
 

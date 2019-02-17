@@ -1,4 +1,228 @@
-﻿class Relay {
+﻿class WebUI {
+    public static rooturl: String = "api/";
+    static questionTemplate: string;
+
+    public model: Model;
+
+    public init(): void {
+        let setup: any = Model.getUrlParameter("setup");
+        if (setup === undefined) {
+            this.model = new HomePage();
+        } else {
+            this.model = new SetupPage();
+        }
+        this.model.init();
+    }
+
+}
+
+class Model {
+
+
+    public static getUrlParameter(sParam): any {
+        let sPageURL: string = window.location.search.substring(1);
+        let sURLVariables: string[] = sPageURL.split('&');
+        let sParameterName: string[];
+        let i: number;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === sParam) {
+                return (sParameterName[1] === undefined) ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+        return undefined;
+    }
+
+
+    private templates: Array<keyValue> = new Array<keyValue>();
+    public elements: Array<any> = new Array<any>();
+
+
+    public init(): void {
+        let qm = $("#questionModal");
+        if (qm.length > 0)
+            Relay.questionTemplate = $("#questionModal")[0].innerHTML;
+    }
+
+    public fillTemplate(t: string, item: Trigger): string {
+        let ret: string = t;
+        for (var key in item) {
+            let s: string = item[key];
+            let k: string = "@" + key + "@";
+            while (ret.indexOf(k) >= 0) {
+                ret = ret.replace(k, s);
+            }
+        }
+        return ret;
+    }
+
+    public loadFailed(data: any, retyHandler: any) {
+        this.updateTime(data);
+
+        $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
+        $(".refresh").click(function () {
+            if (retyHandler) retyHandler();
+        });
+    }
+
+    public updateTime(data: any): void {
+        if (data.systime) { $("#systime").html(data.systime); };
+    }
+
+    public loadTemplateByName(name: string, onDone: any): void {
+        $.get(WebUI.rooturl + "template?name=" + name).done(
+            (data: any, status: any) => this.templateByNameLoaded(data, onDone)
+        ).fail(
+            (data: any, status: any) => this.loadFailed(data, this.loadElementsTemplate)
+        );
+    }
+
+    private templateByNameLoaded(data: any, onDone: any): void {
+        this.updateTime(data);
+        let item: keyValue = new keyValue();
+        item.key = name;
+        item.value = data;
+        this.templates.push(item);
+        onDone();
+    }
+
+    private getTemplate(s: string): string {
+        for (let i: number = 0; i < this.templates.length; i++) {
+            let item: keyValue = this.templates[i];
+            if (item.key === s) {
+                return item.value;
+            }
+        };
+        return undefined;
+    }
+
+    public allElementsTemplateLoaded(onDone: any): boolean {
+        for (let i: number = 0; i < Relay.relay.elements.length; i++) {
+            let item: any = Relay.relay.elements[i];
+            let templateName = item.template;
+            let t: string;
+            if (!(templateName === undefined)) {
+                t = this.getTemplate(templateName);
+                if (t === undefined) {
+                    this.loadTemplateByName(templateName, onDone);
+                    return false;
+                }
+            }
+            templateName = item.editingtemplate
+            if (!(templateName === undefined)) {
+                t = this.getTemplate(templateName);
+                if (t === undefined) {
+                    this.loadTemplateByName(templateName, onDone);
+                    return false;
+                }
+            }
+            templateName = item.visual;
+            if (!(templateName === undefined)) {
+                t = this.getTemplate(templateName);
+                if (t === undefined) {
+                    this.loadTemplateByName(templateName, onDone);
+                    return false;
+                }
+            }
+
+        };
+        return true;
+    }
+
+
+    public loadElementsTemplate(): void {
+        let allReady: boolean = this.allElementsTemplateLoaded(() => this.loadElementsTemplate());
+        if (allReady === false) return;
+
+        let list: string = "";
+        for (let i: number = 0; i < this.elements.length; i++) {
+            let item: any = this.elements[i];
+
+            if (item.visual) {
+                let t: string = this.getTemplate(item.visual);
+                if (t === undefined) {
+                    list += "<li class='nav-item'>";
+                    list += item.name;
+                    list += "</li>";
+                } else {
+                    list += this.fillTemplate(t, item);
+                }
+            }
+        }
+        $(".process-list").html(list);
+        this.allLoaded();
+        Relay.ConvertAll();
+
+    }
+
+    public allLoaded():void {}
+}
+
+
+class HomePage extends Model {
+
+
+    public init(): void {
+        super.init();
+        this.loadProcesses();
+    }
+
+    public loadProcesses(): void {
+        $.get(WebUI.rooturl + "switches").done(
+            (data: any, status: any) => this.ProcessesLoaded(data, status)
+        ).fail(
+            (data: any, status: any) => this.loadFailed(data, this.loadProcesses)
+        );
+    }
+
+    private ProcessesLoaded(data: any, status: any): void {
+        this.updateTime(data);
+        let w: Items_list = data;
+        let list: string = "";
+        for (let i: number = 0; i < w.items.length; i++) {
+            this.elements.push(w.items[i]);
+        };
+        this.loadElementsTemplate();
+    }
+
+    public allLoaded() {
+        super.allLoaded();
+
+        $(".switch-checkbox[data-state='ON']").prop("checked", true);
+        $("img[data-state='ON']").removeClass("light-off");
+
+        $(".switch-img").click(function () {
+            let cb = $(".switch-checkbox", $(this).closest(".card"));
+            if (cb.data("state") == "ON") {
+                relay.turnOff(cb.data("switch"));
+            } else {
+                relay.turnOn(cb.data("switch"));
+            }
+        });
+        $(".switch-checkbox").change(function () {
+            if (this.checked) {
+                relay.turnOn($(this).data("switch"))
+            } else {
+                relay.turnOff($(this).data("switch"))
+            }
+        });
+
+    }
+}
+
+class SetupPage extends Model {
+
+    public init(): void {
+        super.init();
+    }
+
+
+
+}
+
+
+class Relay {
 
     private rooturl: String = "api/";
     public static relay: Relay = new Relay();
@@ -524,8 +748,6 @@ class TimeConverter {
     }
 
 }
-
-
 
 class TextConverter {
 

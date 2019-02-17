@@ -121,6 +121,7 @@ void WebPortal::setup() {
 void WebPortal::connectWifi() {
 	Serial.println("Connecting as wifi client...");
 	WiFi.disconnect();
+	WiFi.hostname(myHostname);
 	WiFi.begin(ssid.c_str(), password.c_str());
 	int connRes = WiFi.waitForConnectResult();
 	Serial.print("connRes: ");
@@ -179,6 +180,11 @@ void WebPortal::jsonOk(JsonString *json)
 
 void WebPortal::Ok()
 {
+	server.Ok("", "");
+}
+
+void WebPortal::Ok(String name, String value)
+{
 	server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 	server.sendHeader("Pragma", "no-cache");
 	server.sendHeader("Expires", "-1");
@@ -188,10 +194,12 @@ void WebPortal::Ok()
 	ret.beginObject();
 	ret.AddValue("systime", Utils::FormatTime(now()));
 	ret.AddValue("status", "ok");
+	if (name.length()>0) {
+		ret.AddValue(name, value);
+	}
 	ret.endObject();
 
 	server.send(200, "application/json", ret);
-
 }
 
 
@@ -336,6 +344,7 @@ void WebPortal::updateFile(String url, String file) {
 	}
 
 	Serial.printf("[HTTPS] GET: %s\n", action.c_str());
+
 	File f = SPIFFS.open(file, "w");
 	if (f) {
 		uint8_t buff[128];

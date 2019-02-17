@@ -79,9 +79,9 @@ bool MQTTconnection::loop() {
 			if (numberOfTry > 120) numberOfTry = 120;
 			Serial.print("Can't connecto to MQTT broker:");
 			Serial.println(connection->connectErrorString(ret));
-			Serial.printf("Next try in %i seconds...\n", numberOfTry * 5);
+			Serial.printf("Next try in %i seconds...\n", numberOfTry * 10);
 			connection->disconnect();
-			connectInterval = 1000UL * numberOfTry * 5UL;
+			connectInterval = 1000UL * numberOfTry * 10UL;
 			lastConnect = millis();
 			return false;
 		}

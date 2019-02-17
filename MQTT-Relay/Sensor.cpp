@@ -73,6 +73,7 @@ int Sensor::generateNewUid()
 
 
 OneWire _ds18x20(D2);
+//OneWire _ds18x20(D0);
 
 
 DS18X20::DS18X20()

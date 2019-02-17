@@ -1,3 +1,215 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var WebUI = (function () {
+    function WebUI() {
+    }
+    WebUI.prototype.init = function () {
+        var setup = Model.getUrlParameter("setup");
+        if (setup === undefined) {
+            this.model = new HomePage();
+        }
+        else {
+            this.model = new SetupPage();
+        }
+        this.model.init();
+    };
+    WebUI.rooturl = "api/";
+    return WebUI;
+}());
+var Model = (function () {
+    function Model() {
+        this.templates = new Array();
+        this.elements = new Array();
+    }
+    Model.getUrlParameter = function (sParam) {
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        var sParameterName;
+        var i;
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === sParam) {
+                return (sParameterName[1] === undefined) ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+        return undefined;
+    };
+    Model.prototype.init = function () {
+        var qm = $("#questionModal");
+        if (qm.length > 0)
+            Relay.questionTemplate = $("#questionModal")[0].innerHTML;
+    };
+    Model.prototype.fillTemplate = function (t, item) {
+        var ret = t;
+        for (var key in item) {
+            var s = item[key];
+            var k = "@" + key + "@";
+            while (ret.indexOf(k) >= 0) {
+                ret = ret.replace(k, s);
+            }
+        }
+        return ret;
+    };
+    Model.prototype.loadFailed = function (data, retyHandler) {
+        this.updateTime(data);
+        $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
+        $(".refresh").click(function () {
+            if (retyHandler)
+                retyHandler();
+        });
+    };
+    Model.prototype.updateTime = function (data) {
+        if (data.systime) {
+            $("#systime").html(data.systime);
+        }
+        ;
+    };
+    Model.prototype.loadTemplateByName = function (name, onDone) {
+        var _this = this;
+        $.get(WebUI.rooturl + "template?name=" + name).done(function (data, status) { return _this.templateByNameLoaded(data, onDone); }).fail(function (data, status) { return _this.loadFailed(data, _this.loadElementsTemplate); });
+    };
+    Model.prototype.templateByNameLoaded = function (data, onDone) {
+        this.updateTime(data);
+        var item = new keyValue();
+        item.key = name;
+        item.value = data;
+        this.templates.push(item);
+        onDone();
+    };
+    Model.prototype.getTemplate = function (s) {
+        for (var i = 0; i < this.templates.length; i++) {
+            var item = this.templates[i];
+            if (item.key === s) {
+                return item.value;
+            }
+        }
+        ;
+        return undefined;
+    };
+    Model.prototype.allElementsTemplateLoaded = function (onDone) {
+        for (var i = 0; i < Relay.relay.elements.length; i++) {
+            var item = Relay.relay.elements[i];
+            var templateName = item.template;
+            var t = void 0;
+            if (!(templateName === undefined)) {
+                t = this.getTemplate(templateName);
+                if (t === undefined) {
+                    this.loadTemplateByName(templateName, onDone);
+                    return false;
+                }
+            }
+            templateName = item.editingtemplate;
+            if (!(templateName === undefined)) {
+                t = this.getTemplate(templateName);
+                if (t === undefined) {
+                    this.loadTemplateByName(templateName, onDone);
+                    return false;
+                }
+            }
+            templateName = item.visual;
+            if (!(templateName === undefined)) {
+                t = this.getTemplate(templateName);
+                if (t === undefined) {
+                    this.loadTemplateByName(templateName, onDone);
+                    return false;
+                }
+            }
+        }
+        ;
+        return true;
+    };
+    Model.prototype.loadElementsTemplate = function () {
+        var _this = this;
+        var allReady = this.allElementsTemplateLoaded(function () { return _this.loadElementsTemplate(); });
+        if (allReady === false)
+            return;
+        var list = "";
+        for (var i = 0; i < this.elements.length; i++) {
+            var item = this.elements[i];
+            if (item.visual) {
+                var t = this.getTemplate(item.visual);
+                if (t === undefined) {
+                    list += "<li class='nav-item'>";
+                    list += item.name;
+                    list += "</li>";
+                }
+                else {
+                    list += this.fillTemplate(t, item);
+                }
+            }
+        }
+        $(".process-list").html(list);
+        this.allLoaded();
+        Relay.ConvertAll();
+    };
+    Model.prototype.allLoaded = function () { };
+    return Model;
+}());
+var HomePage = (function (_super) {
+    __extends(HomePage, _super);
+    function HomePage() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    HomePage.prototype.init = function () {
+        _super.prototype.init.call(this);
+        this.loadProcesses();
+    };
+    HomePage.prototype.loadProcesses = function () {
+        var _this = this;
+        $.get(WebUI.rooturl + "switches").done(function (data, status) { return _this.ProcessesLoaded(data, status); }).fail(function (data, status) { return _this.loadFailed(data, _this.loadProcesses); });
+    };
+    HomePage.prototype.ProcessesLoaded = function (data, status) {
+        this.updateTime(data);
+        var w = data;
+        var list = "";
+        for (var i = 0; i < w.items.length; i++) {
+            this.elements.push(w.items[i]);
+        }
+        ;
+        this.loadElementsTemplate();
+    };
+    HomePage.prototype.allLoaded = function () {
+        _super.prototype.allLoaded.call(this);
+        $(".switch-checkbox[data-state='ON']").prop("checked", true);
+        $("img[data-state='ON']").removeClass("light-off");
+        $(".switch-img").click(function () {
+            var cb = $(".switch-checkbox", $(this).closest(".card"));
+            if (cb.data("state") == "ON") {
+                Relay.relay.turnOff(cb.data("switch"));
+            }
+            else {
+                Relay.relay.turnOn(cb.data("switch"));
+            }
+        });
+        $(".switch-checkbox").change(function () {
+            if (this.checked) {
+                Relay.relay.turnOn($(this).data("switch"));
+            }
+            else {
+                Relay.relay.turnOff($(this).data("switch"));
+            }
+        });
+    };
+    return HomePage;
+}(Model));
+var SetupPage = (function (_super) {
+    __extends(SetupPage, _super);
+    function SetupPage() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SetupPage.prototype.init = function () {
+        _super.prototype.init.call(this);
+    };
+    return SetupPage;
+}(Model));
 var Relay = (function () {
     function Relay() {
         this.rooturl = "api/";

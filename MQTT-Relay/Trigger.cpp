@@ -160,6 +160,7 @@ void Trigger::loadConfig(MQTTswitch * proc)
 				t->proc = proc;
 				t->Register();
 			}
+			f.close();
 		}
 	}
 	//На диску елементи можуть бути роміщені у довільному порядку
