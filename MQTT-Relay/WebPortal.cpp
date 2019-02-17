@@ -194,7 +194,7 @@ void WebPortal::Ok(String name, String value)
 	ret.beginObject();
 	ret.AddValue("systime", Utils::FormatTime(now()));
 	ret.AddValue("status", "ok");
-	if (name.length()>0) {
+	if (name.length() > 0) {
 		ret.AddValue(name, value);
 	}
 	ret.endObject();
@@ -265,23 +265,38 @@ boolean WebPortal::captivePortal() {
 
 
 uint16_t httpsPort = 443;
-const char * host = "raw.githubusercontent.com";//TOD: read from settings file
-const char * fingerprint = "CC AA 48 48 66 46 0E 91 53 2C 9C 7C 23 2A B1 74 4D 29 9D 33";//TOD: read from settings file (can see in browser certificate info)
+String defaultHost = "raw.githubusercontent.com";
+String defaultURL = "/KushlaVR/WiFi-relay/master/MQTT-Relay/data";
+String host = "raw.githubusercontent.com";
+
+//const char * fingerprint = "CC AA 48 48 66 46 0E 91 53 2C 9C 7C 23 2A B1 74 4D 29 9D 33";//TOD: read from settings file (can see in browser certificate info)
 
 void WebPortal::handleUpdate() {
 	String url = "";
 	if (server.hasArg("url")) {
 		url = server.arg("url");
+		if (server.hasArg("file")) {
+			server.Ok();
+			updateFile(url, server.arg("file"));
+			return;
+		}
 	}
 	else {
 		if (SPIFFS.exists("/html/files.txt")) {
 			File f = SPIFFS.open("/html/files.txt", "r");
+			host = f.readStringUntil('\10');
+			host.trim();
 			url = f.readStringUntil('\10');
+			url.trim();
 			f.close();
 		}
 	}
+	if (host.length() == 0 || host.startsWith("/")) {
+		host = defaultHost;
+		url = defaultURL;
+	}
 	if (url.length() > 0) {
-		server.send(200, "application/json", "{\"status\":\"ok\"}");
+		server.Ok();
 		Serial.printf("url=%s", url.c_str());
 		updateFiles(url);
 	}
@@ -297,7 +312,14 @@ void WebPortal::updateFiles(String url) {
 	updateFile(url, "/html/files.txt");
 	if (SPIFFS.exists("/html/files.txt")) {
 		File f = SPIFFS.open("/html/files.txt", "r");
+		host = f.readStringUntil('\10');
+		host.trim(); 
 		url = f.readStringUntil('\n');
+		url.trim();
+		if (host.length() == 0 || host.startsWith("/")) {
+			host = defaultHost;
+			url = defaultURL;
+		}
 		String fName = f.readStringUntil('\n');
 		while (fName.length() > 0) {
 			updateFile(url, fName);
@@ -308,63 +330,68 @@ void WebPortal::updateFiles(String url) {
 }
 
 void WebPortal::updateFile(String url, String file) {
+	BearSSL::WiFiClientSecure client;
+	client.setInsecure();
+	WebPortal::loadURLtoFile(&client, host.c_str(), httpsPort, (url + file).c_str(), file);
+}
 
-
-	WiFiClientSecure client;
-	Serial.print("connecting to ");
-	Serial.println(host);
-	if (!client.connect(host, httpsPort)) {
-		Serial.println("connection failed");
+void WebPortal::loadURLtoFile(BearSSL::WiFiClientSecure * client, const char * host, const uint16_t port, const char * path, String toFile)
+{
+	Serial.println(path);
+	Serial.printf("Trying: %s:443...", host);
+	Serial.printf("path:\n", path);
+	client->connect(host, port);
+	if (!client->connected()) {
+		Serial.printf("*** Can't connect. ***\n-------\n");
 		return;
 	}
-	if (client.verify(fingerprint, host)) {
-		Serial.println("certificate matches");
-	}
-	else {
-		Serial.println("certificate doesn't match");
-	}
+	Serial.printf("Connected!\n-------\n");
+	client->write("GET ");
+	client->write(path);
+	client->write(" HTTP/1.0\r\nHost: ");
+	client->write(host);
+	client->write("\r\nUser-Agent: ESP8266\r\n");
+	client->write("\r\n");
+	uint32_t to = millis() + 5000;
+	if (client->connected()) {
+		Serial.println("client->connected");
 
-	String action = url.substring(url.indexOf(host) + strlen(host)) + file;
-
-	client.print(String("GET ") + action + " HTTP/1.1\r\n" +
-		"Host: " + host + "\r\n" +
-		"User-Agent: ESP8266\r\n" +
-		"Connection: close\r\n\r\n");
-
-	long len = -1;
-	while (client.connected()) {
-		String line = client.readStringUntil('\n');
-		if (line.startsWith("Content-Length:")) {
-			len = line.substring(15).toInt();
-		}
-		if (line == "\r") {
-			Serial.println("headers received");
-			break;
-		}
-	}
-
-	Serial.printf("[HTTPS] GET: %s\n", action.c_str());
-
-	File f = SPIFFS.open(file, "w");
-	if (f) {
-		uint8_t buff[128];
-		while (client.connected() && (len > 0 || len == -1)) {
-			size_t size = client.available();
-			if (size) {
-				int c = client.readBytes(buff, ((size > 128) ? 128 : size));
-				f.write(buff, c);
-				if (len > 0) 	len -= c;
+		while (client->connected()) {
+			String line = client->readStringUntil('\n');
+			if (line.startsWith("HTTP/")) {
+				if (!line.substring(9).startsWith("200")) {
+					client->stop();
+					Serial.println(line);
+					return;
+				}
 			}
-			else { break; }
-			Serial.printf("bytes left %i", len);
-			ESP.wdtDisable();
-			ESP.wdtEnable(1000);
-			//f.println(line);
-			//line = client.readStringUntil('\n');
+			Serial.println(line);
+			if (line == "\r") {
+				Serial.println("headers received");
+				break;
+			}
 		}
-		Serial.println("done.");
+
+		File f = SPIFFS.open(toFile, "w");
+		while (client->connected()) {
+			uint8_t tmp[32];
+			memset(tmp, 0, 32);
+			int rlen = client->read((uint8_t*)tmp, sizeof(tmp) - 1);
+			yield();
+			if (rlen < 0) {
+				break;
+			}
+			f.write(tmp, rlen);
+			Serial.print("Portion: ");
+			Serial.println(rlen);
+		}
+		f.flush();
 		f.close();
+		Serial.println("Done");
 	}
+	client->stop();
+	Serial.println("client->stopped");
+
 }
 
 void WebPortal::handleNotFound()

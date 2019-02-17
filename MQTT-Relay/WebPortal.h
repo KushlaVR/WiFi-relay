@@ -73,6 +73,7 @@ public:
 	static void handleUpdate();
 	static void updateFiles(String url);
 	static void updateFile(String url, String file);
+	static void loadURLtoFile(BearSSL::WiFiClientSecure *client, const char *host, const uint16_t port, const char *path, String toFile);
 
 	static bool handleFileRead(String path);
 	static void jsonOk(JsonString * json);
