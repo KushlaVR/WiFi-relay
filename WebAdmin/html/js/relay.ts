@@ -2,18 +2,17 @@
     public static rooturl: String = "api/";
     static questionTemplate: string;
 
-    public model: Model;
+    public static model: Model;
 
-    public init(): void {
+    public static init(): void {
         let setup: any = Model.getUrlParameter("setup");
         if (setup === undefined) {
-            this.model = new HomePage();
+            WebUI.model = new HomePage();
         } else {
-            this.model = new SetupPage();
+            WebUI.model = new SetupPage();
         }
-        this.model.init();
+        WebUI.model.init();
     }
-
 }
 
 class Model {

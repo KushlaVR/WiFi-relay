@@ -11,15 +11,15 @@ var __extends = (this && this.__extends) || (function () {
 var WebUI = (function () {
     function WebUI() {
     }
-    WebUI.prototype.init = function () {
+    WebUI.init = function () {
         var setup = Model.getUrlParameter("setup");
         if (setup === undefined) {
-            this.model = new HomePage();
+            WebUI.model = new HomePage();
         }
         else {
-            this.model = new SetupPage();
+            WebUI.model = new SetupPage();
         }
-        this.model.init();
+        WebUI.model.init();
     };
     WebUI.rooturl = "api/";
     return WebUI;
