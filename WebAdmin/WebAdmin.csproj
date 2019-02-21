@@ -6,6 +6,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="css\style.css" />
+    <None Remove="js\relay.js" />
+    <None Remove="js\relay.js.map" />
+    <None Remove="js\relay.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="css\style.css">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="js\relay.js">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="js\relay.js.map">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="js\relay.ts">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="jQuery" Version="3.3.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.9" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.4" />
@@ -17,15 +39,6 @@
 
   <ItemGroup>
     <None Include="wwwroot\content\_pwm.html" />
-    <None Include="wwwroot\css\bootstrap.css" />
-    <None Include="wwwroot\css\clockpicker.css" />
-    <None Include="wwwroot\css\style.css" />
-    <None Include="wwwroot\js\bootstrap.min.js" />
-    <None Include="wwwroot\js\clockpicker.js" />
-    <None Include="wwwroot\js\jquery.min.js" />
-    <None Include="wwwroot\js\relay.js" />
-    <None Include="wwwroot\js\relay.js.map" />
-    <None Include="wwwroot\js\relay.ts" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
