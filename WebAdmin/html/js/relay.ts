@@ -42,7 +42,7 @@ class Model {
     public init(): void {
         let qm = $("#questionModal");
         if (qm.length > 0)
-            Relay.questionTemplate = $("#questionModal")[0].innerHTML;
+            WebUI.questionTemplate = $("#questionModal")[0].innerHTML;
     }
 
     public fillTemplate(t: string, item: Trigger): string {
@@ -98,8 +98,8 @@ class Model {
     }
 
     public allElementsTemplateLoaded(onDone: any): boolean {
-        for (let i: number = 0; i < Relay.relay.elements.length; i++) {
-            let item: any = Relay.relay.elements[i];
+        for (let i: number = 0; i < this.elements.length; i++) {
+            let item: any = this.elements[i];
             let templateName = item.template;
             let t: string;
             if (!(templateName === undefined)) {
@@ -152,11 +152,11 @@ class Model {
         }
         $(".process-list").html(list);
         this.allLoaded();
-        Relay.ConvertAll();
+        Converters.ConvertAll();
 
     }
 
-    public allLoaded():void {}
+    public allLoaded(): void { }
 }
 
 
@@ -195,19 +195,61 @@ class HomePage extends Model {
         $(".switch-img").click(function () {
             let cb = $(".switch-checkbox", $(this).closest(".card"));
             if (cb.data("state") == "ON") {
-                relay.turnOff(cb.data("switch"));
+                this.turnOff(cb.data("switch"));
             } else {
-                relay.turnOn(cb.data("switch"));
+                this.turnOn(cb.data("switch"));
             }
         });
         $(".switch-checkbox").change(function () {
             if (this.checked) {
-                relay.turnOn($(this).data("switch"))
+                this.turnOn($(this).data("switch"))
             } else {
-                relay.turnOff($(this).data("switch"))
+                this.turnOff($(this).data("switch"))
             }
         });
 
+    }
+
+
+
+
+    public turnOn(i: number): boolean {
+        if ($("#switch_" + i.toString()).data("state") == "ON") return;
+
+        console.log("turn on");
+        $.post(WebUI.rooturl + "switches" + "?index=" + i.toString() + "&state=on").done(
+            function (data: any, status: any) {
+                if (data.systime) { $("#systime").html(data.systime); };
+                $("#switch_" + i.toString()).data("state", "ON");
+                $("#switch_img_" + i.toString()).removeClass("light-off").addClass("light-on")
+                $("#switch_" + i.toString()).prop("checked", true);
+            }
+        ).fail(
+            function (data: any, status: any) {
+                $("#switch_" + i.toString()).prop("checked", false);
+            }
+        );
+
+        return true;
+    }
+
+    public turnOff(i: number): boolean {
+        if ($("#switch_" + i.toString()).data("state") == "OFF") return;
+
+        console.log("turn off");
+        $.post(WebUI.rooturl + "switches" + "?index=" + i.toString() + "&state=off").done(
+            function (data: any, status: any) {
+                if (data.systime) { $("#systime").html(data.systime); };
+                $("#switch_" + i.toString()).data("state", "OFF");
+                $("#switch_img_" + i.toString()).removeClass("light-on").addClass("light-off")
+                $("#switch_" + i.toString()).prop("checked", false);
+            }
+        ).fail(
+            function (data: any, status: any) {
+                $("#switch_" + i.toString()).prop("checked", true);
+            }
+        );
+        return true;
     }
 }
 
@@ -221,7 +263,7 @@ class SetupPage extends Model {
 
 }
 
-
+/*
 class Relay {
 
     private rooturl: String = "api/";
@@ -671,6 +713,7 @@ class Relay {
         });
     }
 }
+*/
 
 class WIFI_list {
     public ssid: Array<any>;
@@ -694,6 +737,15 @@ class Trigger {
     public action: string;
     public template: string;
     public editingtemplate: string;
+}
+
+class Converters {
+
+    public static ConvertAll() {
+        TimeConverter.Convert();
+        TextConverter.Convert();
+        WeekDaysConverter.Convert();
+    }
 }
 
 class TimeConverter {
@@ -751,6 +803,7 @@ class TimeConverter {
 
 class TextConverter {
 
+    public static Convert(): void { }
 
     public static ConvertBack(elem: Element): string {
         let el = $(elem);

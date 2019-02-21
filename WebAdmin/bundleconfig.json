@@ -2,28 +2,6 @@
 // More info at https://go.microsoft.com/fwlink/?LinkId=808241
 [
   {
-    "outputFileName": "wwwroot/css/style.css",
-    // An array of relative input file paths. Globbing patterns supported
-    "inputFiles": [
-      "css/style.css"
-    ]
-  },
-  {
-    "outputFileName": "wwwroot/js/site.min.js",
-    "inputFiles": [
-      "./js/relay.js"
-    ],
-
-    // Optionally specify minification options
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    },
-    // Optionally generate .map file
-    "sourceMap": false
-  },
-
-  {
     "outputFileName": "wwwroot/css/clockpicker.css",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
@@ -36,6 +14,12 @@
     "inputFiles": [
       "lib/clockpicker/bootstrap-clockpicker.js"
     ]
+    // Optionally specify minification options
+    //"minify": {
+    //  "enabled": true,
+    //  "renameLocals": true
+    //},
+    //"sourceMap": false
   },
 
 
@@ -62,11 +46,110 @@
       "lib/jquery/jquery.js"
     ]
   },
+
+
   {
-    "outputFileName": "js/jquery.js",
+    "outputFileName": "wwwroot/index.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "lib/jquery/jquery.js"
+      "html/index.html"
+    ]
+  },
+
+  {
+    "outputFileName": "wwwroot/wifi.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "html/wifi.html"
+    ]
+  },
+
+  {
+    "outputFileName": "wwwroot/help.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "html/help.html"
+    ]
+  },
+
+
+  {
+    "outputFileName": "wwwroot/content/_newitem.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "html/content/_newitem.html"
+    ]
+  },
+
+
+  {
+    "outputFileName": "wwwroot/content/_onoff.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "html/content/_onoff.html"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/content/_onoffedit.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "html/content/_onoffedit.html"
+    ]
+  },
+
+
+  {
+    "outputFileName": "wwwroot/content/_pwm.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "html/content/_pwm.html"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/content/_pwmedit.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "html/content/_pwmedit.html"
+    ]
+  },
+
+  {
+    "outputFileName": "wwwroot/content/_switch.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "html/content/_switch.html"
+    ]
+  },
+
+  {
+    "outputFileName": "wwwroot/content/_termo.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "html/content/_termoedit.html"
+    ]
+  },
+
+  {
+    "outputFileName": "wwwroot/content/_termoedit.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "html/content/_termoedit.html"
+    ]
+  },
+
+  {
+    "outputFileName": "wwwroot/content/_tsens.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "html/content/_tsens.html"
+    ]
+  },
+  
+  {
+    "outputFileName": "wwwroot/css/style.css",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "html/css/style.css"
     ]
   },
 
@@ -74,8 +157,9 @@
     "outputFileName": "wwwroot/js/relay.js",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "js/relay.js"
+      "html/js/relay.js"
     ]
   }
+
 
 ]

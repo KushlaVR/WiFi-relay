@@ -6,23 +6,79 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="css\style.css" />
-    <None Remove="js\relay.js" />
-    <None Remove="js\relay.js.map" />
-    <None Remove="js\relay.ts" />
+    <None Remove="html\content\idea.svg" />
+    <None Remove="html\content\t.svg" />
+    <None Remove="html\content\_newitem.html" />
+    <None Remove="html\content\_onoff.html" />
+    <None Remove="html\content\_onoffedit.html" />
+    <None Remove="html\content\_pwm.html" />
+    <None Remove="html\content\_pwmedit.html" />
+    <None Remove="html\content\_switch.html" />
+    <None Remove="html\content\_termo.html" />
+    <None Remove="html\content\_termoedit.html" />
+    <None Remove="html\content\_tsens.html" />
+    <None Remove="html\css\style.css" />
+    <None Remove="html\help.html" />
+    <None Remove="html\index.html" />
+    <None Remove="html\js\relay.js" />
+    <None Remove="html\js\relay.js.map" />
+    <None Remove="html\js\relay.ts" />
+    <None Remove="html\wifi.html" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="css\style.css">
+    <Content Include="html\content\idea.svg">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <Content Include="js\relay.js">
+    <Content Include="html\content\t.svg">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <Content Include="js\relay.js.map">
+    <Content Include="html\content\_newitem.html">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <Content Include="js\relay.ts">
+    <Content Include="html\content\_onoff.html">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="html\content\_onoffedit.html">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="html\content\_pwm.html">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="html\content\_pwmedit.html">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="html\content\_switch.html">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="html\content\_termo.html">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="html\content\_termoedit.html">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="html\content\_tsens.html">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="html\css\style.css">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="html\help.html">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="html\index.html">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="html\js\relay.js">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="html\js\relay.js.map">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="html\js\relay.ts">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="html\wifi.html">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
@@ -35,10 +91,6 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="wwwroot\content\_pwm.html" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

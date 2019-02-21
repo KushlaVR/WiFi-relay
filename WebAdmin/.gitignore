@@ -1,2 +1,4 @@
 ﻿# ignore all libs
 lib\*
+content\content\*
+content\*.html
