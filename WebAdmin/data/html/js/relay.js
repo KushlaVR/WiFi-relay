@@ -21,6 +21,35 @@ var WebUI = (function () {
         }
         WebUI.model.init();
     };
+    WebUI.wifi = function () {
+        WebUI.model = new WifiPage();
+        WebUI.model.init();
+    };
+    WebUI.ask = function (question, yes, no) {
+        if (no === void 0) { no = null; }
+        var questionModal = $("#questionModal");
+        questionModal.html(WebUI.questionTemplate);
+        var modaTitle = $(".modal-title", questionModal);
+        var modalText = $(".modal-text", questionModal);
+        var btnYes = $(".btn-yes", questionModal);
+        var btnNo = $(".btn-no", questionModal);
+        var btnCancel = $(".btn-cancel", questionModal);
+        modalText.html(question);
+        questionModal.addClass("in").attr("style", "display:block;opacity:1");
+        btnYes.click(function () {
+            yes();
+        });
+        btnNo.click(function () {
+            if (no)
+                no();
+            questionModal.removeClass("in").removeAttr("style");
+            return false;
+        });
+        btnCancel.click(function () {
+            questionModal.removeClass("in").removeAttr("style");
+            return false;
+        });
+    };
     WebUI.rooturl = "api/";
     return WebUI;
 }());
@@ -46,6 +75,7 @@ var Model = (function () {
         var qm = $("#questionModal");
         if (qm.length > 0)
             WebUI.questionTemplate = $("#questionModal")[0].innerHTML;
+        Converters.ClockPicker();
     };
     Model.prototype.fillTemplate = function (t, item) {
         var ret = t;
@@ -132,26 +162,12 @@ var Model = (function () {
         var allReady = this.allElementsTemplateLoaded(function () { return _this.loadElementsTemplate(); });
         if (allReady === false)
             return;
-        var list = "";
-        for (var i = 0; i < this.elements.length; i++) {
-            var item = this.elements[i];
-            if (item.visual) {
-                var t = this.getTemplate(item.visual);
-                if (t === undefined) {
-                    list += "<li class='nav-item'>";
-                    list += item.name;
-                    list += "</li>";
-                }
-                else {
-                    list += this.fillTemplate(t, item);
-                }
-            }
-        }
-        $(".process-list").html(list);
         this.allLoaded();
         Converters.ConvertAll();
+        $(".switch-checkbox[data-state='ON']").prop("checked", true);
     };
-    Model.prototype.allLoaded = function () { };
+    Model.prototype.allLoaded = function () {
+    };
     Model.prototype.getUrlParameter = function (sParam) {
         var sPageURL = window.location.search.substring(1);
         var sURLVariables = sPageURL.split('&');
@@ -192,8 +208,23 @@ var HomePage = (function (_super) {
     };
     HomePage.prototype.allLoaded = function () {
         var _this = this;
+        var list = "";
+        for (var i = 0; i < this.elements.length; i++) {
+            var item = this.elements[i];
+            if (item.visual) {
+                var t = this.getTemplate(item.visual);
+                if (t === undefined) {
+                    list += "<li class='nav-item'>";
+                    list += item.name;
+                    list += "</li>";
+                }
+                else {
+                    list += this.fillTemplate(t, item);
+                }
+            }
+        }
+        $(".process-list").html(list);
         _super.prototype.allLoaded.call(this);
-        $(".switch-checkbox[data-state='ON']").prop("checked", true);
         $("img[data-state='ON']").removeClass("light-off");
         $(".switch-img").click(function (e) { return _this.switch_img_click(e); });
         $(".switch-checkbox").change(function (e) { return _this.switch_checkbox_change(e); });
@@ -258,6 +289,7 @@ var SetupPage = (function (_super) {
     }
     SetupPage.prototype.init = function () {
         _super.prototype.init.call(this);
+        this.loadTriggers();
     };
     SetupPage.prototype.loadTriggers = function () {
         var _this = this;
@@ -275,18 +307,176 @@ var SetupPage = (function (_super) {
         this.loadElementsTemplate();
     };
     SetupPage.prototype.allLoaded = function () {
+        var _this = this;
         var allReady = true;
-        _super.prototype.allLoaded.call(this);
         var t = this.getTemplate("newitem");
         if (t === undefined) {
             allReady = false;
-            this.loadTemplateByName("newitem", this.allLoaded);
+            this.loadTemplateByName("newitem", function () { return _this.allLoaded(); });
             return;
+        }
+        if (allReady === true) {
+            var list = "";
+            list += this.getTemplate("newitem");
+            for (var i = 0; i < this.elements.length; i++) {
+                var item = this.elements[i];
+                var t_1 = this.getTemplate(item.template);
+                list += "<div class='holder' id='trigger_" + item.uid + "' data-index='" + i.toString() + "' data-uid='" + item.uid + "'>" + this.fillTemplate(t_1, item) + "</div>";
+            }
+            $(".process-list").html(list);
+            $(".btn-edit").click(function (e) { return _this.edit(e); });
+            $(".btn-add").click(function (e) { return _this.add(e); });
+            $('.btn-delete').click(function (e) { return _this.delete(e); });
+            $(".switch-checkbox[data-state='on']").prop("checked", true);
+            Converters.ClockPicker();
         }
         $(".switch-checkbox[data-state='ON']").prop("checked", true);
         $("img[data-state='ON']").removeClass("light-off");
+        Converters.ConvertAll();
+    };
+    SetupPage.prototype.add = function (e) {
+        var _this = this;
+        console.log("add");
+        var item = $(e.target).data("newitem");
+        var t = this.getTemplate(item.editingtemplate);
+        if (t === undefined) {
+            var _e_1 = e;
+            this.loadTemplateByName(item.editingtemplate, function () { return _this.add(_e_1); });
+            return;
+        }
+        var iDiv = document.createElement('div');
+        iDiv.id = 'trigger_0';
+        iDiv.className = 'holder';
+        $(".process-list")[0].appendChild(iDiv);
+        var holder = $(iDiv);
+        holder.data("uid", 0);
+        holder.data("edit", true);
+        holder.html(this.fillTemplate(t, item));
+        $('.btn-edit').attr("disabled", "disabled");
+        $('.btn-save').click(function (e) { return _this.save(e); });
+        $(".switch-checkbox[data-state='on']").prop("checked", true);
+        Converters.ConvertAll();
+        Converters.ClockPicker();
+    };
+    SetupPage.prototype.edit = function (e) {
+        var _this = this;
+        console.log("edit");
+        var holder = $(e.target).closest(".holder");
+        holder.data("edit", true);
+        var i = holder.data("index");
+        var item = this.elements[i];
+        var t = this.getTemplate(item.editingtemplate);
+        holder.html(this.fillTemplate(t, item));
+        $('.btn-edit').attr("disabled", "disabled");
+        $('.btn-save').click(function (e) { return _this.save(e); });
+        $(".switch-checkbox[data-state='on']").prop("checked", true);
+        Converters.ConvertAll();
+        Converters.ClockPicker();
+    };
+    SetupPage.prototype.save = function (e) {
+        console.log("save");
+        var holder = $(e.target).closest(".holder");
+        var form = $("form", holder);
+        var fields = $("[name]", form);
+        var url = WebUI.rooturl + "setup?switch=" + this.getUrlParameter("index") + "&uid=" + holder.data("uid");
+        for (var i = 0; i < fields.length; i++) {
+            var v = void 0;
+            var f = $(fields[i]);
+            if (f.hasClass("converter-time"))
+                v = TimeConverter.ConvertBack(fields[i]);
+            else if (f.hasClass("converter-week-days"))
+                v = WeekDaysConverter.ConvertBack(fields[i]);
+            else
+                v = TextConverter.ConvertBack(fields[i]);
+            url += "&" + fields[i].getAttribute("name") + "=" + encodeURIComponent(v);
+        }
+        $.get(url).done(function (data, status) {
+            location.reload();
+        }).fail(function (data, status) {
+            if (data.systime) {
+                $("#systime").html(data.systime);
+            }
+            ;
+            alert(data);
+        });
+    };
+    SetupPage.prototype.delete = function (e) {
+        var _this = this;
+        console.log("delete");
+        var _e = e;
+        WebUI.ask("Вилучити тригер зі списку?", function () { return _this.onDeleConfirmed(_e); });
+    };
+    SetupPage.prototype.onDeleConfirmed = function (e) {
+        var holder = $(e.target).closest(".holder");
+        var form = $("form", holder);
+        var url = WebUI.rooturl + "setup?switch=" + this.getUrlParameter("index") + "&delete=" + holder.data("uid");
+        $.get(url).done(function (data, status) {
+            location.reload();
+        }).fail(function (data, status) {
+            if (data.systime) {
+                $("#systime").html(data.systime);
+            }
+            ;
+            alert(data);
+        });
     };
     return SetupPage;
+}(Model));
+var WifiPage = (function (_super) {
+    __extends(WifiPage, _super);
+    function WifiPage() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    WifiPage.prototype.init = function () {
+        _super.prototype.init.call(this);
+        this.loadStationList();
+    };
+    WifiPage.prototype.loadStationList = function () {
+        var _this = this;
+        $.get(WebUI.rooturl + "wifi").done(function (data, status) { return _this.StationListLoaded(data, status); }).fail(function (data, status) { return _this.loadFailed(data, _this.loadStationList); });
+    };
+    WifiPage.prototype.StationListLoaded = function (data, status) {
+        this.updateTime(data);
+        var w = data;
+        var list = "";
+        for (var i = 0; i < w.ssid.length; i++) {
+            var item = w.ssid[i];
+            item.template = "wifi";
+            if (item.encryption == "7") {
+                item.encryption_name = "-";
+            }
+            else {
+                item.encryption_name = "***";
+            }
+            this.elements.push(item);
+        }
+        ;
+        this.loadElementsTemplate();
+    };
+    WifiPage.prototype.allLoaded = function () {
+        var _this = this;
+        var list = "";
+        for (var i = 0; i < this.elements.length; i++) {
+            var item = this.elements[i];
+            var t = this.getTemplate(item.template);
+            if (t === undefined) {
+                list += "<li class='nav-item'>";
+                list += item.name;
+                list += "</li>";
+            }
+            else {
+                list += this.fillTemplate(t, item);
+            }
+        }
+        ;
+        $(".wifi-list").html(list);
+        $(".wifi-item").on("click", function (e) { return _this.wifi_item_click(e); });
+    };
+    WifiPage.prototype.wifi_item_click = function (event) {
+        $('#ssid').val($(".name", event.currentTarget).text());
+        $('#password').focus();
+    };
+    return WifiPage;
 }(Model));
 var WIFI_list = (function () {
     function WIFI_list() {
@@ -315,6 +505,13 @@ var Converters = (function () {
         TimeConverter.Convert();
         TextConverter.Convert();
         WeekDaysConverter.Convert();
+    };
+    Converters.ClockPicker = function () {
+        var cp = $(".clockpicker");
+        cp.clockpicker({
+            placement: 'top',
+            autoclose: true
+        });
     };
     return Converters;
 }());

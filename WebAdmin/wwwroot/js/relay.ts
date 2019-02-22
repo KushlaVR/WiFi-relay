@@ -13,6 +13,38 @@
         }
         WebUI.model.init();
     }
+
+    public static wifi() {
+        WebUI.model = new WifiPage();
+        WebUI.model.init();
+    }
+
+    public static ask(question: string, yes: any, no: any = null) {
+        let questionModal = $("#questionModal");
+        questionModal.html(WebUI.questionTemplate);
+
+        let modaTitle = $(".modal-title", questionModal);
+        let modalText = $(".modal-text", questionModal);
+        let btnYes = $(".btn-yes", questionModal);
+        let btnNo = $(".btn-no", questionModal);
+        let btnCancel = $(".btn-cancel", questionModal);
+
+        modalText.html(question);
+        questionModal.addClass("in").attr("style", "display:block;opacity:1");
+        btnYes.click(() => {
+            yes();
+        });
+        btnNo.click(() => {
+            if (no) no();
+            questionModal.removeClass("in").removeAttr("style");
+            return false;
+        });
+        btnCancel.click(() => {
+            questionModal.removeClass("in").removeAttr("style");
+            return false;
+        });
+    }
+
 }
 
 class Model {
@@ -42,6 +74,7 @@ class Model {
         let qm = $("#questionModal");
         if (qm.length > 0)
             WebUI.questionTemplate = $("#questionModal")[0].innerHTML;
+        Converters.ClockPicker();
     }
 
     public fillTemplate(t: string, item: Trigger): string {
@@ -140,22 +173,7 @@ class Model {
     }
 
     public allLoaded(): void {
-        let list: string = "";
-        for (let i: number = 0; i < this.elements.length; i++) {
-            let item: any = this.elements[i];
 
-            if (item.visual) {
-                let t: string = this.getTemplate(item.visual);
-                if (t === undefined) {
-                    list += "<li class='nav-item'>";
-                    list += item.name;
-                    list += "</li>";
-                } else {
-                    list += this.fillTemplate(t, item);
-                }
-            }
-        }
-        $(".process-list").html(list);
     }
 
     public getUrlParameter(sParam): any {
@@ -173,7 +191,6 @@ class Model {
         return undefined;
     }
 }
-
 
 class HomePage extends Model {
 
@@ -202,6 +219,23 @@ class HomePage extends Model {
     }
 
     public allLoaded() {
+        let list: string = "";
+        for (let i: number = 0; i < this.elements.length; i++) {
+            let item: any = this.elements[i];
+
+            if (item.visual) {
+                let t: string = this.getTemplate(item.visual);
+                if (t === undefined) {
+                    list += "<li class='nav-item'>";
+                    list += item.name;
+                    list += "</li>";
+                } else {
+                    list += this.fillTemplate(t, item);
+                }
+            }
+        }
+        $(".process-list").html(list);
+
         super.allLoaded();
 
         $("img[data-state='ON']").removeClass("light-off");
@@ -277,6 +311,7 @@ class SetupPage extends Model {
 
     public init(): void {
         super.init();
+        this.loadTriggers();
     }
 
     public loadTriggers(): void {
@@ -304,7 +339,7 @@ class SetupPage extends Model {
         let t = this.getTemplate("newitem");
         if (t === undefined) {
             allReady = false;
-            this.loadTemplateByName("newitem", this.allLoaded);
+            this.loadTemplateByName("newitem", () => this.allLoaded());
             return;
         }
 
@@ -325,13 +360,12 @@ class SetupPage extends Model {
             $(".btn-add").click((e) => this.add(e));
             $('.btn-delete').click((e) => this.delete(e));
             $(".switch-checkbox[data-state='on']").prop("checked", true);
-            let cp: any = $('.clockpicker');
-            cp.clockpicker();
+            Converters.ClockPicker();
         }
 
         $(".switch-checkbox[data-state='ON']").prop("checked", true);
         $("img[data-state='ON']").removeClass("light-off");
-
+        Converters.ConvertAll();
     }
 
     public add(e: any): void {
@@ -359,9 +393,8 @@ class SetupPage extends Model {
         $('.btn-save').click((e) => this.save(e));
 
         $(".switch-checkbox[data-state='on']").prop("checked", true);
-        let cp: any = $('.clockpicker');
-        cp.clockpicker();
         Converters.ConvertAll();
+        Converters.ClockPicker();
     }
 
     public edit(e: any): void {
@@ -379,9 +412,8 @@ class SetupPage extends Model {
 
 
         $(".switch-checkbox[data-state='on']").prop("checked", true);
-        let cp: any = $('.clockpicker');
-        cp.clockpicker();
         Converters.ConvertAll();
+        Converters.ClockPicker();
     }
 
     public save(e: any): void {
@@ -408,18 +440,17 @@ class SetupPage extends Model {
         );
     }
 
-
     public delete(e: any): void {
         console.log("delete");
         let _e = e;
-        SetupPage.ask("Вилучити тригер зі списку?", () => this.onDeleConfirmed(_e));
+        WebUI.ask("Вилучити тригер зі списку?", () => this.onDeleConfirmed(_e));
     }
 
     private onDeleConfirmed(e: any) {
         let holder: JQuery = $(e.target).closest(".holder");
         let form: JQuery = $("form", holder);
         //let fields = $("[name]", form);
-        let url: string = Relay.relay.rooturl + "setup?switch=" + this.getUrlParameter("index") + "&delete=" + holder.data("uid");
+        let url: string = WebUI.rooturl + "setup?switch=" + this.getUrlParameter("index") + "&delete=" + holder.data("uid");
         $.get(url).done(function (data: any, status: any) {
             location.reload();
         }
@@ -430,140 +461,63 @@ class SetupPage extends Model {
         );
     }
 
-    public static ask(question: string, yes: any, no: any = null) {
-        let questionModal = $("#questionModal");
-        questionModal.html(Relay.questionTemplate);
-
-        let modaTitle = $(".modal-title", questionModal);
-        let modalText = $(".modal-text", questionModal);
-        let btnYes = $(".btn-yes", questionModal);
-        let btnNo = $(".btn-no", questionModal);
-        let btnCancel = $(".btn-cancel", questionModal);
-
-        modalText.html(question);
-        questionModal.addClass("in").attr("style", "display:block;opacity:1");
-        btnYes.click(() => {
-            yes();
-            return false;
-        });
-        btnNo.click(() => {
-            if (no) no();
-            questionModal.removeClass("in").removeAttr("style");
-            return false;
-        });
-        btnCancel.click(() => {
-            questionModal.removeClass("in").removeAttr("style");
-            return false;
-        });
-    }
-
 }
 
-/*
-class Relay {
-
-    private rooturl: String = "api/";
-    public static relay: Relay = new Relay();
+class WifiPage extends Model {
 
     public init(): void {
-        let setup: any = this.getUrlParameter("setup");
-        if (setup === undefined) {
-            $("#pageHeader").html("Стан виходів");
-            this.loadProcesses();
-        } else {
-            $("#pageHeader").html("Налаштування");
-            this.loadSetup(setup, this.getUrlParameter("index"));
-        }
-        let qm = $("#questionModal");
-        if (qm.length > 0)
-            Relay.questionTemplate = $("#questionModal")[0].innerHTML;
+        super.init();
+        this.loadStationList();
     }
 
-    public loadProcesses(): void {
-        $.get(Relay.relay.rooturl + "switches").done(
-            function (data: any, status: any) {
-                if (data.systime) { $("#systime").html(data.systime); };
-                let w: Items_list = data;
-                let list: string = "";
-
-
-                for (let i: number = 0; i < w.items.length; i++) {
-                    let item: any = w.items[i];
-                    Relay.relay.elements.push(item);
-                };
-                Relay.relay.loadProcessTemplate();
-            }
-        ).fail(function (data: any, status: any) {
-            if (data.systime) { $("#systime").html(data.systime); };
-            $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
-            $(".switch-checkbox").click(function () {
-                Relay.relay.loadProcesses();
-            });
-        }
+    public loadStationList(): void {
+        $.get(WebUI.rooturl + "wifi").done(
+            (data: any, status: any) => this.StationListLoaded(data, status)
+        ).fail(
+            (data: any, status: any) => this.loadFailed(data, this.loadStationList)
         );
     }
 
-    public loadSetup(setup: any, index: number): void {
-        $.get(Relay.relay.rooturl + "setup?type=switch&index=" + index.toString()).done(
-            function (data: any, status: any) {
-                if (data.systime) { $("#systime").html(data.systime); };
-                for (let i: number = 0; i < data.items.length; i++) {
-                    let item: Trigger = data.items[i];
-                    Relay.relay.elements.push(item);
-                };
-                Relay.relay.loadTriggerTemplate();
+    private StationListLoaded(data: any, status: any): void {
+        this.updateTime(data);
+        let w: WIFI_list = data;
+        let list: string = "";
+        for (let i: number = 0; i < w.ssid.length; i++) {
+            let item: any = w.ssid[i];
+            item.template = "wifi";
+            if (item.encryption == "7") {
+                item.encryption_name = "-";
+            } else {
+                item.encryption_name = "***";
             }
-        ).fail(function (data: any, status: any) {
-            if (data.systime) { $("#systime").html(data.systime); };
-            $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
-            $(".switch-checkbox").click(function () {
-                Relay.relay.loadSetup(setup, index);
-            });
-        }
-        );
+            this.elements.push(item);
+        };
+        this.loadElementsTemplate();
     }
 
-
-         
-    public wifi(): void {
-        $.get(Relay.relay.rooturl + "wifi").done(
-            function (data: any, status: any) {
-                let w: WIFI_list = data;
-                //alert("Done: " + data + "\nStatus: " + status);
-                let list: string = "";
-                for (let i: number = 0; i < w.ssid.length; i++) {
-                    list += "<a class='wifi-item list-group-item' href='#'>";
-                    list += "<div class='name'>";
-                    list += w.ssid[i].name;
-                    list += "</div>";
-                    list += "<div class='encryption'>";
-                    if (w.ssid[i].encryption == "7")
-                        list += "-";
-                    else
-                        list += "***";
-                    list += "</div>";
-                    list += "<div class='rssi'>";
-                    list += w.ssid[i].rssi;
-                    list += "</div>";
-                    list += "</a>";
-                };
-                $(".wifi-list").html(list);
-                $(".wifi-item").on("click", function () {
-                    $('#ssid').val($(".name", this).text());
-                    $('#password').focus();
-                });
-
-            }).fail(function (data: any, status: any) {
-                //alert("Error: " + data + "\nStatus: " + status);
-                $(".wifi-list").html("Не вдалось завантажити список мереж.<br />Поновіть сторінку, щоб повторити спробу.");
-            });
+    public allLoaded() {
+        let list: string = "";
+        for (let i: number = 0; i < this.elements.length; i++) {
+            let item: any = this.elements[i];
+            let t: string = this.getTemplate(item.template);
+            if (t === undefined) {
+                list += "<li class='nav-item'>";
+                list += item.name;
+                list += "</li>";
+            } else {
+                list += this.fillTemplate(t, item);
+            }
+        };
+        $(".wifi-list").html(list);
+        $(".wifi-item").on("click", (e) => this.wifi_item_click(e));
     }
 
-
-
+    private wifi_item_click(event: any) {
+        $('#ssid').val($(".name", event.currentTarget).text());
+        $('#password').focus();
+    }
 
 }
-*/
 
 class WIFI_list {
     public ssid: Array<any>;
@@ -595,6 +549,14 @@ class Converters {
         TimeConverter.Convert();
         TextConverter.Convert();
         WeekDaysConverter.Convert();
+    }
+
+    public static ClockPicker() {
+        let cp: any = $(".clockpicker");
+        cp.clockpicker({
+            placement: 'top',
+            autoclose: true
+        });
     }
 }
 
