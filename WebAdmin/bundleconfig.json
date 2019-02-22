@@ -22,6 +22,27 @@
     //"sourceMap": false
   },
 
+  {
+    "outputFileName": "data/html/css/clockpicker.css",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "lib/clockpicker/bootstrap-clockpicker.css"
+    ]
+  },
+  {
+    "outputFileName": "data/html/js/clockpicker.js",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "lib/clockpicker/bootstrap-clockpicker.js"
+    ]
+    // Optionally specify minification options
+    //"minify": {
+    //  "enabled": true,
+    //  "renameLocals": true
+    //},
+    //"sourceMap": false
+  },
+
 
   {
     "outputFileName": "wwwroot/css/bootstrap.css",
@@ -38,6 +59,21 @@
     ]
   },
 
+  {
+    "outputFileName": "data/html/css/bootstrap.css",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "lib/bootstrap/dist/css/bootstrap.css"
+    ]
+  },
+  {
+    "outputFileName": "data/html/js/bootstrap.js",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "lib/bootstrap/dist/js/bootstrap.js"
+    ]
+  },
+
 
   {
     "outputFileName": "wwwroot/js/jquery.js",
@@ -46,10 +82,16 @@
       "lib/jquery/jquery.js"
     ]
   },
-
+  {
+    "outputFileName": "data/html/js/jquery.js",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "lib/jquery/jquery.js"
+    ]
+  },
 
   {
-    "outputFileName": "wwwroot/index.html",
+    "outputFileName": "data/html/index.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
       "html/index.html"
@@ -57,7 +99,7 @@
   },
 
   {
-    "outputFileName": "wwwroot/wifi.html",
+    "outputFileName": "data/html/wifi.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
       "html/wifi.html"
@@ -65,7 +107,7 @@
   },
 
   {
-    "outputFileName": "wwwroot/help.html",
+    "outputFileName": "data/html/help.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
       "html/help.html"
@@ -74,7 +116,7 @@
 
 
   {
-    "outputFileName": "wwwroot/content/_newitem.html",
+    "outputFileName": "data/html/content/_newitem.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
       "html/content/_newitem.html"
@@ -83,14 +125,14 @@
 
 
   {
-    "outputFileName": "wwwroot/content/_onoff.html",
+    "outputFileName": "data/html/content/_onoff.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
       "html/content/_onoff.html"
     ]
   },
   {
-    "outputFileName": "wwwroot/content/_onoffedit.html",
+    "outputFileName": "data/html/content/_onoffedit.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
       "html/content/_onoffedit.html"
@@ -99,14 +141,14 @@
 
 
   {
-    "outputFileName": "wwwroot/content/_pwm.html",
+    "outputFileName": "data/html/content/_pwm.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
       "html/content/_pwm.html"
     ]
   },
   {
-    "outputFileName": "wwwroot/content/_pwmedit.html",
+    "outputFileName": "data/html/content/_pwmedit.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
       "html/content/_pwmedit.html"
@@ -114,7 +156,7 @@
   },
 
   {
-    "outputFileName": "wwwroot/content/_switch.html",
+    "outputFileName": "data/html/content/_switch.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
       "html/content/_switch.html"
@@ -122,7 +164,7 @@
   },
 
   {
-    "outputFileName": "wwwroot/content/_termo.html",
+    "outputFileName": "data/html/content/_termo.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
       "html/content/_termoedit.html"
@@ -130,7 +172,7 @@
   },
 
   {
-    "outputFileName": "wwwroot/content/_termoedit.html",
+    "outputFileName": "data/html/content/_termoedit.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
       "html/content/_termoedit.html"
@@ -138,15 +180,15 @@
   },
 
   {
-    "outputFileName": "wwwroot/content/_tsens.html",
+    "outputFileName": "data/html/content/_tsens.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
       "html/content/_tsens.html"
     ]
   },
-  
+
   {
-    "outputFileName": "wwwroot/css/style.css",
+    "outputFileName": "data/html/css/style.css",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
       "html/css/style.css"
@@ -154,10 +196,10 @@
   },
 
   {
-    "outputFileName": "wwwroot/js/relay.js",
+    "outputFileName": "data/html/js/relay.js",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "html/js/relay.js"
+      "wwwroot/js/relay.js"
     ]
   }
 

@@ -70,14 +70,15 @@ class Model {
     }
 
     public loadTemplateByName(name: string, onDone: any): void {
+        let _name: string = name;
         $.get(WebUI.rooturl + "template?name=" + name).done(
-            (data: any, status: any) => this.templateByNameLoaded(data, onDone)
+            (data: any, status: any) => this.templateByNameLoaded(_name, data, onDone)
         ).fail(
             (data: any, status: any) => this.loadFailed(data, this.loadElementsTemplate)
         );
     }
 
-    private templateByNameLoaded(data: any, onDone: any): void {
+    private templateByNameLoaded(name: string, data: any, onDone: any): void {
         this.updateTime(data);
         let item: keyValue = new keyValue();
         item.key = name;
@@ -86,7 +87,7 @@ class Model {
         onDone();
     }
 
-    private getTemplate(s: string): string {
+    public getTemplate(s: string): string {
         for (let i: number = 0; i < this.templates.length; i++) {
             let item: keyValue = this.templates[i];
             if (item.key === s) {
@@ -133,7 +134,12 @@ class Model {
     public loadElementsTemplate(): void {
         let allReady: boolean = this.allElementsTemplateLoaded(() => this.loadElementsTemplate());
         if (allReady === false) return;
+        this.allLoaded();
+        Converters.ConvertAll();
+        $(".switch-checkbox[data-state='ON']").prop("checked", true);
+    }
 
+    public allLoaded(): void {
         let list: string = "";
         for (let i: number = 0; i < this.elements.length; i++) {
             let item: any = this.elements[i];
@@ -150,12 +156,22 @@ class Model {
             }
         }
         $(".process-list").html(list);
-        this.allLoaded();
-        Converters.ConvertAll();
-
     }
 
-    public allLoaded(): void { }
+    public getUrlParameter(sParam): any {
+        let sPageURL: string = window.location.search.substring(1);
+        let sURLVariables: string[] = sPageURL.split('&');
+        let sParameterName: string[];
+        let i: number;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === sParam) {
+                return (sParameterName[1] === undefined) ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+        return undefined;
+    }
 }
 
 
@@ -188,28 +204,31 @@ class HomePage extends Model {
     public allLoaded() {
         super.allLoaded();
 
-        $(".switch-checkbox[data-state='ON']").prop("checked", true);
         $("img[data-state='ON']").removeClass("light-off");
 
-        $(".switch-img").click(function () {
-            let cb = $(".switch-checkbox", $(this).closest(".card"));
-            if (cb.data("state") == "ON") {
-                this.turnOff(cb.data("switch"));
-            } else {
-                this.turnOn(cb.data("switch"));
-            }
-        });
-        $(".switch-checkbox").change(function () {
-            if (this.checked) {
-                this.turnOn($(this).data("switch"))
-            } else {
-                this.turnOff($(this).data("switch"))
-            }
-        });
+        $(".switch-img").click((e: any) => this.switch_img_click(e))
+        $(".switch-checkbox").change((e: any) => this.switch_checkbox_change(e));
 
     }
 
+    public switch_img_click(event: any): void {
 
+        let cb = $(".switch-checkbox", $(event.target).closest(".card"));
+        if (cb.data("state") == "ON") {
+            this.turnOff(cb.data("switch"));
+        } else {
+            this.turnOn(cb.data("switch"));
+        }
+    }
+
+    public switch_checkbox_change(event: any): void {
+
+        if (event.target.checked) {
+            this.turnOn($(event.target).data("switch"))
+        } else {
+            this.turnOff($(event.target).data("switch"))
+        }
+    }
 
 
     public turnOn(i: number): boolean {
@@ -250,15 +269,193 @@ class HomePage extends Model {
         );
         return true;
     }
+
 }
 
 class SetupPage extends Model {
+
 
     public init(): void {
         super.init();
     }
 
+    public loadTriggers(): void {
+        let index: number = this.getUrlParameter("index");
+        $.get(WebUI.rooturl + "setup?type=switch&index=" + index.toString()).done(
+            (data: any, status: any) => this.TriggersLoaded(data, status)
+        ).fail(
+            (data: any, status: any) => this.loadFailed(data, this.loadTriggers)
+        );
+    }
 
+    TriggersLoaded(data: any, status: any): any {
+        this.updateTime(data);
+        let w: Items_list = data;
+        let list: string = "";
+        for (let i: number = 0; i < w.items.length; i++) {
+            this.elements.push(w.items[i]);
+        };
+        this.loadElementsTemplate();
+    }
+
+    public allLoaded() {
+        let allReady: boolean = true;
+
+        let t = this.getTemplate("newitem");
+        if (t === undefined) {
+            allReady = false;
+            this.loadTemplateByName("newitem", this.allLoaded);
+            return;
+        }
+
+
+        if (allReady === true) {
+            let list: string = "";
+
+            list += this.getTemplate("newitem");
+
+            for (let i: number = 0; i < this.elements.length; i++) {
+                let item: Trigger = this.elements[i];
+                let t: string = this.getTemplate(item.template);
+                list += "<div class='holder' id='trigger_" + item.uid + "' data-index='" + i.toString() + "' data-uid='" + item.uid + "'>" + this.fillTemplate(t, item) + "</div>";
+            }
+
+            $(".process-list").html(list);
+            $(".btn-edit").click((e) => this.edit(e));
+            $(".btn-add").click((e) => this.add(e));
+            $('.btn-delete').click((e) => this.delete(e));
+            $(".switch-checkbox[data-state='on']").prop("checked", true);
+            let cp: any = $('.clockpicker');
+            cp.clockpicker();
+        }
+
+        $(".switch-checkbox[data-state='ON']").prop("checked", true);
+        $("img[data-state='ON']").removeClass("light-off");
+
+    }
+
+    public add(e: any): void {
+        console.log("add");
+
+        let item: Trigger = $(e.target).data("newitem");
+        let t: string = this.getTemplate(item.editingtemplate);
+        if (t === undefined) {
+            let _e: any = e;
+            this.loadTemplateByName(item.editingtemplate, () => this.add(_e));
+            return;
+        }
+
+        var iDiv = document.createElement('div');
+        iDiv.id = 'trigger_0';
+        iDiv.className = 'holder';
+        $(".process-list")[0].appendChild(iDiv);
+        let holder: JQuery = $(iDiv)
+        holder.data("uid", 0);
+        holder.data("edit", true);
+
+        holder.html(this.fillTemplate(t, item));
+
+        $('.btn-edit').attr("disabled", "disabled");
+        $('.btn-save').click((e) => this.save(e));
+
+        $(".switch-checkbox[data-state='on']").prop("checked", true);
+        let cp: any = $('.clockpicker');
+        cp.clockpicker();
+        Converters.ConvertAll();
+    }
+
+    public edit(e: any): void {
+        console.log("edit");
+        let holder: JQuery = $(e.target).closest(".holder");
+        holder.data("edit", true);
+        let i: number = holder.data("index");
+        let item: Trigger = this.elements[i];
+        let t: string = this.getTemplate(item.editingtemplate);
+        holder.html(this.fillTemplate(t, item));
+
+
+        $('.btn-edit').attr("disabled", "disabled");
+        $('.btn-save').click((e) => this.save(e));
+
+
+        $(".switch-checkbox[data-state='on']").prop("checked", true);
+        let cp: any = $('.clockpicker');
+        cp.clockpicker();
+        Converters.ConvertAll();
+    }
+
+    public save(e: any): void {
+        console.log("save");
+        let holder: JQuery = $(e.target).closest(".holder");
+        let form: JQuery = $("form", holder);
+        let fields = $("[name]", form);
+        let url: string = WebUI.rooturl + "setup?switch=" + this.getUrlParameter("index") + "&uid=" + holder.data("uid");
+        for (let i: number = 0; i < fields.length; i++) {
+            let v: string;
+            let f = $(fields[i]);
+            if (f.hasClass("converter-time")) v = TimeConverter.ConvertBack(fields[i]);
+            else if (f.hasClass("converter-week-days")) v = WeekDaysConverter.ConvertBack(fields[i]);
+            else v = TextConverter.ConvertBack(fields[i]);
+            url += "&" + fields[i].getAttribute("name") + "=" + encodeURIComponent(v);
+        }
+        $.get(url).done(function (data: any, status: any) {
+            location.reload();
+        }
+        ).fail(function (data: any, status: any) {
+            if (data.systime) { $("#systime").html(data.systime); };
+            alert(data);
+        }
+        );
+    }
+
+
+    public delete(e: any): void {
+        console.log("delete");
+        let _e = e;
+        SetupPage.ask("Вилучити тригер зі списку?", () => this.onDeleConfirmed(_e));
+    }
+
+    private onDeleConfirmed(e: any) {
+        let holder: JQuery = $(e.target).closest(".holder");
+        let form: JQuery = $("form", holder);
+        //let fields = $("[name]", form);
+        let url: string = Relay.relay.rooturl + "setup?switch=" + this.getUrlParameter("index") + "&delete=" + holder.data("uid");
+        $.get(url).done(function (data: any, status: any) {
+            location.reload();
+        }
+        ).fail(function (data: any, status: any) {
+            if (data.systime) { $("#systime").html(data.systime); };
+            alert(data);
+        }
+        );
+    }
+
+    public static ask(question: string, yes: any, no: any = null) {
+        let questionModal = $("#questionModal");
+        questionModal.html(Relay.questionTemplate);
+
+        let modaTitle = $(".modal-title", questionModal);
+        let modalText = $(".modal-text", questionModal);
+        let btnYes = $(".btn-yes", questionModal);
+        let btnNo = $(".btn-no", questionModal);
+        let btnCancel = $(".btn-cancel", questionModal);
+
+        modalText.html(question);
+        questionModal.addClass("in").attr("style", "display:block;opacity:1");
+        btnYes.click(() => {
+            yes();
+            return false;
+        });
+        btnNo.click(() => {
+            if (no) no();
+            questionModal.removeClass("in").removeAttr("style");
+            return false;
+        });
+        btnCancel.click(() => {
+            questionModal.removeClass("in").removeAttr("style");
+            return false;
+        });
+    }
 
 }
 
@@ -326,324 +523,8 @@ class Relay {
         );
     }
 
-    private templates: Array<keyValue> = new Array<keyValue>();
-    public elements: Array<any> = new Array<any>();
 
-    private getTemplate(s: string): string {
-        for (let i: number = 0; i < this.templates.length; i++) {
-            let item: keyValue = this.templates[i];
-            if (item.key === s) {
-                return item.value;
-            }
-        };
-        return undefined;
-    }
-
-    public loadTemplateByName(name: string, onDone: any): void {
-
-        $.get(Relay.relay.rooturl + "template?name=" + name).done(
-            function (data: any, status: any) {
-                if (data.systime) { $("#systime").html(data.systime); };
-                let item: keyValue = new keyValue();
-                item.key = name;
-                item.value = data;
-                Relay.relay.templates.push(item);
-                onDone();
-            }
-        ).fail(function (data: any, status: any) {
-            if (data.systime) { $("#systime").html(data.systime); };
-            $(".process-list").html("Не вдалось завантажити. <button class'btn btn-primary refresh'>Повторити</button>");
-            $(".switch-checkbox").click(function () {
-                Relay.relay.loadTriggerTemplate();
-            });
-        }
-        );
-
-    }
-
-    public allElementsTemplateLoaded(onDone: any): boolean {
-        for (let i: number = 0; i < Relay.relay.elements.length; i++) {
-            let item: any = Relay.relay.elements[i];
-            let templateName = item.template;
-            let t: string;
-            if (!(templateName === undefined)) {
-                t = Relay.relay.getTemplate(templateName);
-                if (t === undefined) {
-                    Relay.relay.loadTemplateByName(templateName, onDone);
-                    return false;
-                }
-            }
-            templateName = item.editingtemplate
-            if (!(templateName === undefined)) {
-                t = Relay.relay.getTemplate(templateName);
-                if (t === undefined) {
-                    Relay.relay.loadTemplateByName(templateName, onDone);
-                    return false;
-                }
-            }
-            templateName = item.visual;
-            if (!(templateName === undefined)) {
-                t = Relay.relay.getTemplate(templateName);
-                if (t === undefined) {
-                    Relay.relay.loadTemplateByName(templateName, onDone);
-                    return false;
-                }
-            }
-
-        };
-        return true;
-    }
-
-
-    public loadProcessTemplate(): void {
-        let allReady: boolean = Relay.relay.allElementsTemplateLoaded(Relay.relay.loadProcessTemplate);
-        if (allReady === false) return;
-
-        let list: string = "";
-        for (let i: number = 0; i < Relay.relay.elements.length; i++) {
-            let item: any = Relay.relay.elements[i];
-
-            if (item.visual) {
-                let t: string = Relay.relay.getTemplate(item.visual);
-                if (t === undefined) {
-                    list += "<li class='nav-item'>";
-                    list += item.name;
-                    list += "</li>";
-                } else {
-                    list += Relay.relay.fillTemplate(t, item);
-                }
-            }
-
-            $(".process-list").html(list);
-            $(".switch-checkbox[data-state='ON']").prop("checked", true);
-            $("img[data-state='ON']").removeClass("light-off");
-            $(".switch-img").click(function () {
-                let cb = $(".switch-checkbox", $(this).closest(".card"));
-                if (cb.data("state") == "ON") {
-                    Relay.relay.turnOff(cb.data("switch"));
-                } else {
-                    Relay.relay.turnOn(cb.data("switch"));
-                }
-            });
-            $(".switch-checkbox").change(function () {
-                if (this.checked) {
-                    Relay.relay.turnOn($(this).data("switch"))
-                } else {
-                    Relay.relay.turnOff($(this).data("switch"))
-                }
-            });
-            Relay.ConvertAll();
-
-        }
-    }
-
-    public loadTriggerTemplate(): void {
-        let allReady: boolean = Relay.relay.allElementsTemplateLoaded(Relay.relay.loadTriggerTemplate);
-        if (allReady === false) return;
-
-        if (allReady === true) {
-            let t = Relay.relay.getTemplate("newitem");
-            if (t === undefined) {
-                allReady = false;
-                Relay.relay.loadTemplateByName("newitem", Relay.relay.loadTriggerTemplate);
-                return;
-            }
-        }
-
-        if (allReady === true) {
-            let list: string = "";
-
-            list += Relay.relay.getTemplate("newitem");
-
-            for (let i: number = 0; i < Relay.relay.elements.length; i++) {
-                let item: Trigger = Relay.relay.elements[i];
-                let t: string = Relay.relay.getTemplate(item.template);
-                list += "<div class='holder' id='trigger_" + item.uid + "' data-index='" + i.toString() + "' data-uid='" + item.uid + "'>" + Relay.relay.fillTemplate(t, item) + "</div>";
-            }
-
-            $(".process-list").html(list);
-            $(".btn-edit").click((e) => {
-                Relay.relay.edit(e);
-            });
-            $(".btn-add").click((e) => {
-                Relay.relay.add(e);
-            });
-            $('.btn-delete').click((e) => {
-                Relay.relay.delete(e);
-            });
-            $(".switch-checkbox[data-state='on']").prop("checked", true);
-            let cp: any = $('.clockpicker');
-            cp.clockpicker();
-            Relay.ConvertAll();
-        }
-    }
-
-    public add(e: any): void {
-        console.log("add");
-
-        let item: Trigger = $(e.target).data("newitem");
-        let t: string = this.getTemplate(item.editingtemplate);
-        if (t === undefined) {
-            Relay.relay.loadTemplateByName(item.editingtemplate, () => {
-                Relay.relay.add(e);
-            });
-            return;
-        }
-
-        var iDiv = document.createElement('div');
-        iDiv.id = 'trigger_0';
-        iDiv.className = 'holder';
-        $(".process-list")[0].appendChild(iDiv);
-        let holder: JQuery = $(iDiv)
-        holder.data("uid", 0);
-        holder.data("edit", true);
-
-        holder.html(this.fillTemplate(t, item));
-
-
-        $('.btn-edit').attr("disabled", "disabled");
-        $('.btn-save').click((e) => {
-            Relay.relay.save(e);
-        });
-
-        $(".switch-checkbox[data-state='on']").prop("checked", true);
-        let cp: any = $('.clockpicker');
-        cp.clockpicker();
-        Relay.ConvertAll();
-    }
-
-    public edit(e: any): void {
-        console.log("edit");
-        let holder: JQuery = $(e.target).closest(".holder");
-        holder.data("edit", true);
-        let i: number = holder.data("index");
-        let item: Trigger = this.elements[i];
-        let t: string = this.getTemplate(item.editingtemplate);
-        holder.html(this.fillTemplate(t, item));
-
-
-        $('.btn-edit').attr("disabled", "disabled");
-        $('.btn-save').click((e) => {
-            Relay.relay.save(e);
-        });
-
-
-        $(".switch-checkbox[data-state='on']").prop("checked", true);
-        let cp: any = $('.clockpicker');
-        cp.clockpicker();
-        Relay.ConvertAll();
-    }
-
-    public save(e: any): void {
-        console.log("save");
-        let holder: JQuery = $(e.target).closest(".holder");
-        let form: JQuery = $("form", holder);
-        let fields = $("[name]", form);
-        let url: string = Relay.relay.rooturl + "setup?switch=" + this.getUrlParameter("index") + "&uid=" + holder.data("uid");
-        for (let i: number = 0; i < fields.length; i++) {
-            let v: string;
-            let f = $(fields[i]);
-            if (f.hasClass("converter-time")) v = TimeConverter.ConvertBack(fields[i]);
-            else if (f.hasClass("converter-week-days")) v = WeekDaysConverter.ConvertBack(fields[i]);
-            else v = TextConverter.ConvertBack(fields[i]);
-            url += "&" + fields[i].getAttribute("name") + "=" + encodeURIComponent(v);
-        }
-        $.get(url).done(function (data: any, status: any) {
-            location.reload();
-        }
-        ).fail(function (data: any, status: any) {
-            if (data.systime) { $("#systime").html(data.systime); };
-            alert(data);
-        }
-        );
-    }
-
-
-    public delete(e: any): void {
-        console.log("delete");
-
-        Relay.ask("Вилучити тригер зі списку?", () => {
-            let holder: JQuery = $(e.target).closest(".holder");
-            let form: JQuery = $("form", holder);
-            //let fields = $("[name]", form);
-            let url: string = Relay.relay.rooturl + "setup?switch=" + this.getUrlParameter("index") + "&delete=" + holder.data("uid");
-            $.get(url).done(function (data: any, status: any) {
-                location.reload();
-            }
-            ).fail(function (data: any, status: any) {
-                if (data.systime) { $("#systime").html(data.systime); };
-                alert(data);
-            }
-            );
-        });
-    }
-
-    private fillTemplate(t: string, item: Trigger): string {
-        let ret: string = t;
-        for (var key in item) {
-            let s: string = item[key];
-            let k: string = "@" + key + "@";
-            while (ret.indexOf(k) >= 0) {
-                ret = ret.replace(k, s);
-            }
-        }
-        return ret;
-    }
-
-    public getUrlParameter(sParam): any {
-        let sPageURL: string = window.location.search.substring(1);
-        let sURLVariables: string[] = sPageURL.split('&');
-        let sParameterName: string[];
-        let i: number;
-
-        for (i = 0; i < sURLVariables.length; i++) {
-            sParameterName = sURLVariables[i].split('=');
-            if (sParameterName[0] === sParam) {
-                return (sParameterName[1] === undefined) ? true : decodeURIComponent(sParameterName[1]);
-            }
-        }
-        return undefined;
-    }
-
-    public turnOn(i: number): boolean {
-        if ($("#switch_" + i.toString()).data("state") == "ON") return;
-
-        console.log("turn on");
-        $.post(Relay.relay.rooturl + "switches" + "?index=" + i.toString() + "&state=on").done(
-            function (data: any, status: any) {
-                if (data.systime) { $("#systime").html(data.systime); };
-                $("#switch_" + i.toString()).data("state", "ON");
-                $("#switch_img_" + i.toString()).removeClass("light-off").addClass("light-on")
-                $("#switch_" + i.toString()).prop("checked", true);
-            }
-        ).fail(
-            function (data: any, status: any) {
-                $("#switch_" + i.toString()).prop("checked", false);
-            }
-        );
-
-        return true;
-    }
-
-    public turnOff(i: number): boolean {
-        if ($("#switch_" + i.toString()).data("state") == "OFF") return;
-
-        console.log("turn off");
-        $.post(Relay.relay.rooturl + "switches" + "?index=" + i.toString() + "&state=off").done(
-            function (data: any, status: any) {
-                if (data.systime) { $("#systime").html(data.systime); };
-                $("#switch_" + i.toString()).data("state", "OFF");
-                $("#switch_img_" + i.toString()).removeClass("light-on").addClass("light-off")
-                $("#switch_" + i.toString()).prop("checked", false);
-            }
-        ).fail(
-            function (data: any, status: any) {
-                $("#switch_" + i.toString()).prop("checked", true);
-            }
-        );
-        return true;
-    }
-
+         
     public wifi(): void {
         $.get(Relay.relay.rooturl + "wifi").done(
             function (data: any, status: any) {
@@ -678,39 +559,9 @@ class Relay {
             });
     }
 
-    public static ConvertAll() {
-        TimeConverter.Convert();
-        WeekDaysConverter.Convert();
-    }
 
-    static questionTemplate: string;
 
-    public static ask(question: string, yes: any, no: any = null) {
-        let questionModal = $("#questionModal");
-        questionModal.html(Relay.questionTemplate);
 
-        let modaTitle = $(".modal-title", questionModal);
-        let modalText = $(".modal-text", questionModal);
-        let btnYes = $(".btn-yes", questionModal);
-        let btnNo = $(".btn-no", questionModal);
-        let btnCancel = $(".btn-cancel", questionModal);
-
-        modalText.html(question);
-        questionModal.addClass("in").attr("style", "display:block;opacity:1");
-        btnYes.click(() => {
-            yes();
-            return false;
-        });
-        btnNo.click(() => {
-            if (no) no();
-            questionModal.removeClass("in").removeAttr("style");
-            return false;
-        });
-        btnCancel.click(() => {
-            questionModal.removeClass("in").removeAttr("style");
-            return false;
-        });
-    }
 }
 */
 
