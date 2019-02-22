@@ -74,9 +74,10 @@ var Model = (function () {
     };
     Model.prototype.loadTemplateByName = function (name, onDone) {
         var _this = this;
-        $.get(WebUI.rooturl + "template?name=" + name).done(function (data, status) { return _this.templateByNameLoaded(data, onDone); }).fail(function (data, status) { return _this.loadFailed(data, _this.loadElementsTemplate); });
+        var _name = name;
+        $.get(WebUI.rooturl + "template?name=" + name).done(function (data, status) { return _this.templateByNameLoaded(_name, data, onDone); }).fail(function (data, status) { return _this.loadFailed(data, _this.loadElementsTemplate); });
     };
-    Model.prototype.templateByNameLoaded = function (data, onDone) {
+    Model.prototype.templateByNameLoaded = function (name, data, onDone) {
         this.updateTime(data);
         var item = new keyValue();
         item.key = name;
@@ -151,6 +152,19 @@ var Model = (function () {
         Converters.ConvertAll();
     };
     Model.prototype.allLoaded = function () { };
+    Model.prototype.getUrlParameter = function (sParam) {
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        var sParameterName;
+        var i;
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === sParam) {
+                return (sParameterName[1] === undefined) ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+        return undefined;
+    };
     return Model;
 }());
 var HomePage = (function (_super) {
@@ -177,26 +191,29 @@ var HomePage = (function (_super) {
         this.loadElementsTemplate();
     };
     HomePage.prototype.allLoaded = function () {
+        var _this = this;
         _super.prototype.allLoaded.call(this);
         $(".switch-checkbox[data-state='ON']").prop("checked", true);
         $("img[data-state='ON']").removeClass("light-off");
-        $(".switch-img").click(function () {
-            var cb = $(".switch-checkbox", $(this).closest(".card"));
-            if (cb.data("state") == "ON") {
-                this.turnOff(cb.data("switch"));
-            }
-            else {
-                this.turnOn(cb.data("switch"));
-            }
-        });
-        $(".switch-checkbox").change(function () {
-            if (this.checked) {
-                this.turnOn($(this).data("switch"));
-            }
-            else {
-                this.turnOff($(this).data("switch"));
-            }
-        });
+        $(".switch-img").click(function (e) { return _this.switch_img_click(e); });
+        $(".switch-checkbox").change(function (e) { return _this.switch_checkbox_change(e); });
+    };
+    HomePage.prototype.switch_img_click = function (event) {
+        var cb = $(".switch-checkbox", $(event.target).closest(".card"));
+        if (cb.data("state") == "ON") {
+            this.turnOff(cb.data("switch"));
+        }
+        else {
+            this.turnOn(cb.data("switch"));
+        }
+    };
+    HomePage.prototype.switch_checkbox_change = function (event) {
+        if (event.target.checked) {
+            this.turnOn($(event.target).data("switch"));
+        }
+        else {
+            this.turnOff($(event.target).data("switch"));
+        }
     };
     HomePage.prototype.turnOn = function (i) {
         if ($("#switch_" + i.toString()).data("state") == "ON")
@@ -241,6 +258,33 @@ var SetupPage = (function (_super) {
     }
     SetupPage.prototype.init = function () {
         _super.prototype.init.call(this);
+    };
+    SetupPage.prototype.loadTriggers = function () {
+        var _this = this;
+        var index = this.getUrlParameter("index");
+        $.get(WebUI.rooturl + "setup?type=switch&index=" + index.toString()).done(function (data, status) { return _this.TriggersLoaded(data, status); }).fail(function (data, status) { return _this.loadFailed(data, _this.loadTriggers); });
+    };
+    SetupPage.prototype.TriggersLoaded = function (data, status) {
+        this.updateTime(data);
+        var w = data;
+        var list = "";
+        for (var i = 0; i < w.items.length; i++) {
+            this.elements.push(w.items[i]);
+        }
+        ;
+        this.loadElementsTemplate();
+    };
+    SetupPage.prototype.allLoaded = function () {
+        var allReady = true;
+        _super.prototype.allLoaded.call(this);
+        var t = this.getTemplate("newitem");
+        if (t === undefined) {
+            allReady = false;
+            this.loadTemplateByName("newitem", this.allLoaded);
+            return;
+        }
+        $(".switch-checkbox[data-state='ON']").prop("checked", true);
+        $("img[data-state='ON']").removeClass("light-off");
     };
     return SetupPage;
 }(Model));
