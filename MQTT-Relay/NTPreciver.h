@@ -7,11 +7,12 @@ const int NTP_PACKET_SIZE = 48; // NTP time stamp is in the first 48 bytes of th
 
 class NTPreciver
 {
+	bool timeIsSet = false;
 	ulong start = 0;
 	unsigned int localPort = 2390;      // local port to listen for UDP packets
 
 	IPAddress timeServerIP; // time.nist.gov NTP server address
-	const char* ntpServerName = "time.nist.gov";
+	const char* ntpServerName = "europe.pool.ntp.org";//"time.nist.gov";
 	
 
 	byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming and outgoing packets

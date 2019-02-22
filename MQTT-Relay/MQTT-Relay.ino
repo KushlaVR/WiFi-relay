@@ -36,9 +36,8 @@ ApiController api;
 SerialController serial;
 
 void setup() {
-	//setSyncInterval(1);
-	//setTime(21, 0, 0, 17, 12, 2018);
-	//setSyncInterval(3600);
+	
+	setTime(9, 0, 0, 18, 02, 2019);
 
 	Serial.begin(115200);
 	pinMode(BUILTIN_LED, OUTPUT);

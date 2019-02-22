@@ -15,11 +15,12 @@ NTPreciver::~NTPreciver()
 
 void NTPreciver::setup()
 {
+	timeIsSet = false;
 	udp.begin(localPort);
 }
 
 void NTPreciver::loop() {
-	if (timeStatus() == timeSet) return;
+	if (timeIsSet && timeStatus() == timeSet) return;
 	
 	if (start == 0) {
 		WiFi.hostByName(ntpServerName, timeServerIP);
@@ -45,6 +46,7 @@ void NTPreciver::loop() {
 				time_t t = secsSince1900 - 2208988800UL + timeZone * SECS_PER_HOUR;
 				setTime(t);
 				start = 0;
+				timeIsSet = true;
 			}
 			else if ((millis() - start) > 6000) {
 				//timeout
