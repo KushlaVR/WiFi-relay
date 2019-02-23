@@ -51,4 +51,6 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties bundleconfig_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
+
 </Project>

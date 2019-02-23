@@ -159,12 +159,13 @@ void WebPortal::handleRoot() {
 bool WebPortal::handleFileRead(String path) {
 	if (path.endsWith("/")) path += "index.html";
 	if (path.equals("/favicon.ico")) path = "icon.svg";
+	path = "/html" + path;
 	char* contentType = server.getContentType(path);
-
-	String s = "/html" + path;
-	Serial.println("path=" + s);
-	if (SPIFFS.exists(s)) {
-		File file = SPIFFS.open(s, "r");
+	String minimized = server.getMinimizedPath(path);
+	if (SPIFFS.exists(minimized)) path = minimized;
+	Serial.println("path=" + path);
+	if (SPIFFS.exists(path)) {
+		File file = SPIFFS.open(path, "r");
 		server.sendFile(file, contentType, false);
 		file.close();
 		return true;
@@ -172,6 +173,19 @@ bool WebPortal::handleFileRead(String path) {
 	Serial.println("Not found!!! " + path);
 	return false;
 }
+
+String WebPortal::getMinimizedPath(String path) {
+	String ret = path;
+	replaceMin("html", &ret) || replaceMin("js", &ret) || replaceMin("css", &ret) || replaceMin("htm", &ret) || replaceMin("svg", &ret);
+	return ret;
+}
+
+bool WebPortal::replaceMin(String ext, String* path) {
+	bool ret = (path->endsWith(ext));
+	if (ret) path->replace(ext, "min." + ext);
+	return ret;
+}
+
 
 void WebPortal::jsonOk(JsonString *json)
 {

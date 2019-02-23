@@ -76,6 +76,8 @@ public:
 	static void loadURLtoFile(BearSSL::WiFiClientSecure *client, const char *host, const uint16_t port, const char *path, String toFile);
 
 	static bool handleFileRead(String path);
+	static String getMinimizedPath(String path);
+	static bool replaceMin(String ext, String* path);
 	static void jsonOk(JsonString * json);
 	static void Ok();
 	static void Ok(String name, String value);
