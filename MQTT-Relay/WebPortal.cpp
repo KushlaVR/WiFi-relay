@@ -182,7 +182,7 @@ String WebPortal::getMinimizedPath(String path) {
 
 bool WebPortal::replaceMin(String ext, String* path) {
 	bool ret = (path->endsWith(ext));
-	if (ret) path->replace(ext, "min." + ext);
+	if (ret) path->replace("." + ext, ".min." + ext);
 	return ret;
 }
 

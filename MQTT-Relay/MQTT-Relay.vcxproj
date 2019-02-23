@@ -88,14 +88,14 @@
     <None Include="data\config\out1\06onoff.json" />
     <None Include="data\html\content\idea.svg" />
     <None Include="data\html\content\t.svg" />
-    <None Include="data\html\content\_newitem.min.html" />
+    <None Include="data\html\content\_newitem.html" />
     <None Include="data\html\content\_onoff.min.html" />
-    <None Include="data\html\content\_onoffedit.min.html" />
+    <None Include="data\html\content\_onoffedit.html" />
     <None Include="data\html\content\_pwm.min.html" />
     <None Include="data\html\content\_pwmedit.html" />
     <None Include="data\html\content\_switch.min.html" />
     <None Include="data\html\content\_termo.min.html" />
-    <None Include="data\html\content\_termoedit.min.html" />
+    <None Include="data\html\content\_termoedit.html" />
     <None Include="data\html\content\_tsens.min.html" />
     <None Include="data\html\content\_wifi.min.html" />
     <None Include="data\html\css\bootstrap.js" />

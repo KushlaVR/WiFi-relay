@@ -10,14 +10,14 @@ raw.githubusercontent.com
 /html/css/bootstrap.min.css
 /html/css/clockpicker.min.css
 /html/css/style.min.css
-/html/content/_newitem.min.html
+/html/content/_newitem.html
 /html/content/_onoff.min.html
-/html/content/_onoffedit.min.html
+/html/content/_onoffedit.html
 /html/content/_pwm.min.html
 /html/content/_pwmedit.html
 /html/content/_switch.min.html
 /html/content/_termo.min.html
-/html/content/_termoedit.min.html
+/html/content/_termoedit.html
 /html/content/_tsens.min.html
 /html/content/_wifi.min.html
 /html/content/idea.svg

@@ -39,14 +39,11 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="data\html\content\t.svg" />
-    <None Include="data\html\content\_newitem.min.html" />
     <None Include="data\html\content\_onoff.min.html" />
-    <None Include="data\html\content\_onoffedit.min.html" />
     <None Include="data\html\content\_pwm.min.html" />
     <None Include="data\html\content\_pwmedit.html" />
     <None Include="data\html\content\_switch.min.html" />
     <None Include="data\html\content\_termo.min.html" />
-    <None Include="data\html\content\_termoedit.min.html" />
     <None Include="data\html\content\_tsens.min.html" />
     <None Include="data\html\content\_wifi.min.html" />
     <None Include="data\html\help.min.html" />
@@ -57,6 +54,9 @@
     <None Include="data\html\css\style.min.css" />
     <None Include="data\html\js\clockpicker.min.js" />
     <None Include="data\html\js\relay.min.js" />
+    <None Include="data\html\content\_newitem.html" />
+    <None Include="data\html\content\_onoffedit.html" />
+    <None Include="data\html\content\_termoedit.html" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.MQTT-Relay.vsarduino.h">

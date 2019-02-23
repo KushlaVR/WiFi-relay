@@ -106,10 +106,11 @@ void ApiController::handleTemplate() {
 	if (server.hasArg("name")) {
 		name = server.arg("name");
 		String path = "/html/content/_" + name + ".html";
+		String minimized = server.getMinimizedPath(path);
+		if (SPIFFS.exists(minimized)) path = minimized;
 		Serial.printf("path=%s\n", path.c_str());
-
 		if (SPIFFS.exists(path)) {
-			Serial.printf("exist=%s\n", path.c_str());
+			//Serial.printf("exist=%s\n", path.c_str());
 			char* contentType = server.getContentType(path);
 			File f = SPIFFS.open(path, "r");
 			server.sendFile(f, contentType, false);
