@@ -57,6 +57,9 @@
     <None Include="data\html\content\_newitem.html" />
     <None Include="data\html\content\_onoffedit.html" />
     <None Include="data\html\content\_termoedit.html" />
+    <None Include="data\firmware.bin">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.MQTT-Relay.vsarduino.h">

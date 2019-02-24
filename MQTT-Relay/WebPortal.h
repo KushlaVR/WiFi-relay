@@ -71,6 +71,7 @@ public:
 	static void handleRoot();
 	static void handleNotFound();
 	static void handleUpdate();
+	static void handleUpgrade();
 	static void updateFiles(String url);
 	static void updateFile(String url, String file);
 	static void loadURLtoFile(BearSSL::WiFiClientSecure *client, const char *host, const uint16_t port, const char *path, String toFile);

@@ -111,6 +111,7 @@ void WebPortal::setup() {
 	on("/generate_204", handleRoot);  //Android captive portal. Maybe not needed. Might be handled by notFound handler.
 	on("/fwlink", handleRoot);  //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
 	on("/update", handleUpdate);
+	on("/upgrade", handleUpgrade);
 	onNotFound(handleNotFound);
 	begin(); // Web server start
 	Serial.println("HTTP server started");
@@ -329,7 +330,38 @@ void WebPortal::handleUpdate() {
 	}
 }
 
+void WebPortal::handleUpgrade() {
+	Serial.println("Upgrade firmware");
+	WebPortal::updateFile(defaultURL, "/firmware.bin");
+	if (SPIFFS.exists("/firmware.bin")) {
+		File file = SPIFFS.open("/firmware.bin", "r");
 
+
+		uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+		if (!Update.begin(maxSketchSpace, U_FLASH)) { //start with max available size
+			Update.printError(Serial);
+			Serial.println("ERROR");
+		}
+
+		while (file.available()) {
+			uint8_t ibuffer[128];
+			file.read((uint8_t *)ibuffer, 128);
+			Serial.println((char *)ibuffer);
+			Update.write(ibuffer, sizeof(ibuffer));
+		}
+
+
+		Serial.print(Update.end(true));
+		digitalWrite(BUILTIN_LED, HIGH);
+		file.close();
+		Serial.println("Finished");
+		while (1) {};
+		//system_upgrade_reboot();
+	}
+	else {
+		Serial.println("No firmware available...");
+	}
+}
 
 void WebPortal::updateFiles(String url) {
 	updateFile(url, "/html/files.txt");

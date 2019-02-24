@@ -86,6 +86,7 @@
     <None Include="data\config\out1\01onoff.json" />
     <None Include="data\config\out1\04onoff.json" />
     <None Include="data\config\out1\06onoff.json" />
+    <None Include="data\firmware.bin" />
     <None Include="data\html\content\idea.svg" />
     <None Include="data\html\content\t.svg" />
     <None Include="data\html\content\_newitem.html" />
