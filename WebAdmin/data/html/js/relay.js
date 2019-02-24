@@ -457,10 +457,10 @@ var WifiPage = (function (_super) {
     WifiPage.prototype.StationListLoaded = function (data, status) {
         this.updateTime(data);
         var w = data;
-        $(".localip").text(w.localip);
+        $(".local-ip").text(w.localip);
         $(".mac").text(w.mac);
-        $(".dnsip").text(w.dnsip);
-        $(".getway").text(w.getway);
+        $(".dns-ip").text(w.dnsip);
+        $(".getway-ip").text(w.getway);
         var list = "";
         for (var i = 0; i < w.ssid.length; i++) {
             var item = w.ssid[i];
