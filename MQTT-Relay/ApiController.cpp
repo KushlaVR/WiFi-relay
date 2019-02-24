@@ -46,8 +46,10 @@ void ApiController::handleWifi() {
 	Serial.println("scan done");
 	JsonString ret = JsonString();
 	ret.beginObject();
+
 	ret.AddValue("systime", Utils::FormatTime(now()));
 	ret.AddValue("uptime", String(millis()));
+
 	ret.AddValue("mac", WiFi.macAddress());
 	ret.AddValue("localip", WiFi.localIP().toString());
 	ret.AddValue("getway", WiFi.gatewayIP().toString());
@@ -176,6 +178,7 @@ bool ApiController::handleGetSwitchSetup()
 	JsonString ret = "";
 	ret.beginObject();
 	ret.AddValue("systime", Utils::FormatTime(now()));
+	ret.AddValue("uptime", String(millis()));
 	ret.beginArray("items");
 	Trigger * t = Trigger::getFirstTrigger();
 	while (t != nullptr) {
@@ -394,7 +397,10 @@ void ApiController::handleGetSwitches() {
 	JsonString ret = JsonString();
 	ret.beginObject();
 	MQTTprocess * proc = mqtt_connection.getFirstProcess();
+	
 	ret.AddValue("systime", Utils::FormatTime(now()));
+	ret.AddValue("uptime", String(millis()));
+	
 	ret.beginArray("items");
 	while (proc != nullptr) {
 		ret.beginObject();
