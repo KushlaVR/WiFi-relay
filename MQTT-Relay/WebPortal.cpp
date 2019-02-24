@@ -295,6 +295,7 @@ void WebPortal::handleUpdate() {
 		url = server.arg("url");
 		if (server.hasArg("file")) {
 			server.Ok();
+			server.client().stop();
 			updateFile(url, server.arg("file"));
 			return;
 		}
@@ -321,6 +322,7 @@ void WebPortal::handleUpdate() {
 
 	if (url.length() > 0) {
 		server.Ok();
+		server.client().stop();
 		Serial.printf("url=%s", url.c_str());
 		updateFiles(url);
 	}
@@ -335,8 +337,7 @@ void WebPortal::handleUpgrade() {
 	WebPortal::updateFile(defaultURL, "/firmware.bin");
 	if (SPIFFS.exists("/firmware.bin")) {
 		File file = SPIFFS.open("/firmware.bin", "r");
-
-
+		
 		uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
 		if (!Update.begin(maxSketchSpace, U_FLASH)) { //start with max available size
 			Update.printError(Serial);
@@ -348,7 +349,6 @@ void WebPortal::handleUpgrade() {
 			uint8_t ibuffer[128];
 			file.read((uint8_t *)ibuffer, 128);
 			digitalWrite(BUILTIN_LED, digitalRead(BUILTIN_LED));
-
 			//Serial.println((char *)ibuffer);
 			Update.write(ibuffer, sizeof(ibuffer));
 		}
@@ -356,6 +356,7 @@ void WebPortal::handleUpgrade() {
 		Serial.println("Done!");
 		digitalWrite(BUILTIN_LED, HIGH);
 		file.close();
+		//SPIFFS.remove("/firmware.bin");
 		Serial.println("Finished");
 		while (1) {};
 		//system_upgrade_reboot();
@@ -433,7 +434,7 @@ void WebPortal::loadURLtoFile(BearSSL::WiFiClientSecure * client, const char * h
 
 		File f = SPIFFS.open(toFile, "w");
 		while (client->connected()) {
-			uint8_t tmp[128];
+			uint8_t tmp[32];
 			memset(tmp, 0, 32);
 			int rlen = client->read((uint8_t*)tmp, sizeof(tmp) - 1);
 			yield();
