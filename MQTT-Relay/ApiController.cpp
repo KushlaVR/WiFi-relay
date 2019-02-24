@@ -46,6 +46,13 @@ void ApiController::handleWifi() {
 	Serial.println("scan done");
 	JsonString ret = JsonString();
 	ret.beginObject();
+	ret.AddValue("systime", Utils::FormatTime(now()));
+	ret.AddValue("uptime", String(millis()));
+	ret.AddValue("mac", WiFi.macAddress());
+	ret.AddValue("localip", WiFi.localIP().toString());
+	ret.AddValue("getway", WiFi.gatewayIP().toString());
+	ret.AddValue("dnsip",WiFi.dnsIP().toString());
+
 	if (n > 0) {
 		ret.beginArray("ssid");
 		for (int i = 0; i < n; i++) {

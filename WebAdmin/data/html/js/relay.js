@@ -97,10 +97,29 @@ var Model = (function () {
         });
     };
     Model.prototype.updateTime = function (data) {
+        var time_str = "";
         if (data.systime) {
-            $("#systime").html(data.systime);
+            time_str += data.systime;
         }
         ;
+        if (data.uptime) {
+            var ms = data.uptime;
+            var uptime = "";
+            var second = Math.floor(ms / 1000) % 60;
+            var minute = Math.floor(ms / 1000 / 60) % 60;
+            var hour = Math.floor(ms / 1000 / 60 / 60) % 24;
+            var days = Math.floor(ms / 1000 / 60 / 60 / 24);
+            if (days > 0)
+                uptime += days.toString() + " днів";
+            if (days > 0 || hour > 0)
+                uptime += " " + hour.toString() + ":";
+            uptime += minute.toString();
+            uptime += ":" + second.toString();
+            time_str += " (час роблти - " + uptime + ")";
+        }
+        ;
+        if (data.systime || data.uptime)
+            $("#systime").html(time_str);
     };
     Model.prototype.loadTemplateByName = function (name, onDone) {
         var _this = this;

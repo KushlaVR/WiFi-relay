@@ -207,6 +207,7 @@ void WebPortal::Ok(String name, String value)
 	JsonString ret = "";
 	ret.beginObject();
 	ret.AddValue("systime", Utils::FormatTime(now()));
+	ret.AddValue("uptime", String(millis()));
 	ret.AddValue("status", "ok");
 	if (name.length() > 0) {
 		ret.AddValue(name, value);

@@ -99,7 +99,22 @@ class Model {
     }
 
     public updateTime(data: any): void {
-        if (data.systime) { $("#systime").html(data.systime); };
+        let time_str: string = "";
+        if (data.systime) { time_str += data.systime; };
+        if (data.uptime) {
+            let ms: number = data.uptime;
+            let uptime: string = "";
+            let second: number = Math.floor(ms / 1000) % 60;
+            let minute: number = Math.floor(ms / 1000 / 60) % 60;
+            let hour: number = Math.floor(ms / 1000 / 60 / 60) % 24;
+            let days: number = Math.floor(ms / 1000 / 60 / 60 / 24);
+            if (days > 0) uptime += days.toString() + " днів";
+            if (days > 0 || hour > 0) uptime += " " + hour.toString() + ":";
+            uptime += minute.toString();
+            uptime += ":" + second.toString();
+            time_str += " (час роблти - " + uptime + ")";
+        };
+        if (data.systime || data.uptime) $("#systime").html(time_str);
     }
 
     public loadTemplateByName(name: string, onDone: any): void {
@@ -492,6 +507,7 @@ class WifiPage extends Model {
             }
             this.elements.push(item);
         };
+
         this.loadElementsTemplate();
     }
 

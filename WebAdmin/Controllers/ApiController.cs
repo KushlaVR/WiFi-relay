@@ -62,7 +62,7 @@ namespace WebAdmin.Controllers
             public string offlength { get; set; } = "15";// 00:05
         }
 
-        public class Termostat: Trigger
+        public class Termostat : Trigger
         {
             public Termostat()
             {
@@ -177,7 +177,31 @@ namespace WebAdmin.Controllers
 
         public IActionResult wifi()
         {
-            return Content("{\"ssid\":[{\"name\":\"KOLUMBUS\",\"encryption\":\"4\",\"rssi\":\"-55\"},{\"name\":\"netis_5D1566\",\"encryption\":\"8\",\"rssi\":\"-94\"},{\"name\":\"Ukrtelecom_105\",\"encryption\":\"2\",\"rssi\":\"-64\"},{\"name\":\"TODD0205\",\"encryption\":\"4\",\"rssi\":\"-71\"},{\"name\":\"codename47\",\"encryption\":\"4\",\"rssi\":\"-88\"},{\"name\":\"Prosvity19_98\",\"encryption\":\"4\",\"rssi\":\"-52\"},{\"name\":\"KushlaVR\",\"encryption\":\"4\",\"rssi\":\"-55\"},{\"name\":\"anastasia\",\"encryption\":\"8\",\"rssi\":\"-61\"},{\"name\":\"TP-LINK_44C0\",\"encryption\":\"4\",\"rssi\":\"-76\"},{\"name\":\"TP-LINK_zyzja\",\"encryption\":\"7\",\"rssi\":\"-76\"},{\"name\":\"lyudmyla\",\"encryption\":\"4\",\"rssi\":\"-78\"},{\"name\":\"Volia_93\",\"encryption\":\"4\",\"rssi\":\"-74\"},{\"name\":\"TerNet99\",\"encryption\":\"8\",\"rssi\":\"-72\"},{\"name\":\"Oksana\",\"encryption\":\"8\",\"rssi\":\"-83\"},{\"name\":\"Bandera\",\"encryption\":\"4\",\"rssi\":\"-89\"},{\"name\":\"Svitlana_Wi-Fi\",\"encryption\":\"8\",\"rssi\":\"-83\"}]}", new Microsoft.Net.Http.Headers.MediaTypeHeaderValue("application/json"));
+            return Content("{" +
+                "\"ma\":\"AA:BB:CC:DD:EE:FF\"," +
+                "\"localip\":\"192.168.4.1\"," +
+                "\"getway\":\"192.168.0.1\"," +
+                "\"dnsip\":\"192.168.1.1\"," +
+                "\"systime\":\"13:25:15\"," +
+                "\"uptime\":\"" + (1 * 24 * 60 * 60 * 1000 + 14 * 60 * 60 * 1000 + 25 * 60 * 1000).ToString() + "\"," +
+                "\"ssid\":[" +
+                    "{\"name\":\"KOLUMBUS\",\"encryption\":\"4\",\"rssi\":\"-55\"}," +
+                    "{\"name\":\"netis_5D1566\",\"encryption\":\"8\",\"rssi\":\"-94\"}," +
+                    "{\"name\":\"Ukrtelecom_105\",\"encryption\":\"2\",\"rssi\":\"-64\"}," +
+                    "{\"name\":\"TODD0205\",\"encryption\":\"4\",\"rssi\":\"-71\"}," +
+                    "{\"name\":\"codename47\",\"encryption\":\"4\",\"rssi\":\"-88\"}," +
+                    "{\"name\":\"Prosvity19_98\",\"encryption\":\"4\",\"rssi\":\"-52\"}," +
+                    "{\"name\":\"KushlaVR\",\"encryption\":\"4\",\"rssi\":\"-55\"}," +
+                    "{\"name\":\"anastasia\",\"encryption\":\"8\",\"rssi\":\"-61\"}," +
+                    "{\"name\":\"TP-LINK_44C0\",\"encryption\":\"4\",\"rssi\":\"-76\"}," +
+                    "{\"name\":\"TP-LINK_zyzja\",\"encryption\":\"7\",\"rssi\":\"-76\"}," +
+                    "{\"name\":\"lyudmyla\",\"encryption\":\"4\",\"rssi\":\"-78\"}," +
+                    "{\"name\":\"Volia_93\",\"encryption\":\"4\",\"rssi\":\"-74\"}," +
+                    "{\"name\":\"TerNet99\",\"encryption\":\"8\",\"rssi\":\"-72\"}," +
+                    "{\"name\":\"Oksana\",\"encryption\":\"8\",\"rssi\":\"-83\"}," +
+                    "{\"name\":\"Bandera\",\"encryption\":\"4\",\"rssi\":\"-89\"}," +
+                    "{\"name\":\"Svitlana_Wi-Fi\",\"encryption\":\"8\",\"rssi\":\"-83\"}]}",
+                    new Microsoft.Net.Http.Headers.MediaTypeHeaderValue("application/json"));
         }
 
 
