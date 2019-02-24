@@ -496,6 +496,10 @@ class WifiPage extends Model {
     private StationListLoaded(data: any, status: any): void {
         this.updateTime(data);
         let w: WIFI_list = data;
+        $(".localip").text(w.localip);
+        $(".mac").text(w.mac);
+        $(".dnsip").text(w.dnsip);
+        $(".getway").text(w.getway);
         let list: string = "";
         for (let i: number = 0; i < w.ssid.length; i++) {
             let item: any = w.ssid[i];
@@ -536,6 +540,10 @@ class WifiPage extends Model {
 }
 
 class WIFI_list {
+    public mac: string;
+    public localip: string;
+    public dnsip: string;
+    public getway: string;
     public ssid: Array<any>;
 }
 
