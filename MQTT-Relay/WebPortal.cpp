@@ -433,7 +433,7 @@ void WebPortal::loadURLtoFile(BearSSL::WiFiClientSecure * client, const char * h
 
 		File f = SPIFFS.open(toFile, "w");
 		while (client->connected()) {
-			uint8_t tmp[32];
+			uint8_t tmp[128];
 			memset(tmp, 0, 32);
 			int rlen = client->read((uint8_t*)tmp, sizeof(tmp) - 1);
 			yield();
