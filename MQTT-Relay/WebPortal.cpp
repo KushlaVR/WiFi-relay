@@ -343,15 +343,17 @@ void WebPortal::handleUpgrade() {
 			Serial.println("ERROR");
 		}
 
+		Serial.println("Updating");
 		while (file.available()) {
 			uint8_t ibuffer[128];
 			file.read((uint8_t *)ibuffer, 128);
-			Serial.println((char *)ibuffer);
+			digitalWrite(BUILTIN_LED, digitalRead(BUILTIN_LED));
+
+			//Serial.println((char *)ibuffer);
 			Update.write(ibuffer, sizeof(ibuffer));
 		}
-
-
 		Serial.print(Update.end(true));
+		Serial.println("Done!");
 		digitalWrite(BUILTIN_LED, HIGH);
 		file.close();
 		Serial.println("Finished");
