@@ -1,0 +1,9 @@
+{
+  "commands": {
+    "publish to data": {
+      "fileName": "cmd.exe",
+      "workingDirectory": ".",
+      "arguments": "/c \"publish to data.bat\""
+    }
+  }
+}

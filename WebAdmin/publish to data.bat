@@ -1,3 +1,4 @@
+del "..\MQTT-Relay\data\html\content\*.html"
 xcopy .\data\html\*.svg ..\MQTT-Relay\data\html\ /E /Y
 xcopy .\data\html\*.min.html ..\MQTT-Relay\data\html\ /E /Y
 xcopy .\data\html\*pwmedit.html ..\MQTT-Relay\data\html\ /E /Y

@@ -132,10 +132,10 @@
     ]
   },
   {
-    "outputFileName": "data/html/content/_onoffedit.min.html",
+    "outputFileName": "data/html/content/_onoffedit.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "wwwroot/content/_onoff.html"
+      "wwwroot/content/_onoffedit.html"
     ]
   },
 
@@ -167,7 +167,7 @@
     "outputFileName": "data/html/content/_termo.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "wwwroot/content/_termoedit.html"
+      "wwwroot/content/_termo.html"
     ]
   },
 
