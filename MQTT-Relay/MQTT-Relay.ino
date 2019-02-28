@@ -11,6 +11,7 @@
 #include <TimeLib.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
+#include "Blinker.h"
 #include "Sensor.h"
 #include "MQTTconnection.h"
 #include "MQTTprocess.h"

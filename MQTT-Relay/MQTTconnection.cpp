@@ -57,6 +57,9 @@ void MQTTconnection::setup() {
 		lastConnect = millis();
 		connectInterval = 0UL;
 	}
+	else {
+		connection = nullptr;
+	}
 }
 
 bool MQTTconnection::loop() {
@@ -96,6 +99,7 @@ bool MQTTconnection::loop() {
 
 void MQTTconnection::process()
 {
+	if (connection == nullptr) return;
 	MQTTprocess * dev;
 	//process subscritions
 	Adafruit_MQTT_Subscribe *subscription;
@@ -141,7 +145,7 @@ MQTTprocess * MQTTconnection::Register(MQTTprocess * device) {
 				dev = dev->next;
 		}
 	}
-	device->Register(connection);
+	if (connection != nullptr) device->Register(connection);
 	Serial.println("OK;");
 	return device;
 }

@@ -72,10 +72,25 @@ var Model = (function () {
         return undefined;
     };
     Model.prototype.init = function () {
+        var _this = this;
+        this.loadTemplateByName("menuitem", function () { return _this.menuTemplateLoaded(); });
         var qm = $("#questionModal");
         if (qm.length > 0)
             WebUI.questionTemplate = $("#questionModal")[0].innerHTML;
         Converters.ClockPicker();
+    };
+    Model.prototype.menuTemplateLoaded = function () {
+        var _this = this;
+        $.get(WebUI.rooturl + "menu").done(function (data, status) { return _this.menuItemsLoaded(data); }).fail();
+    };
+    Model.prototype.menuItemsLoaded = function (data) {
+        var items = "";
+        for (var i = 0; i < data.items.length; i++) {
+            var item = data.items[i];
+            items += this.fillTemplate(this.getTemplate("menuitem"), item);
+        }
+        ;
+        $('.navbar-nav').html(items);
     };
     Model.prototype.fillTemplate = function (t, item) {
         var ret = t;

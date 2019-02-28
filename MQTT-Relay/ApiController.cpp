@@ -1,4 +1,4 @@
-#include <ESP8266WiFi.h>
+﻿#include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
@@ -31,6 +31,7 @@ void ApiController::setup()
 	server.on("/api/setup", handleSetup);
 	server.on("/api/switches", HTTPMethod::HTTP_GET, handleGetSwitches);
 	server.on("/api/switches", HTTPMethod::HTTP_POST, handleSetSwitches);
+	server.on("/api/menu", handleMenu);
 }
 
 /** Wifi config page handler */
@@ -53,7 +54,7 @@ void ApiController::handleWifi() {
 	ret.AddValue("mac", WiFi.macAddress());
 	ret.AddValue("localip", WiFi.localIP().toString());
 	ret.AddValue("getway", WiFi.gatewayIP().toString());
-	ret.AddValue("dnsip",WiFi.dnsIP().toString());
+	ret.AddValue("dnsip", WiFi.dnsIP().toString());
 
 	if (n > 0) {
 		ret.beginArray("ssid");
@@ -114,7 +115,7 @@ void ApiController::handleTemplate() {
 	String name = "";
 	if (server.hasArg("name")) {
 		name = server.arg("name");
-		String path = "/html/content/_" + name + ".html";
+		String path = "/html/v/_" + name + ".html";
 		String minimized = server.getMinimizedPath(path);
 		if (SPIFFS.exists(minimized)) path = minimized;
 		Serial.printf("path=%s\n", path.c_str());
@@ -129,7 +130,49 @@ void ApiController::handleTemplate() {
 	}
 	WebPortal::handleNotFound();
 }
+void ApiController::handleMenu() {
+	Serial.println("menu GET:");
 
+	server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+	server.sendHeader("Pragma", "no-cache");
+	server.sendHeader("Expires", "-1");
+	server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+	JsonString ret = JsonString();
+	ret.beginObject();
+
+	ret.AddValue("systime", Utils::FormatTime(now()));
+	ret.AddValue("uptime", String(millis()));
+
+	ret.beginArray("items");
+
+	ret.beginObject();
+	ret.AddValue("name", "Підє&#39;днання");
+	ret.AddValue("href", "./wifi.html");
+	ret.AddValue("target", "_self");
+	ret.endObject();
+
+	ret.beginObject();
+	ret.AddValue("name", "Поновлення");
+	ret.AddValue("href", "./update.html");
+	ret.AddValue("target", "_self");
+	ret.endObject();
+
+	ret.beginObject();
+	ret.AddValue("name", "Допомога");
+	ret.AddValue("href", "./help.html");
+	ret.AddValue("target", "_self");
+	ret.endObject();
+
+	ret.beginObject();
+	ret.AddValue("name", "GitHub");
+	ret.AddValue("href", "https://github.com/KushlaVR/WiFi-relay");
+	ret.AddValue("target", "_blank");
+	ret.endObject();
+
+	ret.endArray();
+	ret.endObject();
+	server.jsonOk(&ret);
+}
 
 void ApiController::handleSetup() {
 	String type = "";
@@ -397,10 +440,10 @@ void ApiController::handleGetSwitches() {
 	JsonString ret = JsonString();
 	ret.beginObject();
 	MQTTprocess * proc = mqtt_connection.getFirstProcess();
-	
+
 	ret.AddValue("systime", Utils::FormatTime(now()));
 	ret.AddValue("uptime", String(millis()));
-	
+
 	ret.beginArray("items");
 	while (proc != nullptr) {
 		ret.beginObject();

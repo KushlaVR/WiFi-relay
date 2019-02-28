@@ -107,6 +107,14 @@
   },
 
   {
+    "outputFileName": "data/html/update.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/update.html"
+    ]
+  },
+
+  {
     "outputFileName": "data/html/help.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
@@ -116,82 +124,106 @@
 
 
   {
-    "outputFileName": "data/html/content/_newitem.html",
+    "outputFileName": "data/html/v/_newitem.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "wwwroot/content/_newitem.html"
+      "wwwroot/v/_newitem.html"
     ]
   },
 
 
   {
-    "outputFileName": "data/html/content/_onoff.html",
+    "outputFileName": "data/html/v/_onoff.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "wwwroot/content/_onoff.html"
+      "wwwroot/v/_onoff.html"
     ]
   },
   {
-    "outputFileName": "data/html/content/_onoffedit.html",
+    "outputFileName": "data/html/v/_onoffedit.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "wwwroot/content/_onoffedit.html"
-    ]
-  },
-
-
-  {
-    "outputFileName": "data/html/content/_pwm.html",
-    // An array of relative input file paths. Globbing patterns supported
-    "inputFiles": [
-      "wwwroot/content/_pwm.html"
-    ]
-  },
-  {
-    "outputFileName": "data/html/content/_pwmedit.html",
-    // An array of relative input file paths. Globbing patterns supported
-    "inputFiles": [
-      "wwwroot/content/_pwmedit.html"
+      "wwwroot/v/_onoffedit.html"
     ]
   },
 
+
   {
-    "outputFileName": "data/html/content/_switch.html",
+    "outputFileName": "data/html/v/_pwm.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "wwwroot/content/_switch.html"
+      "wwwroot/v/_pwm.html"
+    ]
+  },
+  {
+    "outputFileName": "data/html/v/_pwmedit.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/v/_pwmedit.html"
     ]
   },
 
   {
-    "outputFileName": "data/html/content/_termo.html",
+    "outputFileName": "data/html/v/_switch.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "wwwroot/content/_termo.html"
+      "wwwroot/v/_switch.html"
     ]
   },
 
   {
-    "outputFileName": "data/html/content/_termoedit.html",
+    "outputFileName": "data/html/v/_termo.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "wwwroot/content/_termoedit.html"
+      "wwwroot/v/_termo.html"
     ]
   },
 
   {
-    "outputFileName": "data/html/content/_tsens.html",
+    "outputFileName": "data/html/v/_termoedit.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "wwwroot/content/_tsens.html"
+      "wwwroot/v/_termoedit.html"
     ]
   },
 
   {
-    "outputFileName": "data/html/content/_wifi.html",
+    "outputFileName": "data/html/v/_tsens.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "wwwroot/content/_wifi.html"
+      "wwwroot/v/_tsens.html"
+    ]
+  },
+
+  {
+    "outputFileName": "data/html/v/_wifi.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/v/_wifi.html"
+    ]
+  },
+
+  {
+    "outputFileName": "data/html/v/_menuitem.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/v/_menuitem.html"
+    ]
+  },
+
+  {
+    "outputFileName": "data/html/v/t.svg",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/v/t.svg"
+    ]
+  },
+
+  {
+    "outputFileName": "data/html/v/idea.svg",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/v/idea.svg"
     ]
   },
 

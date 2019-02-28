@@ -25,6 +25,7 @@ public:
 	static void handleWifiSave();
 	static void handleTemplate();
 	static void handleSetup();
+	static void handleMenu();
 	static bool handleGetSwitchSetup();
 	static bool handleGetDeleteTrigger();
 	static bool handleSetTrigger(String type);

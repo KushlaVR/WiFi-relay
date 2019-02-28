@@ -71,13 +71,33 @@ class Model {
 
 
     public init(): void {
+
+        this.loadTemplateByName("menuitem", () => this.menuTemplateLoaded());
+
         let qm = $("#questionModal");
         if (qm.length > 0)
             WebUI.questionTemplate = $("#questionModal")[0].innerHTML;
         Converters.ClockPicker();
     }
 
-    public fillTemplate(t: string, item: Trigger): string {
+    public menuTemplateLoaded(): void {
+        $.get(WebUI.rooturl + "menu").done(
+            (data: any, status: any) => this.menuItemsLoaded(data)
+        ).fail(
+            //(data: any, status: any) => this.loadFailed(data, this.loadElementsTemplate)
+        );
+    }
+
+    public menuItemsLoaded(data: any) {
+        let items: string = "";
+        for (let i: number = 0; i < data.items.length; i++) {
+            let item: any = data.items[i];
+            items += this.fillTemplate(this.getTemplate("menuitem"), item);
+        };
+        $('.navbar-nav').html(items);
+    }
+
+    public fillTemplate(t: string, item: any): string {
         let ret: string = t;
         for (var key in item) {
             let s: string = item[key];

@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\content\idea.svg" />
-    <Content Remove="wwwroot\content\t.svg" />
+    <Content Remove="wwwroot\v\idea.svg" />
+    <Content Remove="wwwroot\v\t.svg" />
     <Content Remove="wwwroot\js\clockpicker.js" />
   </ItemGroup>
 
@@ -26,8 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\content\idea.svg" />
-    <None Include="wwwroot\content\t.svg" />
+    <None Include="wwwroot\v\idea.svg" />
+    <None Include="wwwroot\v\t.svg" />
     <None Include="wwwroot\js\clockpicker.js" />
   </ItemGroup>
 

@@ -144,7 +144,7 @@ namespace WebAdmin.Controllers
         }
         public IActionResult Get()
         {
-            var webRoot = _env.WebRootPath + "\\content\\";
+            var webRoot = _env.WebRootPath + "\\v\\";
 
             if (System.IO.Directory.Exists(webRoot))
             {
@@ -174,6 +174,17 @@ namespace WebAdmin.Controllers
             }
             return NotFound();
         }
+
+        public IActionResult menu()
+        {
+            List<object> items = new List<object>();
+            items.Add(new { href = "./wifi.html", name = "Під'єднання", target = "_self" });
+            items.Add(new { href = "./update.html", name = "Поновлення", target = "_self" });
+            items.Add(new { href = "./help.html", name = "Допомога", target = "_self" });
+            items.Add(new { href = "https://github.com/KushlaVR/WiFi-relay", name = "Приклад використання", target = "_blank" });
+            return new JsonResult(new { items = items });
+        }
+
 
         public IActionResult wifi()
         {
@@ -235,7 +246,7 @@ namespace WebAdmin.Controllers
         public IActionResult template(string name)
         {
             var webRoot = _env.WebRootPath;
-            var file = System.IO.Path.Combine(webRoot, "content/_" + name + ".html");
+            var file = System.IO.Path.Combine(webRoot, "v/_" + name + ".html");
             //System.IO.File.WriteAllText(file, "Hello World!");
             return Content(System.IO.File.ReadAllText(file));
         }

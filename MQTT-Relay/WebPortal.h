@@ -7,6 +7,7 @@
 #include <ESP8266mDNS.h>
 #include <FS.h>
 #include "Json.h"
+#include "Blinker.h"
 
 /* Set these to your desired softAP credentials. They are not configurable at runtime */
 #ifndef APPSK
@@ -16,6 +17,8 @@
 class WebPortal :public ESP8266WebServer
 {
 private:
+
+	//Blinker * debugLed;
 
 	// DNS server
 	const byte DNS_PORT = 53;

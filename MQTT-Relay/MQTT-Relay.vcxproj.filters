@@ -22,11 +22,9 @@
     <None Include="data\html\css\jquery.js" />
     <None Include="data\html\css\bootstrap.js" />
     <None Include="data\html\css\relay.ts" />
-    <None Include="data\mqtt.json" />
     <None Include="data\html\js\bootstrap.min.js" />
     <None Include="data\html\js\jquery.min.js" />
     <None Include="data\wifi.json" />
-    <None Include="data\html\content\idea.svg" />
     <None Include="data\config\out1\01onoff.json" />
     <None Include="data\config\out1\06onoff.json" />
     <None Include="data\config\out1\07onoff.json" />
@@ -38,14 +36,6 @@
     <None Include="Release 2019-01-18\MQTT-Relay.ino.bin">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="data\html\content\t.svg" />
-    <None Include="data\html\content\_onoff.min.html" />
-    <None Include="data\html\content\_pwm.min.html" />
-    <None Include="data\html\content\_pwmedit.html" />
-    <None Include="data\html\content\_switch.min.html" />
-    <None Include="data\html\content\_termo.min.html" />
-    <None Include="data\html\content\_tsens.min.html" />
-    <None Include="data\html\content\_wifi.min.html" />
     <None Include="data\html\help.min.html" />
     <None Include="data\html\index.min.html" />
     <None Include="data\html\wifi.min.html" />
@@ -54,12 +44,24 @@
     <None Include="data\html\css\style.min.css" />
     <None Include="data\html\js\clockpicker.min.js" />
     <None Include="data\html\js\relay.min.js" />
-    <None Include="data\html\content\_newitem.html" />
-    <None Include="data\html\content\_onoffedit.html" />
-    <None Include="data\html\content\_termoedit.html" />
     <None Include="data\firmware.bin">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="data\html\v\_newitem.min.html" />
+    <None Include="data\html\v\_onoff.min.html" />
+    <None Include="data\html\v\_onoffedit.min.html" />
+    <None Include="data\html\v\_pwm.min.html" />
+    <None Include="data\html\v\_pwmedit.html" />
+    <None Include="data\html\v\_switch.min.html" />
+    <None Include="data\html\v\_termo.min.html" />
+    <None Include="data\html\v\_termoedit.min.html" />
+    <None Include="data\html\v\_tsens.min.html" />
+    <None Include="data\html\v\_wifi.min.html" />
+    <None Include="data\html\v\idea.svg" />
+    <None Include="data\html\v\t.svg" />
+    <None Include="data\html\v\_menuitem.min.html" />
+    <None Include="data\html\update.min.html" />
+    <None Include="mqtt.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.MQTT-Relay.vsarduino.h">
@@ -107,6 +109,9 @@
     <ClInclude Include="SerialController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Blinker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WebPortal.cpp">
@@ -146,6 +151,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SerialController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Blinker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

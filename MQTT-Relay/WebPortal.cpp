@@ -40,7 +40,7 @@ boolean WebPortal::isIp(String str)
 
 WebPortal::WebPortal() :ESP8266WebServer()
 {
-
+	
 }
 
 WebPortal::~WebPortal()
@@ -48,6 +48,7 @@ WebPortal::~WebPortal()
 }
 
 void WebPortal::setup() {
+
 	//Generate unique device name based on MAC address of WIFI adapter
 	String mac = "relay" + WiFi.macAddress(); mac.replace(":", "");
 	myHostname = (char *)calloc(mac.length() + 1, 1);
@@ -314,7 +315,7 @@ void WebPortal::handleUpdate() {
 		host = defaultHost;
 		url = defaultURL;
 	}
-	
+
 	Serial.print("HOST=");
 	Serial.println(host);
 	Serial.print("URL=");
@@ -337,7 +338,7 @@ void WebPortal::handleUpgrade() {
 	WebPortal::updateFile(defaultURL, "/firmware.bin");
 	if (SPIFFS.exists("/firmware.bin")) {
 		File file = SPIFFS.open("/firmware.bin", "r");
-		
+
 		uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
 		if (!Update.begin(maxSketchSpace, U_FLASH)) { //start with max available size
 			Update.printError(Serial);
@@ -348,13 +349,11 @@ void WebPortal::handleUpgrade() {
 		while (file.available()) {
 			uint8_t ibuffer[128];
 			file.read((uint8_t *)ibuffer, 128);
-			digitalWrite(BUILTIN_LED, digitalRead(BUILTIN_LED));
 			//Serial.println((char *)ibuffer);
 			Update.write(ibuffer, sizeof(ibuffer));
 		}
 		Serial.print(Update.end(true));
 		Serial.println("Done!");
-		digitalWrite(BUILTIN_LED, HIGH);
 		file.close();
 		//SPIFFS.remove("/firmware.bin");
 		Serial.println("Finished");
@@ -371,7 +370,7 @@ void WebPortal::updateFiles(String url) {
 	if (SPIFFS.exists("/html/files.txt")) {
 		File f = SPIFFS.open("/html/files.txt", "r");
 		host = f.readStringUntil('\n');
-		host.trim(); 
+		host.trim();
 		url = f.readStringUntil('\n');
 		url.trim();
 		if (host.length() == 0 || host.startsWith("/")) {
@@ -412,10 +411,9 @@ void WebPortal::loadURLtoFile(BearSSL::WiFiClientSecure * client, const char * h
 	client->write(host);
 	client->write("\r\nUser-Agent: ESP8266\r\n");
 	client->write("\r\n");
-	uint32_t to = millis() + 5000;
+
 	if (client->connected()) {
 		Serial.println("client->connected");
-
 		while (client->connected()) {
 			String line = client->readStringUntil('\n');
 			if (line.startsWith("HTTP/")) {
@@ -441,8 +439,10 @@ void WebPortal::loadURLtoFile(BearSSL::WiFiClientSecure * client, const char * h
 			if (rlen < 0) {
 				break;
 			}
-			f.write(tmp, rlen);
-			if (rlen > 0) Serial.print(".");
+			if (rlen > 0) {
+				f.write(tmp, rlen);
+				Serial.print(".");
+			}
 		}
 		f.flush();
 		f.close();
@@ -487,38 +487,36 @@ void WebPortal::loop() {
 		connectWifi();
 		lastConnectTry = millis();
 	}
-	{
-		unsigned int s = WiFi.status();
-		if (s == 0 && millis() > (lastConnectTry + 60000)) {
-			/* If WLAN disconnected and idle try to connect */
-			/* Don't set retry time too low as retry interfere the softAP operation */
-			connect = true;
-		}
-		if (status != s) { // WLAN status change
-			Serial.print("Status: ");
-			Serial.println(s);
-			status = s;
-			if (s == WL_CONNECTED) {
-				/* Just connected to WLAN */
-				Serial.println("");
-				Serial.print("Connected to ");
-				Serial.println(ssid);
-				Serial.print("IP address: ");
-				Serial.println(WiFi.localIP());
+	unsigned int s = WiFi.status();
+	if (s == 0 && millis() > (lastConnectTry + 60000)) {
+		/* If WLAN disconnected and idle try to connect */
+		/* Don't set retry time too low as retry interfere the softAP operation */
+		connect = true;
+	}
+	if (status != s) { // WLAN status change
+		Serial.print("Status: ");
+		Serial.println(s);
+		status = s;
+		if (s == WL_CONNECTED) {
+			/* Just connected to WLAN */
+			Serial.println("");
+			Serial.print("Connected to ");
+			Serial.println(ssid);
+			Serial.print("IP address: ");
+			Serial.println(WiFi.localIP());
 
-				// Setup MDNS responder
-				if (!MDNS.begin(myHostname)) {
-					Serial.println("Error setting up MDNS responder!");
-				}
-				else {
-					Serial.println("mDNS responder started");
-					// Add service to MDNS-SD
-					MDNS.addService("http", "tcp", 80);
-				}
+			// Setup MDNS responder
+			if (!MDNS.begin(myHostname)) {
+				Serial.println("Error setting up MDNS responder!");
 			}
-			else if (s == WL_NO_SSID_AVAIL) {
-				WiFi.disconnect();
+			else {
+				Serial.println("mDNS responder started");
+				// Add service to MDNS-SD
+				MDNS.addService("http", "tcp", 80);
 			}
+		}
+		else if (s == WL_NO_SSID_AVAIL) {
+			WiFi.disconnect();
 		}
 	}
 	// Do work:
