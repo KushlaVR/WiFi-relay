@@ -1,10 +1,14 @@
 # WiFi-relay
 Інтерфейс користувача
-1. Керування виходами (ON/OFF) через web інтерфейс
-2. MQTT вихід
-* Кожен прилад має своє унікальне імя (hostname), яке формується з слова "relay" + AMC адреса
-* Кожен прилад має перемикач вбудованого світлодіода та перемикачі виходів із назвами (led, out1, out2, .., outN)
-* Кожен вихід повязаний із трьома топіками MQTT хмари 
+1. Меню [Wifi реле] Керування виходами (ON/OFF) через web інтерфейс.
+* Кожен вихід відображено у вигляді плитки. При натисканні мишеою на плитку - стан виходу змінюється на протилежний.
+* Кожен вихід має сторінку налаштувань, де можна додавати чи змнювати тригери
+* Кожен вихід має підтримку публікації та підпики на MQTT топіки.
+* Прилад може створювати свою власну точку доступу, або підєднатися до існуючої WIFI мережі.
+* Прилад підтримую визначення мереж Microsoft і відображається у мережевому оточенні MS Windows.
+2. MQTT
+* Кожен прилад має своє унікальне імя (hostname), яке формується з слова "relay" + MAC адреса
+* Кожен вихід повязаний із трьома топіками MQTT хмари
 	* Наприклад вихід №1
 		* STATE topik => /switches/< hostname >/out1
 		* SET topic => /switches/< hostname >/out1/set	
@@ -13,28 +17,29 @@
 		* STATE topik => /switches/< hostname >/led
 		* SET topic => /switches/< hostname >/led/set	
 		* AVAILABLE topic => /switches/< hostname >/led/available
-3. Налаштування включення/виключення виходів по графіку
-4. Налаштування WIFI точки доступу
-5. API для роботи з вебінтерфейсу
+3. API для роботи з вебінтерфейсу
 	1. GET api/wifi - перелік усіх точок доступу WIFI у радіусі доступності
 	2. POST api/wifisave?n=ssid&p=psw - задати точку доступу до якої треба підєднатись після перезапуску
 	3. GET api/swithces - перелік усіх доступних функцій приладу
-	4. POST api/swithces?name=outName&...   - задати значення однієї із функцій приладу
-	5. GET api/template?name=templatename    - return file _templatename.html from html/content folder
+	4. POST api/swithces?index=1&state=on   - задати стан виходу. Можливі стани: on - включити, x - переключити стан на протилежний, інакше - виключити
+	5. GET api/template?name=templatename    - return file _templatename.html from html/v/ folder
+	6. GET api/menu зчитати перелік пунктів меню
+	7. GET api/setup?аргументи
+		* delete=idТригера&switch=idВиходу видалити тригер за його id
+		* type=switch&index=idВиходу зчитати перелік тригерів
+		* type=onoff&index=idВиходу&mane=someName&days=daysMask&time=minutesFromDayStart&action=TrueOrFalse записати тригер для виходу idВиходу
+		* type=pwm&index=idВиходу&mane=someName&days=daysMask&onlength=minutesON&offlength=minutesoff записати тригер для виходу idВиходу
+		* type=termo&index=idВиходу&mane=someName&days=daysMask&start=minutesFromDayStart&end=minutesFromDayEnd&variable=nameOfVar&man=minVarValue&max=maxVarValue записати тригер для виходу idВиходу
+
 
 
 ## Тригери		
+Кожен тригер може бути налаштований для роботи у певний день тиждня та у певні години доби.
 ### PWM trigger		
-	days		0-sun,1-mon,2-tue,3-wed,4-thu,5-fri,6-sat
-	onLength	0:12:00
-	offLength	0:06:00
+	Триер перемикає стан виходу відповідно до часу включення та виключення
 
 ### on/off trigger	
-	days	0-sun,1-mon,2-tue,3-wed,4-thu,5-fri,6-sat
-	action	on/off
-	time	17:00
+	Тригер включає/виелючає вихід у заданий час
 
-### (TODO) Включити/Виключити 
-	Змінна	Т
-	Умова	>, <, =
-	Значення	12
+### Включити/Виключити 
+	Тригер включає вихід коли змінна манша ніж мінімум та вимикає вихід коли змінна більша за максимум
