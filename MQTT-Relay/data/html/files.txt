@@ -12,7 +12,7 @@ raw.githubusercontent.com
 /html/css/clockpicker.min.css
 /html/css/style.min.css
 /html/v/_menuitem.min.html
-/html/v/_newitem.html
+/html/v/_newitem.min.html
 /html/v/_onoff.min.html
 /html/v/_onoffedit.min.html
 /html/v/_pwm.min.html
