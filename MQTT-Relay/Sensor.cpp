@@ -145,17 +145,18 @@ bool DS18X20::loop(unsigned long m)
 	return true;
 }
 
-void DS18X20::findAll()
+bool DS18X20::findAll()
 {
 	Serial.println("Start finding DS18X20 temperature sonsors...");
 	byte addr[8];
-
+	bool present = false;
 	while (_ds18x20.search(addr)) {
 		//знайдено новий пристрій...
 		if (OneWire::crc8(addr, 7) != addr[7]) {
 			Serial.println("DS18X20: Found device, but CRC is not valid!");
 		}
 		else {
+			present = true;
 			Serial.print("DS18X20: ROM =");
 			int i;
 			for (i = 0; i < 8; i++) {
@@ -191,5 +192,47 @@ void DS18X20::findAll()
 		}
 		_ds18x20.reset();
 	}
+	return present;
+}
 
+AsyncDHT * dht;
+
+bool DHT_22::loop(unsigned long m)
+{
+	dht->readAsync();
+	if (lastLoop != 0 && (m - lastLoop) < interval) return false;
+	if (dht->isReady()) {
+		lastLoop = m;
+		float t = (dht->getTemperature(false) * termoCompesation) + termoTranslation;
+		float h = dht->getHunidity();
+		if (t != this->t || h != this->h) {
+			this->t = t;
+			this->h = h;
+
+			Serial.print("DHT [T = ");
+			Serial.print(t);
+			Serial.print("; H = ");
+			Serial.print(h);
+			Serial.println("%]");
+
+			Variable::setValue(String("t") + String(uid), t);
+			Variable::setValue(String("h") + String(uid), h);
+		}
+
+		return true;
+	}
+	return false;
+}
+
+bool DHT_22::findAll()
+{
+	dht = new AsyncDHT();
+	dht->begin(D2, DHT22);
+
+	DHT_22 * sensor = new DHT_22();
+	sensor->type = "DHT22";
+	sensor->Register();
+	sensor->interval = 10000;
+
+	return true;
 }

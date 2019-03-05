@@ -97,3 +97,25 @@ public:
 	void loop(time_t * time);
 
 };
+
+class Venting : public Trigger {
+
+	bool state = false;
+
+public:
+	Venting();
+	~Venting() {};
+
+	unsigned long start = 0;
+	unsigned long end = 0;
+
+	String variable = "h1";
+
+	int min = 0;
+	int max = 0;
+
+	void printInfo(JsonString * ret, bool detailed);
+	void load(File * f);
+	void loop(time_t * time);
+
+};

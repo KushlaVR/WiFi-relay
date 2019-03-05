@@ -22,8 +22,9 @@ private:
 	Adafruit_MQTT_Publish * sensor_state;
 
 public:
-	MQTTSensor(char * feed, char * name, char * variable) :MQTTSensor(String(feed), String(name), String(variable)) {};
-	MQTTSensor(String feed, String name, String variable);
+	String visual = "tsens";
+	MQTTSensor(char * feed, char * name, char * variable, char * visual) :MQTTSensor(String(feed), String(name), String(variable), String(visual)) {};
+	MQTTSensor(String feed, String name, String variable, String visual);
 	~MQTTSensor();
 
 	void Register(Adafruit_MQTT_Client * connection);

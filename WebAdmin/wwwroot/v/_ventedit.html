@@ -1,6 +1,6 @@
 <form>
     <div class="card border-primary m-3">
-        <div class="card-header">Термостат: <input type="text" name="name" value="@name@" /></div>
+        <div class="card-header">Вентиляція: <input type="text" name="name" value="@name@" /></div>
         <div class="card-body text-primary form-check form-inline">
             <div class="form-group">
                 <label for="days">Дні: </label>
@@ -34,12 +34,12 @@
             </div>
 
             <div class="form-group">
-                <label for="min">Вмикати при (min): </label>
+                <label for="min">Вимикати при (min): </label>
                 <input class="form-control input-sm" name="min" type="number" value="@min@">
             </div>
 
             <div class="form-group">
-                <label for="max">Вимикати при (max): </label>
+                <label for="max">Вмикати при (max): </label>
                 <input class="form-control input-sm" name="max" type="number" value="@max@">
             </div>
 
@@ -47,7 +47,7 @@
         <ul class='list-group list-group-flush'>
             <li class='list-group-item text-right'><a href='#' class='card-link btn-save'>Записати</a></li>
         </ul>
-        <input type="hidden" name="type" value="termo" />
+        <input type="hidden" name="type" value="vent" />
     </div>
 
 </form>

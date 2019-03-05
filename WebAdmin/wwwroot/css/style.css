@@ -137,5 +137,24 @@ input:checked + .slider:before {
 
 #questionModal {
     background: #495057d6;
-    padding-top:100px
+    padding-top: 100px
+}
+
+div.holder .form-group {
+    height: 48px;
+}
+
+    div.holder .form-group label[for] {
+        width: 180px;
+        text-align: right;
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+input[name=days] {
+    width: 250px !important;
+}
+
+input[type=number] {
+    width: 90px !important;
 }

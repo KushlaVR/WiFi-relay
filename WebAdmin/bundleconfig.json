@@ -188,10 +188,35 @@
   },
 
   {
+    "outputFileName": "data/html/v/_vent.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/v/_vent.html"
+    ]
+  },
+
+  {
+    "outputFileName": "data/html/v/_ventedit.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/v/_ventedit.html"
+    ]
+  },
+
+
+  {
     "outputFileName": "data/html/v/_tsens.html",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
       "wwwroot/v/_tsens.html"
+    ]
+  },
+
+  {
+    "outputFileName": "data/html/v/_hsens.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/v/_hsens.html"
     ]
   },
 
@@ -224,6 +249,13 @@
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
       "wwwroot/v/idea.svg"
+    ]
+  },
+  {
+    "outputFileName": "data/html/v/h.svg",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/v/h.svg"
     ]
   },
 

@@ -2,10 +2,11 @@
 #include "MQTTSensor.h"
 
 
-MQTTSensor::MQTTSensor(String feed, String name, String variable)
+MQTTSensor::MQTTSensor(String feed, String name, String variable, String visual)
 {
 	this->name = name;
 	this->type = "sensor";
+	this->visual = visual;
 	this->variable = variable;
 	String s = "/sensors/" + String(feed) + "/" + String(name);
 	feed_sate = (char *)calloc(s.length() + 1, 1);
@@ -45,7 +46,7 @@ bool MQTTSensor::schedule()
 void MQTTSensor::printInfo(JsonString * ret)
 {
 	MQTTprocess::printInfo(ret);
-	ret->AddValue("visual", "tsens");
+	ret->AddValue("visual", visual);
 	float d = Variable::getValue(variable);
 	ret->AddValue("value", String(d));
 }

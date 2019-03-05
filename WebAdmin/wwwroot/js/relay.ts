@@ -132,7 +132,7 @@ class Model {
             if (days > 0 || hour > 0) uptime += " " + hour.toString() + ":";
             uptime += minute.toString();
             uptime += ":" + second.toString();
-            time_str += " (час роблти - " + uptime + ")";
+            time_str += " (час роботи - " + uptime + ")";
         };
         if (data.systime || data.uptime) $("#systime").html(time_str);
     }

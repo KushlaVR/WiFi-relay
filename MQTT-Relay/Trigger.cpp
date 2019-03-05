@@ -153,6 +153,9 @@ void Trigger::loadConfig(MQTTswitch * proc)
 			}
 			else if (fName.startsWith("termo")) {
 				t = new Termostat();
+			} 
+			else if (fName.startsWith("vent")) {
+				t = new Venting();
 			}
 			if (t != nullptr) {
 				t->uid = fNum.toInt();
@@ -435,5 +438,90 @@ void Termostat::loop(time_t * time)
 				}
 			}
 		}
+	}
+}
+
+Venting::Venting()
+{
+	type = "vent";
+}
+
+void Venting::printInfo(JsonString * ret, bool detailed)
+{
+	Trigger::printInfo(ret, detailed);
+	ret->AddValue("start", String(start));
+	ret->AddValue("end", String(end));
+	ret->AddValue("variable", variable);
+	ret->AddValue("min", String(min));
+	ret->AddValue("max", String(max));
+}
+
+void Venting::load(File * f)
+{
+	Trigger::load(f);
+	JsonString s = JsonString(f->readString());
+	name = s.getValue("name");
+	days = (unsigned char)(s.getValue("days").toInt());
+	start = s.getValue("start").toInt();
+	end = s.getValue("end").toInt();
+	variable = s.getValue("variable");
+	min = s.getValue("min").toInt();
+	max = s.getValue("max").toInt();
+}
+
+void Venting::loop(time_t * time)
+{
+	int d = weekday(*time) - 1;
+	if (days == 127 || days & (1 << d)) {//Дань тиждня підходящий
+		unsigned int t = (unsigned int)hour(*time) * 60UL + (unsigned int)minute(*time);
+		if ((start == end/*цілий день*/) || (t >= start && t <= end)) {//час підходящий
+			float v = Variable::getValue(variable);
+			if (v < min) {//Вологість впала нижче мінімума
+				if (state/*proc->isOn()*/) {
+					Serial.printf("Trigger %i - %s Humidity too low => OFF\n", uid, type);
+					proc->setState(false);
+					state = false;
+				}
+			}
+			else {
+				if (v > max) {//Вологість вище максимума
+					if (!state/*!proc->isOn()*/) {
+						Serial.printf("Trigger %i - %s Humidity too high => ON\n", uid, type);
+						proc->setState(true);
+						state = true;
+					}
+				}
+			}
+		}
+		else if (start > end) { //Початок більше кінця. Наприклад з 22:00 до 05:00
+			if (t >= start || t <= end) {
+				float v = Variable::getValue(variable);
+				if (v < min) {//Вологість впала нижче мінімума
+					if (state/*proc->isOn()*/) {
+						Serial.printf("Trigger %i - %s Humidity too low => OFF\n", uid, type);
+						proc->setState(false);
+						state = false;
+					}
+				}
+				else {
+					if (v > max) {//Вологість вище максимума
+						if (!state/*!proc->isOn()*/) {
+							Serial.printf("Trigger %i - %s Temperature too high => ON\n", uid, type);
+							proc->setState(true);
+							state = true;
+						}
+					}
+				}
+			}
+		}
+		/*else {
+			if (state) {//TODO: ??? Що автор хотів им сказати ???
+				if (proc->isOn()) {
+					Serial.printf("Trigger %i - %s OFF\n", uid, type);
+					proc->setState(false);
+					state = false;
+				}
+			}
+		}*/
 	}
 }

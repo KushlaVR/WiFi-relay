@@ -11,6 +11,7 @@
 #include <TimeLib.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
+#include "DHT_Async.h"
 #include "Blinker.h"
 #include "Sensor.h"
 #include "MQTTconnection.h"
@@ -37,7 +38,7 @@ ApiController api;
 SerialController serial;
 
 void setup() {
-	
+
 	setTime(9, 0, 0, 18, 02, 2019);
 
 	Serial.begin(115200);
@@ -65,7 +66,6 @@ void setup() {
 	MQTTswitch * out2 = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out2", D6));
 	MQTTswitch * out3 = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out3", D7));
 	MQTTswitch * led = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "led", LED_BUILTIN));
-	MQTTSensor * temp = (MQTTSensor *)mqtt_connection.Register(new MQTTSensor(String(server.myHostname), "temperature", "t1"));
 
 	led->onPinValue = LOW;
 	led->offPinValue = HIGH;
@@ -76,10 +76,19 @@ void setup() {
 	Trigger::loadConfig(led);
 
 	//photocell = new Adafruit_MQTT_Publish(mqtt_connection.connection, "/feeds/photocell");
+	if (DS18X20::findAll()) {
+		mqtt_connection.Register(new MQTTSensor(String(server.myHostname), "temperature", "t1", "tsens"));
+	}
+	else {
+		if (DHT_22::findAll()) {
+			mqtt_connection.Register(new MQTTSensor(String(server.myHostname), "temperature", "t1", "tsens"));
+			mqtt_connection.Register(new MQTTSensor(String(server.myHostname), "humidity", "h1", "hsens"));
+		}
+	}
 
 	api.setup();
 	NTP.setup();
-	DS18X20::findAll();
+
 }
 
 

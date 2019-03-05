@@ -29,7 +29,6 @@
     <None Include="data\config\out1\06onoff.json" />
     <None Include="data\config\out1\07onoff.json" />
     <None Include="data\config\out1\04onoff.json" />
-    <None Include="data\config\led\03termo.json" />
     <None Include="Release 2019-01-18\MQTT-Relay.ino.spiffs.bin">
       <Filter>Resource Files</Filter>
     </None>
@@ -51,7 +50,6 @@
     <None Include="data\html\v\_onoff.min.html" />
     <None Include="data\html\v\_onoffedit.min.html" />
     <None Include="data\html\v\_pwm.min.html" />
-    <None Include="data\html\v\_pwmedit.html" />
     <None Include="data\html\v\_switch.min.html" />
     <None Include="data\html\v\_termo.min.html" />
     <None Include="data\html\v\_termoedit.min.html" />
@@ -62,6 +60,13 @@
     <None Include="data\html\v\_menuitem.min.html" />
     <None Include="data\html\update.min.html" />
     <None Include="mqtt.json" />
+    <None Include="data\html\v\_hsens.min.html" />
+    <None Include="data\html\v\_pwmedit.min.html" />
+    <None Include="data\html\v\_vent.min.html" />
+    <None Include="data\html\v\_ventedit.min.html" />
+    <None Include="data\config\led\08vent.json" />
+    <None Include="data\config\out2\03termo.json" />
+    <None Include="data\html\v\h.svg" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.MQTT-Relay.vsarduino.h">
@@ -112,6 +117,9 @@
     <ClInclude Include="Blinker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DHT_Async.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WebPortal.cpp">
@@ -154,6 +162,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Blinker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DHT_Async.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

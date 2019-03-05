@@ -2,6 +2,7 @@
 
 #include <Time.h>
 #include <OneWire.h>
+#include "DHT_Async.h"
 #include "Variable.h"
 
 class Sensor
@@ -39,10 +40,27 @@ public:
 	float celsius = 0;
 
 	byte addr[8];
-	byte data[12]; 
+	byte data[12];
 	int stage = 0;
 
 	bool loop(unsigned long m);
 
-	static void findAll();
+	static bool findAll();
+};
+
+class DHT_22 : public Sensor {
+
+	float termoCompesation = 1;// 0.8461;
+	float termoTranslation = 0;
+
+public:
+	DHT_22() {};
+	~DHT_22() {};
+
+	float t = 0;
+	float h = 0;
+
+	bool loop(unsigned long m);
+	static bool findAll();
+
 };
