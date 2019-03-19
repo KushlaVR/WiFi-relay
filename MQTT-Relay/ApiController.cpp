@@ -27,11 +27,83 @@ void ApiController::setup()
 {
 	server.on("/api/wifi", handleWifi);
 	server.on("/api/wifisave", handleWifiSave);
+	server.on("/api/mqtt", handleMQTT);
+	server.on("/api/mqttsave", handleMQTTSave);
 	server.on("/api/template", handleTemplate);
 	server.on("/api/setup", handleSetup);
 	server.on("/api/switches", HTTPMethod::HTTP_GET, handleGetSwitches);
 	server.on("/api/switches", HTTPMethod::HTTP_POST, handleSetSwitches);
 	server.on("/api/menu", handleMenu);
+}
+
+void ApiController::handleMQTT()
+{
+	Serial.println("MQTT get");
+
+	String path = "/mqtt.json";
+	if (SPIFFS.exists(path)) {
+		File file = SPIFFS.open(path, "r");
+		JsonString json = JsonString(file.readString());
+		file.close();
+		String b = json.getValue("broker");
+		String p = json.getValue("port");
+		String u = json.getValue("user");
+		String k = json.getValue("key");
+
+		JsonString ret = JsonString();
+		ret.beginObject();
+
+		ret.AddValue("systime", Utils::FormatTime(now()));
+		ret.AddValue("uptime", String(millis()));
+		ret.AddValue("broker", b);
+		ret.AddValue("port", p);
+		ret.AddValue("user", u);
+		ret.AddValue("key", k);
+
+		ret.endObject();
+		server.jsonOk(&ret);
+
+	}
+	else {
+		server.Ok();
+	}
+}
+
+void ApiController::handleMQTTSave()
+{
+	Serial.println("MQTT save");
+	if (!server.hasArg("broker")) {
+		Serial.println("broker require");
+		server.handleNotFound();
+	}
+	if (!server.hasArg("port")) {
+		Serial.println("port require");
+		server.handleNotFound();
+	}
+	if (!server.hasArg("user")) {
+		Serial.println("user require");
+		server.handleNotFound();
+	}
+	if (!server.hasArg("key")) {
+		Serial.println("key require");
+		server.handleNotFound();
+	}
+
+	JsonString ret = JsonString();
+	ret.beginObject();
+
+	ret.AddValue("broker", server.arg("broker"));
+	ret.AddValue("port", server.arg("port"));
+	ret.AddValue("user", server.arg("user"));
+	ret.AddValue("key", server.arg("key"));
+
+	ret.endObject();
+	String path = "/mqtt.json";
+	File file = SPIFFS.open(path, "w");
+	file.print(ret);
+	file.flush();
+	file.close();
+	server.Ok();
 }
 
 /** Wifi config page handler */

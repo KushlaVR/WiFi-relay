@@ -337,12 +337,12 @@ float AsyncDHT::getTemperature(bool S)
 			break;
 		case DHT22:
 		case DHT21:
-			f = data[2] & 0x7F;
-			f *= 256;
+			f = data[2] & (0xFF >> 1);
+			f *= 256.0f;
 			f += data[3];
-			f *= 0.1;
-			if (data[2] & 0x80) {
-				f *= -1;
+			f *= 0.1f;
+			if (data[2] & (1 << 7)) {
+				f *= -1.0f;
 			}
 			if (S) {
 				f = convertCtoF(f);
@@ -364,9 +364,9 @@ float AsyncDHT::getHunidity()
 		case DHT22:
 		case DHT21:
 			f = data[0];
-			f *= 256;
+			f *= 256.0f;
 			f += data[1];
-			f *= 0.1;
+			f *= 0.1f;
 			break;
 		}
 	}

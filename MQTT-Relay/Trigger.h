@@ -39,6 +39,8 @@ public:
 	static void processNext(time_t * time);
 	static void loadConfig(MQTTswitch * proc);
 	static int generateNewUid();
+	static void Sort();
+	static int Compare(const void * a, const void * b);
 };
 
 class OnOffTrigger : public Trigger {

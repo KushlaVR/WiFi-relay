@@ -21,6 +21,8 @@ public:
 	void setup();
 
 	static MQTTconnection * connection;
+	static void handleMQTT();
+	static void handleMQTTSave();
 	static void handleWifi();
 	static void handleWifiSave();
 	static void handleTemplate();

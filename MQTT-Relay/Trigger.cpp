@@ -27,30 +27,15 @@ Trigger::~Trigger()
 void Trigger::Register()
 {
 	//Serial.println("register 1");
-	if (_firstTrigger == nullptr) {
+	if (_lastTrigger == nullptr) {
 		//Serial.println("register 2");
 		_firstTrigger = this;
 		_firstTrigger->next = nullptr;
 		_lastTrigger = this;
 	}
 	else {
-		//Serial.println("register 3");
-		Trigger * t = _firstTrigger;
-		while (t != nullptr) {
-			//Serial.println("register 4");
-			if (t->next == nullptr) {
-				//Serial.println("register 5");
-				t->next = this;
-				this->next = nullptr;
-				t = nullptr;
-				_lastTrigger = this;
-			}
-			else
-			{
-				//Serial.println("register 6");
-				t = t->next;
-			}
-		}
+		_lastTrigger->next = this;
+		_lastTrigger = this;
 	}
 	if (_uid <= uid) _uid = uid;
 
@@ -153,7 +138,7 @@ void Trigger::loadConfig(MQTTswitch * proc)
 			}
 			else if (fName.startsWith("termo")) {
 				t = new Termostat();
-			} 
+			}
 			else if (fName.startsWith("vent")) {
 				t = new Venting();
 			}
@@ -166,9 +151,59 @@ void Trigger::loadConfig(MQTTswitch * proc)
 			f.close();
 		}
 	}
+
+
+}
+
+int Trigger::generateNewUid()
+{
+	int ret = 1;
+	int maxUid = 0;
+	Trigger * t = _firstTrigger;
+	while (t != nullptr) {
+		if (t->uid > maxUid) maxUid = t->uid;
+		if (t->uid == ret) {
+			ret++;
+			t = _firstTrigger;
+		}
+		else {
+			t = t->next;
+		}
+	}
+	if (_uid != maxUid) {
+		Serial.printf("Max UID reseed %i => %i", _uid, maxUid);
+		_uid = maxUid;
+	}
+	return ret;
+}
+
+void Trigger::Sort()
+{
+	/*Trigger * triggers[99];
+	Trigger * t = _firstTrigger;
+	int i = 0;
+	while (t != nullptr) {
+		triggers[i] = t;
+		i++;
+		t = t->next;
+	}
+	qsort(triggers, i, sizeof(Trigger *), Compare);
+	for (int j = 0; j < i; j++) {
+		if (j == 0) {
+			_firstTrigger = triggers[j];
+			_lastTrigger = triggers[j];
+		}
+		else {
+			triggers[j - 1]->next = triggers[j];
+			_lastTrigger = triggers[j];
+		}
+	}
+	if (_lastTrigger != nullptr) _lastTrigger->next = nullptr;
+	*/
+
 	//На диску елементи можуть бути роміщені у довільному порядку
 	//Після зчитування їх треба посортувати (наприклад бульбашковим методом)
-	t = nullptr;
+	Trigger * t = nullptr;
 	Trigger * n;//next
 	Trigger * p;//prev
 	bool was_swap = true;//були випадки переміни місцями елементів колекції
@@ -209,26 +244,18 @@ void Trigger::loadConfig(MQTTswitch * proc)
 	}
 }
 
-int Trigger::generateNewUid()
+int Trigger::Compare(const void * a, const void * b)
 {
-	int ret = 1;
-	int maxUid = 0;
-	Trigger * t = _firstTrigger;
-	while (t != nullptr) {
-		if (t->uid > maxUid) maxUid = t->uid;
-		if (t->uid == ret) {
-			ret++;
-			t = _firstTrigger;
-		}
-		else {
-			t = t->next;
-		}
-	}
-	if (_uid != maxUid) {
-		Serial.printf("Max UID reseed %i => %i", _uid, maxUid);
-		_uid = maxUid;
-	}
-	return ret;
+	Trigger * ta = (Trigger *)a;
+	Trigger * tb = (Trigger *)b;
+
+	int ai = ta->getSort();
+	int bi = tb->getSort();
+	if (ai > bi)
+		return 1;
+	else if (ai < bi)
+		return -1;
+	return 0;
 }
 
 

@@ -200,11 +200,15 @@ AsyncDHT * dht;
 bool DHT_22::loop(unsigned long m)
 {
 	dht->readAsync();
-	if (lastLoop != 0 && (m - lastLoop) < interval) return false;
+	if (!isnan(this->t) && !isnan(this->h) && lastLoop != 0 && (m - lastLoop) < interval) return true;
 	if (dht->isReady()) {
 		lastLoop = m;
 		float t = (dht->getTemperature(false) * termoCompesation) + termoTranslation;
 		float h = dht->getHunidity();
+		
+		if (t < -80 || t > 200) return false;
+		if (h < 0 || h > 100) return false;
+
 		if (t != this->t || h != this->h) {
 			this->t = t;
 			this->h = h;

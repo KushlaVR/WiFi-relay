@@ -75,6 +75,8 @@ void setup() {
 	Trigger::loadConfig(out3);
 	Trigger::loadConfig(led);
 
+	Trigger::Sort();
+
 	//photocell = new Adafruit_MQTT_Publish(mqtt_connection.connection, "/feeds/photocell");
 	if (DS18X20::findAll()) {
 		mqtt_connection.Register(new MQTTSensor(String(server.myHostname), "temperature", "t1", "tsens"));

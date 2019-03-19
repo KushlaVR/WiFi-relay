@@ -158,10 +158,10 @@ void WebPortal::handleRoot() {
 	handleFileRead("/index.html");
 }
 
-bool WebPortal::handleFileRead(String path) {
+bool WebPortal::handleFileRead(String path, bool html) {
 	if (path.endsWith("/")) path += "index.html";
 	if (path.equals("/favicon.ico")) path = "icon.svg";
-	path = "/html" + path;
+	if (html) path = "/html" + path;
 	char* contentType = server.getContentType(path);
 	String minimized = server.getMinimizedPath(path);
 	if (SPIFFS.exists(minimized)) path = minimized;
