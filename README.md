@@ -1,4 +1,7 @@
 # WiFi-relay
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FQRAJZS2GFXQU&source=url)
+
 Інтерфейс користувача
 1. Меню [Wifi реле] Керування виходами (ON/OFF) через web інтерфейс.
 * Кожен вихід відображено у вигляді плитки. При натисканні мишеою на плитку - стан виходу змінюється на протилежний.
