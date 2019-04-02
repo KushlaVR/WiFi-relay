@@ -59,16 +59,17 @@ void setup() {
 	}
 	Serial.println(F("KushlaVR@gmail.com \nMQTT switch\n\n"));
 
-	server.setup();
 	mqtt_connection.setup();
-
 	MQTTswitch * out1 = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out1", D5));
 	MQTTswitch * out2 = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out2", D6));
 	MQTTswitch * out3 = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "out3", D7));
 	MQTTswitch * led = (MQTTswitch *)mqtt_connection.Register(new MQTTswitch(String(server.myHostname), "led", LED_BUILTIN));
-
 	led->onPinValue = LOW;
 	led->offPinValue = HIGH;
+
+	MQTTswitch::loadStartupStates(mqtt_connection.getFirstProcess());
+	
+	server.setup();
 
 	Trigger::loadConfig(out1);
 	Trigger::loadConfig(out2);

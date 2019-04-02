@@ -29,6 +29,7 @@ void ApiController::setup()
 	server.on("/api/wifisave", handleWifiSave);
 	server.on("/api/mqtt", handleMQTT);
 	server.on("/api/mqttsave", handleMQTTSave);
+	server.on("/api/startup", handleStartup);
 	server.on("/api/template", handleTemplate);
 	server.on("/api/setup", handleSetup);
 	server.on("/api/switches", HTTPMethod::HTTP_GET, handleGetSwitches);
@@ -180,6 +181,25 @@ void ApiController::handleWifiSave() {
 
 
 	}
+}
+
+void ApiController::handleStartup()
+{
+	Serial.println("startup GET:");
+	MQTTprocess * proc = mqtt_connection.getFirstProcess();
+	while (proc != nullptr) {
+		if (proc->type == "switch") {
+			MQTTswitch * sw = (MQTTswitch *)proc;
+			if (server.hasArg(proc->name)) {
+				String arg = server.arg(proc->name);
+				Serial.printf("Switch[%s] = %s\n", proc->name.c_str(), arg.c_str());
+				sw->startupState = (arg) == "on";
+			}
+		}
+		proc = proc->next;
+	};
+	MQTTswitch::saveStartup(mqtt_connection.getFirstProcess());
+	server.Ok();
 }
 
 
@@ -393,17 +413,16 @@ bool ApiController::handleSetTrigger(String type)
 		Serial.println("new trigger");
 		if (type == "onoff")
 			trigger = new OnOffTrigger();
-		else if (type == "pwm") {
+		else if (type == "pwm")
 			trigger = new PWMTrigger();
-		}
-		else if (type == "termo") {
+		else if (type == "termo")
 			trigger = new Termostat();
-		}
-		else if (type=="vent")
+		else if (type == "vent")
 			trigger = new Venting();
-		else {
+		else if (type == "timeout")
+			trigger = new TimeoutTrigger();
+		else
 			return false;
-		}
 		trigger->uid = Trigger::generateNewUid();
 		trigger->proc = (MQTTswitch *)proc;
 		trigger->Register();
@@ -444,6 +463,23 @@ bool ApiController::handleSetTrigger(String type)
 		if (server.hasArg("time")) {
 			tr->time = server.arg("time").toInt();
 			Serial.printf("time=%i\n", tr->time);
+		}
+
+		String action = "";
+		if (server.hasArg("action")) {
+			action = server.arg("action");
+			if (action == "true")
+				tr->action = HIGH;
+			else
+				tr->action = LOW;
+		}
+	}
+	else if (type == "timeout") {
+		TimeoutTrigger * tr = (TimeoutTrigger *)trigger;
+
+		if (server.hasArg("len")) {
+			tr->len = server.arg("len").toInt();
+			Serial.printf("len=%i\n", tr->len);
 		}
 
 		String action = "";

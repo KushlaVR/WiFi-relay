@@ -121,3 +121,19 @@ public:
 	void loop(time_t * time);
 
 };
+
+
+class TimeoutTrigger : public Trigger {
+	time_t startTime = 0;
+public:
+
+	TimeoutTrigger();
+	~TimeoutTrigger() {};
+
+	unsigned int len;
+	unsigned char action = LOW;
+
+	void loop(time_t * time);
+	void load(File * f);
+	void printInfo(JsonString * ret, bool detailed);
+};

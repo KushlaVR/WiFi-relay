@@ -25,6 +25,7 @@ public:
 	static void handleMQTTSave();
 	static void handleWifi();
 	static void handleWifiSave();
+	static void handleStartup();
 	static void handleTemplate();
 	static void handleSetup();
 	static void handleMenu();

@@ -37,7 +37,7 @@ void JsonString::endArray()
 	*this += "]";
 }
 
-String JsonString::getValue(char * key)
+String JsonString::getValue(const char * key)
 {
 	int p = indexOf(key);
 	if (p > 0) {

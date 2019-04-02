@@ -42,6 +42,7 @@ class MQTTswitch : public MQTTprocess
 public:
 	uint8_t onPinValue = HIGH;
 	uint8_t offPinValue = LOW;
+	bool startupState = false;
 
 	MQTTswitch(String feed, String name, uint8_t pin);
 	MQTTswitch(char * feed, char * name, uint8_t pin);
@@ -53,6 +54,9 @@ public:
 	void setState(bool newState);
 	bool schedule();
 	bool isOn() { return state; };
+
+	static void loadStartupStates(MQTTprocess * first);
+	static void saveStartup(MQTTprocess * first);
 
 };
 

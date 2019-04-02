@@ -23,6 +23,8 @@ raw.githubusercontent.com
 /html/v/_termoedit.html
 /html/v/_vent.min.html
 /html/v/_ventedit.html
+/html/v/_timeout.html
+/html/v/_timeoutedit.html
 /html/v/_tsens.min.html
 /html/v/_wifi.min.html
 /html/v/idea.svg

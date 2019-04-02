@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using WebAdmin.Models;
-using System.Runtime.InteropServices;
+using System;
+using System.Collections.Generic;
 
 namespace WebAdmin.Controllers
 {
@@ -96,6 +90,19 @@ namespace WebAdmin.Controllers
             public string min { get; set; } = "27";
         }
 
+        public class Timeout : Trigger
+        {
+            public Timeout()
+            {
+                type = "timeout";
+                template = "timeout";
+                editingtemplate = "timeoutedit";
+            }
+
+            public string days { get; set; } = "127"; //пн-пт+сб+нд
+            public string len { get; set; } = "2";
+            public string action { get; set; }
+        }
 
         public class MQTTProcess
         {
@@ -457,6 +464,54 @@ namespace WebAdmin.Controllers
                                 tr.min = Request.Query["min"];
                                 tr.max = Request.Query["max"];
                                 tr.variable = Request.Query["variable"];
+                                tr.days = Request.Query["days"];
+                                tr.name = Request.Query["name"];
+                                return new JsonResult(new { status = "OK", systime = DateTime.Now.ToString("HH:mm:ss") });
+                            }
+                        }
+                    }
+                }
+            }
+            else if (type == "timeout")
+            {
+                MQTTProcess item = items[int.Parse(Request.Query["switch"]) - 1];
+                string uid = Request.Query["uid"];
+
+                if (uid == "0")
+                {
+                    Timeout tr = new Timeout();
+                    tr.len = Request.Query["len"];
+                    if (Request.Query["action"] == "true")
+                    {
+                        tr.action = "on";
+                    }
+                    else
+                    {
+                        tr.action = "off";
+                    }
+                    tr.days = Request.Query["days"];
+                    tr.name = Request.Query["name"];
+                    triggers[item].Add(tr);
+                    return new JsonResult(new { status = "OK", systime = DateTime.Now.ToString("HH:mm:ss") });
+                }
+                else
+                {
+                    foreach (Trigger t in triggers[item])
+                    {
+                        if (t.uid == uid)
+                        {
+                            if (t.type == "timeout")
+                            {
+                                Timeout tr = t as Timeout;
+                                tr.len = Request.Query["len"];
+                                if (Request.Query["action"] == "true")
+                                {
+                                    tr.action = "on";
+                                }
+                                else
+                                {
+                                    tr.action = "off";
+                                }
                                 tr.days = Request.Query["days"];
                                 tr.name = Request.Query["name"];
                                 return new JsonResult(new { status = "OK", systime = DateTime.Now.ToString("HH:mm:ss") });

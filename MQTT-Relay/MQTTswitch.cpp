@@ -1,7 +1,7 @@
 #include "MQTTswitch.h"
 
 int switchCount;
-
+String startupCongigFileName = "/startup.json";
 
 MQTTswitch::MQTTswitch(String feed, String name, uint8_t pin)
 {
@@ -88,6 +88,44 @@ bool MQTTswitch::schedule()
 	if (lastReport == 0 || (m - lastReport) > repotPeriod) {
 		if (publish_available()) lastReport = m;
 	}
+}
+
+void MQTTswitch::loadStartupStates(MQTTprocess * first)
+{
+	Serial.println(F("loading startup values\n"));
+	if (SPIFFS.exists(startupCongigFileName)) {
+		File sv = SPIFFS.open(startupCongigFileName, "r");
+		JsonString values = JsonString(sv.readString());
+		MQTTprocess * p = first;
+		while (p != nullptr) {
+			if (p->type = "switch") {
+				MQTTswitch * mqttSwitch = (MQTTswitch *)p;
+				String v = values.getValue(p->name.c_str());
+				mqttSwitch->startupState = (v == "on");
+				mqttSwitch->setState(mqttSwitch->startupState);
+			}
+			p = p->next;
+		}
+	}
+}
+
+void MQTTswitch::saveStartup(MQTTprocess * first)
+{
+	MQTTprocess * p = first;
+	JsonString ret = JsonString();
+	ret.beginObject();
+	while (p != nullptr) {
+		if (p->type = "switch") {
+			MQTTswitch * mqttSwitch = (MQTTswitch *)p;
+			ret.AddValue(p->name.c_str(), (mqttSwitch->startupState ? "on" : "off"));
+		}
+		p = p->next;
+	}
+	ret.endObject();
+	File f = SPIFFS.open(startupCongigFileName, "w");
+	f.print(ret);
+	f.flush();
+	f.close();
 }
 
 

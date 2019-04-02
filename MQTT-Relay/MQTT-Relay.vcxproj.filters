@@ -67,6 +67,8 @@
     <None Include="data\config\led\08vent.json" />
     <None Include="data\config\out2\03termo.json" />
     <None Include="data\html\v\h.svg" />
+    <None Include="data\html\v\_timeout.min.html" />
+    <None Include="data\html\v\_timeoutedit.min.html" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.MQTT-Relay.vsarduino.h">

@@ -25,7 +25,7 @@ public:
 	void endObject();
 	void beginArray(String arrayName);
 	void endArray();
-	String getValue(char* key);
+	String getValue(const char* key);
 };
 
 #endif

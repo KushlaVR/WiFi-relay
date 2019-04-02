@@ -116,6 +116,8 @@
     <None Include="data\html\v\_switch.min.html" />
     <None Include="data\html\v\_termo.min.html" />
     <None Include="data\html\v\_termoedit.min.html" />
+    <None Include="data\html\v\_timeout.min.html" />
+    <None Include="data\html\v\_timeoutedit.min.html" />
     <None Include="data\html\v\_tsens.min.html" />
     <None Include="data\html\v\_vent.min.html" />
     <None Include="data\html\v\_ventedit.min.html" />

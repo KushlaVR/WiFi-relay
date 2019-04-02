@@ -18,6 +18,7 @@ Trigger::Trigger()
 	_sort++;
 	uid = _uid;
 	sort = _sort;
+	next = nullptr;
 }
 
 Trigger::~Trigger()
@@ -200,12 +201,12 @@ void Trigger::Sort()
 	}
 	if (_lastTrigger != nullptr) _lastTrigger->next = nullptr;
 	*/
-
+	Serial.println("Sorting triggers...");
 	//На диску елементи можуть бути роміщені у довільному порядку
 	//Після зчитування їх треба посортувати (наприклад бульбашковим методом)
 	Trigger * t = nullptr;
-	Trigger * n;//next
-	Trigger * p;//prev
+	Trigger * n = nullptr;//next
+	Trigger * p = nullptr;//prev
 	bool was_swap = true;//були випадки переміни місцями елементів колекції
 	while (true) {
 		if (t == nullptr) {//Починаємо з першого елемента
@@ -550,5 +551,68 @@ void Venting::loop(time_t * time)
 				}
 			}
 		}*/
+	}
+}
+
+TimeoutTrigger::TimeoutTrigger()
+{
+	type = "timeout";
+}
+
+void TimeoutTrigger::loop(time_t * time)
+{
+	//if (year(lastFire) == year(*time) && month(lastFire) == month(*time) && day(lastFire) == day(*time)) return;//Якщо сьогодні вже спрацював, то нічого не робимо
+
+	int d = weekday(*time) - 1;
+	if (days & (1 << d)) {//Дань тиждня підходящий
+		if (proc != nullptr) {
+
+			if (action == LOW && proc->isOn() && startTime == 0) {//якщо включено і необхідно вимкнути
+				startTime = millis();
+			}
+			else if (action == HIGH && !proc->isOn() && startTime == 0) {//якщо вимкнено і необхідно включити
+				startTime = millis();
+			}
+			else if (startTime > 0) {//Якщо таймер заведено
+				if ((millis() - startTime) > (len * 60000UL)) {
+					proc->setState(action);
+					Serial.printf("Trigger %i - %s Fire\n", uid, type);
+					startTime = 0;
+				}
+			}
+		}
+	}
+}
+
+void TimeoutTrigger::load(File * f)
+{
+	Trigger::load(f);
+	JsonString s = JsonString(f->readString());
+	name = s.getValue("name");
+	days = (unsigned char)(s.getValue("days").toInt());
+	len = s.getValue("len").toInt();
+	if (s.getValue("action") == "1") {
+		action = HIGH;
+	}
+	else {
+		action = LOW;
+	}
+}
+
+void TimeoutTrigger::printInfo(JsonString * ret, bool detailed)
+{
+	Trigger::printInfo(ret, detailed);
+	ret->AddValue("len", String(len));
+	if (detailed) {
+		if (action == HIGH)
+			ret->AddValue("action", "on");
+		else
+			ret->AddValue("action", "off");
+	}
+	else {
+		if (action == HIGH)
+			ret->AddValue("action", "1");
+		else
+			ret->AddValue("action", "0");
 	}
 }

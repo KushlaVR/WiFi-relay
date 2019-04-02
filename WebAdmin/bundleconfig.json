@@ -203,6 +203,22 @@
     ]
   },
 
+  {
+    "outputFileName": "data/html/v/_timeout.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/v/_timeout.html"
+    ]
+  },
+
+  {
+    "outputFileName": "data/html/v/_timeoutedit.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/v/_timeoutedit.html"
+    ]
+  },
+
 
   {
     "outputFileName": "data/html/v/_tsens.html",
