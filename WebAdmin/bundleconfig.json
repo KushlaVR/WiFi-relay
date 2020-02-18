@@ -236,6 +236,15 @@
     ]
   },
 
+
+  {
+    "outputFileName": "data/html/v/_login.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/v/_login.html"
+    ]
+  },
+
   {
     "outputFileName": "data/html/v/_wifi.html",
     // An array of relative input file paths. Globbing patterns supported

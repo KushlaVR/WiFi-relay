@@ -9,12 +9,12 @@
     },
     {
       "provider": "cdnjs",
-      "library": "jquery@3.3.1",
+      "library": "jquery@3.4.1",
       "destination": "lib/jquery"
     },
     //{
     //  "provider": "unpkg",
-    //  "library": "jquery-validation@1.19.0",
+    //  "library": "jquery-validation@1.19.1",
     //  "destination": "lib/jquery-validation"
     //},
     {

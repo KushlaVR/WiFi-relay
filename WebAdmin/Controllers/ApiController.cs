@@ -523,5 +523,11 @@ namespace WebAdmin.Controllers
             return NotFound();
         }
 
+
+        [HttpGet]
+        public IActionResult auth(string user, string password)
+        {
+            return Content("{}");
+        }
     }
 }

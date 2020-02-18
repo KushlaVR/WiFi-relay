@@ -1,0 +1,6 @@
+{
+  "port": "2390",
+  "server": "europe.pool.ntp.org",
+  "standart-time": "Last, Sun, Oct, 4, +2",
+  "summer-time": "Last, Sun, Mar, 3, +3"
+}

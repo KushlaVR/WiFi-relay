@@ -1,0 +1,34 @@
+#pragma once
+#include "Arduino.h"
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <DNSServer.h>
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <TimeLib.h>
+#include <FS.h>
+#include "Timezone.h"
+#include "Json.h"//simple class to parse/combine json
+#include "Adafruit_MQTT.h"
+#include "Adafruit_MQTT_Client.h"
+#include "DHT_Async.h"
+#include <OneWire.h>
+#include "Utils.h"
+#include "Collection.h"
+#include "Output.h"
+#include "Sensor.h"
+#include "NTPreciver.h"
+#include "TimeZone.h"
+#include "WiFiController.h"
+#include "MQTTController.h"
+#include "MQTTProcess.h"
+#include "MQTTSwitch.h"
+#include "MQTTSensor.h"
+#include "Trigger.h"
+#include "Variable.h"
+#include "WebUIController.h"
+#include "ApiController.h"
+#include "UpdateController.h"
+#include "Button.h"
+#include "Hardware.h"
+

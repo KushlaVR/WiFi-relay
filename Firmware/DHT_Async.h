@@ -1,0 +1,80 @@
+// DHT_Async.h
+
+#ifndef _DHT_ASYNC_h
+#define _DHT_ASYNC_h
+
+#if defined(ARDUINO) && ARDUINO >= 100
+	#include "arduino.h"
+#else
+	#include "WProgram.h"
+#endif
+//#define DHT_DEBUG
+
+
+// Uncomment to enable printing out nice debug messages.
+#define DHT_DEBUG
+
+// Define where debug output will be printed.
+#define DEBUG_PRINTER Serial
+
+// Setup debug printing macros.
+#ifdef DHT_DEBUG
+#define DEBUG_PRINT(...) { DEBUG_PRINTER.print(__VA_ARGS__); }
+#define DEBUG_PRINTLN(...) { DEBUG_PRINTER.println(__VA_ARGS__); }
+#else
+#define DEBUG_PRINT(...) {}
+#define DEBUG_PRINTLN(...) {}
+#endif
+
+// Define types of sensors.
+#define DHT11 11
+#define DHT22 22
+#define DHT21 21
+#define AM2301 21
+
+
+class AsyncDHT {
+public:
+	AsyncDHT(uint8_t count = 6);
+	void begin(uint8_t pin, uint8_t type);
+	float readTemperature(bool S = false, bool force = false);
+	float convertCtoF(float);
+	float convertFtoC(float);
+	float computeHeatIndex(float temperature, float percentHumidity, bool isFahrenheit = true);
+	float readHumidity(bool force = false);
+	boolean read(bool force = false);
+	void readAsync();
+	float getTemperature(bool S);
+	float getHunidity();
+	bool isReady();
+private:
+	unsigned long nextStage = 0;
+	byte readStage;
+	uint32_t cycles[80];
+	uint8_t data[5];
+	uint8_t _pin, _type;
+#ifdef __AVR
+	// Use direct GPIO access on an 8-bit AVR so keep track of the port and bitmask
+	// for the digital pin connected to the DHT.  Other platforms will use digitalRead.
+	uint8_t _bit, _port;
+#endif
+	uint32_t _lastreadtime, _maxcycles;
+	bool _lastresult;
+	uint32_t expectPulse(bool level);
+
+};
+
+class InterruptLock {
+public:
+	InterruptLock() {
+		noInterrupts();
+	}
+	~InterruptLock() {
+		interrupts();
+	}
+
+};
+
+
+#endif
+

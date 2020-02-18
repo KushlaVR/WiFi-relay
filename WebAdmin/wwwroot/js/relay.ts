@@ -19,7 +19,10 @@
         WebUI.model.init();
     }
 
+
+
     public static ask(question: string, yes: any, no: any = null) {
+
         let questionModal = $("#questionModal");
         questionModal.html(WebUI.questionTemplate);
 
@@ -78,6 +81,44 @@ class Model {
         if (qm.length > 0)
             WebUI.questionTemplate = $("#questionModal")[0].innerHTML;
         Converters.ClockPicker();
+        let user: string = this.getCookie("user");
+        if (user === null || user == "") this.login();
+    }
+
+    public login(): void {
+        let loginForm: string = this.getTemplate("login");
+        if (loginForm === undefined) {
+            this.loadTemplateByName("login", () => this.login());
+            return;
+        }
+        let lm = $("#loginModal");
+        if (lm.length > 0) {
+            $(".modal-body", lm)[0].innerHTML = loginForm;
+            //$('form', lm).on("submit", function (e) {
+            //    e.preventDefault();
+            //});
+            $('.btn-yes', lm).click(() => {
+                $('#loginform').submit();
+            });
+            $('.btn-no', lm).click(() => {
+                $("#loginModal").removeClass("in").removeAttr("style");
+            });
+            lm.addClass("in").attr("style", "display:block;opacity:1");
+        }
+
+    }
+
+    public getCookie(name: string): string {
+        const nameLenPlus = (name.length + 1);
+        return document.cookie
+            .split(';')
+            .map(c => c.trim())
+            .filter(cookie => {
+                return cookie.substring(0, nameLenPlus) === `${name}=`;
+            })
+            .map(cookie => {
+                return decodeURIComponent(cookie.substring(nameLenPlus));
+            })[0] || null;
     }
 
     public menuTemplateLoaded(): void {
@@ -198,7 +239,6 @@ class Model {
         return true;
     }
 
-
     public loadElementsTemplate(): void {
         let allReady: boolean = this.allElementsTemplateLoaded(() => this.loadElementsTemplate());
         if (allReady === false) return;
@@ -225,6 +265,8 @@ class Model {
         }
         return undefined;
     }
+
+
 }
 
 class HomePage extends Model {

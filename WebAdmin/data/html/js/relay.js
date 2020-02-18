@@ -78,6 +78,40 @@ var Model = (function () {
         if (qm.length > 0)
             WebUI.questionTemplate = $("#questionModal")[0].innerHTML;
         Converters.ClockPicker();
+        var user = this.getCookie("user");
+        if (user === null || user == "")
+            this.login();
+    };
+    Model.prototype.login = function () {
+        var _this = this;
+        var loginForm = this.getTemplate("login");
+        if (loginForm === undefined) {
+            this.loadTemplateByName("login", function () { return _this.login(); });
+            return;
+        }
+        var lm = $("#loginModal");
+        if (lm.length > 0) {
+            $(".modal-body", lm)[0].innerHTML = loginForm;
+            $('.btn-yes', lm).click(function () {
+                $('#loginform').submit();
+            });
+            $('.btn-no', lm).click(function () {
+                $("#loginModal").removeClass("in").removeAttr("style");
+            });
+            lm.addClass("in").attr("style", "display:block;opacity:1");
+        }
+    };
+    Model.prototype.getCookie = function (name) {
+        var nameLenPlus = (name.length + 1);
+        return document.cookie
+            .split(';')
+            .map(function (c) { return c.trim(); })
+            .filter(function (cookie) {
+            return cookie.substring(0, nameLenPlus) === name + "=";
+        })
+            .map(function (cookie) {
+            return decodeURIComponent(cookie.substring(nameLenPlus));
+        })[0] || null;
     };
     Model.prototype.menuTemplateLoaded = function () {
         var _this = this;

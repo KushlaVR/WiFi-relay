@@ -3,11 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2035
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wemos-Reley", "Wemos-Reley\Wemos-Reley.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MQTT-Relay", "MQTT-Relay\MQTT-Relay.vcxproj", "{D41A8968-13AE-496E-96E1-7A6B955B85AD}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RemoteXY", "RemoteXY\RemoteXY.vcxproj", "{03592EC8-59AB-4526-8B98-087F917AC7B0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAdmin", "WebAdmin\WebAdmin.csproj", "{18464641-3FC0-4B8E-9C3D-683FA894E772}"
 EndProject
@@ -17,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "readme", "readme", "{DAAED7
 		wemos-reley 11-11-18 19-40.pdsprj = wemos-reley 11-11-18 19-40.pdsprj
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Firmware-V1", "Firmware\Firmware-V1.vcxproj", "{92341E92-99E0-436F-BE27-7CD61BA2173E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,24 +23,12 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.ActiveCfg = Release|Win32
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Release|Win32
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|Any CPU.ActiveCfg = Release|Win32
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
 		{D41A8968-13AE-496E-96E1-7A6B955B85AD}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{D41A8968-13AE-496E-96E1-7A6B955B85AD}.Debug|x86.ActiveCfg = Release|Win32
 		{D41A8968-13AE-496E-96E1-7A6B955B85AD}.Debug|x86.Build.0 = Release|Win32
 		{D41A8968-13AE-496E-96E1-7A6B955B85AD}.Release|Any CPU.ActiveCfg = Release|Win32
 		{D41A8968-13AE-496E-96E1-7A6B955B85AD}.Release|x86.ActiveCfg = Release|Win32
 		{D41A8968-13AE-496E-96E1-7A6B955B85AD}.Release|x86.Build.0 = Release|Win32
-		{03592EC8-59AB-4526-8B98-087F917AC7B0}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{03592EC8-59AB-4526-8B98-087F917AC7B0}.Debug|x86.ActiveCfg = Release|Win32
-		{03592EC8-59AB-4526-8B98-087F917AC7B0}.Debug|x86.Build.0 = Release|Win32
-		{03592EC8-59AB-4526-8B98-087F917AC7B0}.Release|Any CPU.ActiveCfg = Release|Win32
-		{03592EC8-59AB-4526-8B98-087F917AC7B0}.Release|x86.ActiveCfg = Release|Win32
-		{03592EC8-59AB-4526-8B98-087F917AC7B0}.Release|x86.Build.0 = Release|Win32
 		{18464641-3FC0-4B8E-9C3D-683FA894E772}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{18464641-3FC0-4B8E-9C3D-683FA894E772}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18464641-3FC0-4B8E-9C3D-683FA894E772}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -51,6 +37,12 @@ Global
 		{18464641-3FC0-4B8E-9C3D-683FA894E772}.Release|Any CPU.Build.0 = Release|Any CPU
 		{18464641-3FC0-4B8E-9C3D-683FA894E772}.Release|x86.ActiveCfg = Release|Any CPU
 		{18464641-3FC0-4B8E-9C3D-683FA894E772}.Release|x86.Build.0 = Release|Any CPU
+		{92341E92-99E0-436F-BE27-7CD61BA2173E}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{92341E92-99E0-436F-BE27-7CD61BA2173E}.Debug|x86.ActiveCfg = Debug|Win32
+		{92341E92-99E0-436F-BE27-7CD61BA2173E}.Debug|x86.Build.0 = Debug|Win32
+		{92341E92-99E0-436F-BE27-7CD61BA2173E}.Release|Any CPU.ActiveCfg = Release|Win32
+		{92341E92-99E0-436F-BE27-7CD61BA2173E}.Release|x86.ActiveCfg = Release|Win32
+		{92341E92-99E0-436F-BE27-7CD61BA2173E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
