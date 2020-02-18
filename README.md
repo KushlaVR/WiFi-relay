@@ -97,9 +97,13 @@ API authorization
   /api/auth?user=user&password=password&json=true
 ```
 user- user name
+
 password - password
+
 json - define responce format by setting this parameter. If parameter is present (don't metter what value is) device return code 200 and session id in json format. If json paramater don't present - then device returns 302 responce code is authorisation is success.
+
 Before call any API function you must be authorized on device. If authorization success - device generate unique session ID and write user name and id to Cookie header (Cookie "user=<userName>;session=<session key>" Note - only device should write session and user to Cookies.
+
 ## Responce (code 302)
 ``` js
 Success if session and user cookies present in responce header
@@ -141,9 +145,13 @@ Add SSID and key to known networks of device (3 networks allowed by default)
   /api/wifisave?n=SSID&p=SSKEY&mode=server
 ```
 SSID - name of wifi network to connect
+
 SSKEY - key for wifi network
+
 mode - optional. Possible value server or client. In server mode - device start soft AP. This allows user to connect to device from android App. In client mode soft AP disabled and device connect to available wifi network.
+
 Use this parameter only if you want to switch device mode. If you dont want to change mode after setting wifi credentionals - dont pass this parameter
+
 ## Responce (code 200)
 ``` js
 {
@@ -234,6 +242,7 @@ _After output state becomes ON - trigger start timeout timer. After timer ellaps
 /api/setup?index=output_index
 ```
 return list of all automation assigned for output
+
 output_index - index ot uouput
 ### Responce (code 200)
 ``` js
@@ -339,6 +348,7 @@ Set state of output to ON/OFF
 /api/switches?index=item_index&state=items_state
 ```
 item_index - index of output in outputs list
+
 items_state - new state of output. When On - output turns on else output turns off
 
 ## Responce (code 200)
