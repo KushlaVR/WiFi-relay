@@ -1,7 +1,7 @@
 # WiFi-relay
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FQRAJZS2GFXQU&source=url)
-#Ho it works
+# How it works
 Device works as solid state relay with 1 AC 220V input and 3 AC 220V outputs
 Device can works in 2 mode
 - Standalone mode
@@ -11,19 +11,19 @@ Device can be configured from:
 - web user interface (through API)
 - android app
 
-#First run
+# First run
 After startup device start SoftAP with special name witch contain important information for Android AP
-##AP name Format:
+## AP name Format:
 KVR_[AP KEY]
-##AP name example:
+## AP name example:
 KVR_AABBCCDDEEFF
 
 
 
-#WIFI configuration
+# WIFI configuration
 Device look for wifi settings in /cfg/wifi.json after startup.
 Every time you [setup network connection](/Documentation/Web-API) device store given ssid & key in wifi.json  file. History length of stored wifi ssid & key pair is 3. When device loose connection to current wifi station it start to loock for next available ssid. if one available - device connects using ssid & key.  
-##wifi.json file example:
+## wifi.json file example:
 ``` js
 {
   "mode": "server",//start soft AP (can be disable after first setup) (can be: server or client)
@@ -48,10 +48,10 @@ Every time you [setup network connection](/Documentation/Web-API) device store g
 }
 ```
 
-#NTP configuration
+# NTP configuration
 Device have no RTC battary, so NTP time synchronization is used.
 Connection parameters of NTP server and time zone configuration stored in ntp.json file
-##ntp.json file example:
+## ntp.json file example:
 ``` js
 {
   "port": "2390",//NTP port
@@ -61,9 +61,9 @@ Connection parameters of NTP server and time zone configuration stored in ntp.js
 }
 ```
 
-#MQTT configuration
+# MQTT configuration
 MQTT server connection setting stored in /cfg/mqtt.json
-##mqtt.json file example
+## mqtt.json file example
 ``` js
 {
   "server": "192.168.5.100",//ip address of mqtt broker
@@ -73,8 +73,8 @@ MQTT server connection setting stored in /cfg/mqtt.json
 }
 ```
 
-#MQTT API
-#Outputs
+# MQTT API
+# Outputs
 The device have 3 high current outputs (out1, out2, out3) and 1 buldin led output.
 Buildin led is used only for testing device functionaluty at first setup. It have no effect except blinkin.
 Each output linked to 3 mqtt topic. Name of then topiks contains from MAC address of device and output name.
@@ -89,10 +89,10 @@ Available topic is used to signalize to automation system that output gose onlin
 **name** - name of output
 
 
-#WEB API
-#GET **/api/auth**
+# WEB API
+# GET **/api/auth**
 API authorization
-##Request
+## Request
 ``` js
   /api/auth?user=user&password=password&json=true
 ```
@@ -100,22 +100,22 @@ user- user name
 password - password
 json - define responce format by setting this parameter. If parameter is present (don't metter what value is) device return code 200 and session id in json format. If json paramater don't present - then device returns 302 responce code is authorisation is success.
 Before call any API function you must be authorized on device. If authorization success - device generate unique session ID and write user name and id to Cookie header (Cookie "user=<userName>;session=<session key>" Note - only device should write session and user to Cookies.
-##Responce (code 302)
+## Responce (code 302)
 ``` js
 Success if session and user cookies present in responce header
 ```
 
 
-##Responce (code 200)
+## Responce (code 200)
 ``` js
 {"user":"user", "session":"123456"}
 ```
 
 After call of any API function - device will check Cookies session ID and user name with stored in EEPROM memory user and session data. If Session and user match with stored session and user then authorization successed and API function return result code OK. else it will return 404 error code.
 
-#GET **/api/wifi**
+# GET **/api/wifi**
 Return list of awailable wifi ap
-##Responce (code 200)
+## Responce (code 200)
 ``` js
 {
   "systime":"HH:mm:ss",//string
@@ -134,9 +134,9 @@ Return list of awailable wifi ap
 }
 ```
 
-#GET **/api/wifisave**
+# GET **/api/wifisave**
 Add SSID and key to known networks of device (3 networks allowed by default)
-##Request
+## Request
 ``` js
   /api/wifisave?n=SSID&p=SSKEY&mode=server
 ```
@@ -144,7 +144,7 @@ SSID - name of wifi network to connect
 SSKEY - key for wifi network
 mode - optional. Possible value server or client. In server mode - device start soft AP. This allows user to connect to device from android App. In client mode soft AP disabled and device connect to available wifi network.
 Use this parameter only if you want to switch device mode. If you dont want to change mode after setting wifi credentionals - dont pass this parameter
-##Responce (code 200)
+## Responce (code 200)
 ``` js
 {
   "systime":"HH:mm:ss",//string
@@ -152,9 +152,9 @@ Use this parameter only if you want to switch device mode. If you dont want to c
 }
 ```
 
-#GET **/api/mqtt**
+# GET **/api/mqtt**
 Return current MQTT server connection parameters
-##Responce (code 200)
+## Responce (code 200)
 ``` js
 {
   "systime":"HH:mm:ss",//string
@@ -166,14 +166,14 @@ Return current MQTT server connection parameters
 }
 ```
 
-#GET **/api/mqttsave**
+# GET **/api/mqttsave**
 Save MQTT server connection parameters
-##Request
+## Request
 ``` js
   /api/mqttsave?broker=broker_name&port=port_name&user=user_name&key=authorization_key
 ```
 
-##Responce (code 200)
+## Responce (code 200)
 ``` js
 {
   "systime":"HH:mm:ss",//string
@@ -181,14 +181,14 @@ Save MQTT server connection parameters
 }
 ```
 
-#GET **/api/startup**
+# GET **/api/startup**
 SET startup states of outputs by name. 
-##Request
+## Request
 ``` js
   /api/startup?out1=on&out2=on&out3=on&led=off
 ```
 Where **out1**, **out2**, **out3**, **led** - outputs name of device
-##Responce (code 200)
+## Responce (code 200)
 ``` js
 {
   "systime":"HH:mm:ss",//string
@@ -196,25 +196,25 @@ Where **out1**, **out2**, **out3**, **led** - outputs name of device
 }
 ```
 
-#GET **/api/template**
+# GET **/api/template**
 Return HTML code fragment of webUI
-##Request
+## Request
 ``` js
   /api/template?name=html_template_name
 ```
 Data for template stored in minimized html file **/html/v/\_html\__template_name_\.min.html**
-##Responce (code 200)
+## Responce (code 200)
 template file exists
 ``` js
   html content
 ```
-##Responce (code 404)
+## Responce (code 404)
 template file not exists
 ``` js
 
 ```
 
-#GET **/api/setup**
+# GET **/api/setup**
 Allow to setup automation of device outputs. Each output can be configured to run triggers task
 * on/off trigger
   _set output to ON/OFF state in some time of day_
@@ -227,15 +227,15 @@ _set output state to ON when some sensor value is bigger then max, and set outpu
 * Timeout trigger
 _After output state becomes ON - trigger start timeout timer. After timer ellapsed - trigger set output to OFF_
 
-##Get triggers list assigned to output
+## Get triggers list assigned to output
 
-###Request 
+### Request 
 ``` js
 /api/setup?index=output_index
 ```
 return list of all automation assigned for output
 output_index - index ot uouput
-###Responce (code 200)
+### Responce (code 200)
 ``` js
 {
   "systime":"HH:mm:ss",//string
@@ -273,33 +273,33 @@ output_index - index ot uouput
   ]
 }
 ```
-###Responce (code 404)
+### Responce (code 404)
 index of output out of bounds
 ``` js
 ```
-###Request 
+### Request 
 ``` js
 /api/setup?delete=trigger_uid&switch=output_index
 ```
 delete froigger from device
-###Responce (code 200)
+### Responce (code 200)
 trigger deleted from flash
 ``` js
 ```
 
-###Responce (code 404)
+### Responce (code 404)
 trigger not found or output with index not exists
 ``` js
 ```
 
 
-#GET **/api/switches**
+# GET **/api/switches**
 Return list of all outputs and their states
-##Request
+## Request
 ``` js
   /api/switches
 ```
-##Responce (code 200)
+## Responce (code 200)
 ``` js
 {
   "systime":"HH:mm:ss",//string
@@ -332,27 +332,27 @@ Return list of all outputs and their states
 }
 ```
 
-#POST **/api/switches**
+# POST **/api/switches**
 Set state of output to ON/OFF
-##Request
+## Request
 ``` js
 /api/switches?index=item_index&state=items_state
 ```
 item_index - index of output in outputs list
 items_state - new state of output. When On - output turns on else output turns off
 
-##Responce (code 200)
+## Responce (code 200)
 ``` js
 items_state
 ```
-##Responce (code 404)
+## Responce (code 404)
 ``` js
 item not fpund
 ```
 
-#GET **/api/menu**
+# GET **/api/menu**
 return list of webUI menu items in json format
-##Responce (code 200)
+## Responce (code 200)
 ``` js
 {
   "systime":"HH:mm:ss",//string
@@ -366,9 +366,9 @@ return list of webUI menu items in json format
   ]
 }
 ```
-#GET **/api/restart**
+# GET **/api/restart**
 reboot the device
-##Responce (code 200)
+## Responce (code 200)
 ``` js
 {
   "systime":"HH:mm:ss",//string
