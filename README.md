@@ -11,6 +11,8 @@ Device can be configured from:
 - web user interface (through API)
 - android app
 
+![What you get in result](/image-originals/20200208_185149.jpg)
+
 # First run
 After startup device start SoftAP with special name witch contain important information for Android AP
 ## AP name Format:
