@@ -27,7 +27,7 @@
   ],
   "sensors": [
     {
-      "type": "DS18X20",
+      "type": "DHT11",
       "pin": "D3"
     }
   ]

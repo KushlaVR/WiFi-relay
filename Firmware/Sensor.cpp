@@ -12,9 +12,9 @@ void Sensor::loop()
 {
 }
 
-Sensor * Sensors::get(int index)
+Sensor* Sensors::get(int index)
 {
-	return (Sensor *)(((Collection *)this)->get(index));
+	return (Sensor*)(((Collection*)this)->get(index));
 }
 
 void Sensors::setup(String configDir)
@@ -23,11 +23,11 @@ void Sensors::setup(String configDir)
 
 void Sensors::loop()
 {
-	Sensor * sensor = (Sensor *)getFirst();
+	Sensor* sensor = (Sensor*)getFirst();
 	while (sensor != nullptr) {
 		if (sensor->lastRead == 0 || (millis() - sensor->lastRead) > sensor->interval)
 			sensor->loop();
-		sensor = (Sensor *)(sensor->next);
+		sensor = (Sensor*)(sensor->next);
 	}
 }
 
@@ -36,6 +36,10 @@ DHT_22::DHT_22(uint8_t pin, uint8_t type)
 	this->type = "dht";
 	dht = new AsyncDHT();
 	dht->begin(pin, type);
+	for (int i = 0; i < MAX_BUFFER_LEN; i++) {
+		temp[i] = 0;
+		hum[i] = 0;
+	}
 }
 
 void DHT_22::loop()
@@ -91,8 +95,8 @@ void DHT_22::loop()
 
 Sensors sensors;
 
-void buttonPressed(void * arg) {
-	ButtonSensor * btn = (ButtonSensor *)arg;
+void buttonPressed(void* arg) {
+	ButtonSensor* btn = (ButtonSensor*)arg;
 	btn->pressed();
 }
 
@@ -119,7 +123,7 @@ void ButtonSensor::pressed()
 	Variable::setValue(String("btn") + String(btn->pin), btn->state);
 }
 
-DS18X20::DS18X20(OneWire * wire)
+DS18X20::DS18X20(OneWire* wire)
 {
 	type = "ds18x20";
 	this->wire = wire;
@@ -189,7 +193,7 @@ void DS18X20::loop()
 	}
 }
 
-bool DS18X20::findAll(OneWire * wire)
+bool DS18X20::findAll(OneWire* wire)
 {
 	Serial.println("Start finding DS18X20 temperature sonsors...");
 	byte addr[8];
@@ -207,7 +211,7 @@ bool DS18X20::findAll(OneWire * wire)
 				Serial.write(' ');
 				Serial.print(addr[i], HEX);
 			}
-			DS18X20 * sensor = new DS18X20(wire);
+			DS18X20* sensor = new DS18X20(wire);
 
 			switch (addr[0]) {
 			case 0x10:

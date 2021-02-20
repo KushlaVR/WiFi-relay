@@ -135,6 +135,7 @@ class Model {
             let item: any = data.items[i];
             items += this.fillTemplate(this.getTemplate("menuitem"), item);
         };
+        //items += this.fillTemplate(this.getTemplate("menuitem"), { name: "Log out", href: "./logout.html", target: "_self" });
         $('.navbar-nav').html(items);
     }
 

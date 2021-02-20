@@ -37,6 +37,7 @@ public:
 	static void handleMQTT();
 	static void handleMQTTSave();
 	static void handleAuth();
+	static void handleLogout();
 	static bool isAuthorized();
 	static void handleWifi();
 	static void handleWifiSave();

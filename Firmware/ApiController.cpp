@@ -1,6 +1,6 @@
 ﻿#include "ApiController.h"
 
-SessionClass * ApiController::session = nullptr;
+SessionClass* ApiController::session = nullptr;
 
 
 ApiController::ApiController()
@@ -26,6 +26,7 @@ void ApiController::setup()
 	webServer.on("/api/switches", HTTPMethod::HTTP_POST, handleSetSwitches);
 	webServer.on("/api/menu", handleMenu);
 	webServer.on("/api/restart", handleRestart);
+	webServer.on("/logout.html", handleLogout);
 }
 
 void ApiController::handleRestart()
@@ -140,6 +141,13 @@ void ApiController::handleAuth()
 	webServer.sendHeader("Location", String("/"), true);
 	webServer.send(302, "text/plain", "");
 
+}
+
+void ApiController::handleLogout() {
+	webServer.sendHeader("Set-Cookie", "session=;; path=/;");
+	webServer.sendHeader("Set-Cookie", "user=;; path=/;");
+	webServer.sendHeader("Location", String("/"), true);
+	webServer.send(302, "text/plain", "");
 }
 
 bool ApiController::isAuthorized()
@@ -257,14 +265,14 @@ void ApiController::handleStartup()
 {
 	if (!ApiController::isAuthorized()) return;
 	Serial.println("startup GET:");
-	Output * proc = (Output *)outs.getFirst();
+	Output* proc = (Output*)outs.getFirst();
 	while (proc != nullptr) {
 		if (webServer.hasArg(proc->getName())) {
 			String arg = webServer.arg(proc->getName());
 			Serial.printf("Switch[%s] = %s\n", proc->getName().c_str(), arg.c_str());
 			proc->saveStartup((arg) == "on");
 		}
-		proc = (Output *)proc->next;
+		proc = (Output*)proc->next;
 	};
 	webServer.Ok();
 }
@@ -324,6 +332,12 @@ void ApiController::handleMenu()
 	ret.AddValue("target", "_self");
 	ret.endObject();
 
+	ret.beginObject();
+	ret.AddValue("name", "Logout");
+	ret.AddValue("href", "./logout.html");
+	ret.AddValue("target", "_self");
+	ret.endObject();
+
 	/*ret.beginObject();
 	ret.AddValue("name", "GitHub");
 	ret.AddValue("href", "https://github.com/KushlaVR/WiFi-relay");
@@ -360,11 +374,11 @@ bool ApiController::handleGetTriggersForSwitch()
 {
 	int index = webServer.arg("index").toInt();
 
-	MQTTProcess * proc = (MQTTProcess *)mqttController.getFirst();
+	MQTTProcess* proc = (MQTTProcess*)mqttController.getFirst();
 	int i = index - 1;
 	while (i > 0) {
 		if (proc->next != nullptr) {
-			proc = (MQTTProcess *)proc->next;
+			proc = (MQTTProcess*)proc->next;
 			i--;
 		}
 		else {
@@ -377,10 +391,10 @@ bool ApiController::handleGetTriggersForSwitch()
 	ret.AddValue("systime", Utils::FormatTime(webServer.timeZone->toLocal(now())));
 	ret.AddValue("uptime", String(millis()));
 	ret.beginArray("items");
-	Trigger * t = Trigger::getFirstTrigger();
+	Trigger* t = Trigger::getFirstTrigger();
 	while (t != nullptr) {
 		if (proc->type == "switch") {
-			MQTTSwitch * sw = (MQTTSwitch *)proc;
+			MQTTSwitch* sw = (MQTTSwitch*)proc;
 			if (t->proc == sw->out) {
 				ret.beginObject();
 				t->printInfo(&ret, true);
@@ -406,11 +420,11 @@ bool ApiController::handleUpdateTrigger(String type)
 	if (webServer.hasArg("switch")) index = webServer.arg("switch").toInt();
 	if (webServer.hasArg("uid")) uid = webServer.arg("uid").toInt();
 
-	MQTTProcess * proc = (MQTTProcess *)mqttController.getFirst();
+	MQTTProcess* proc = (MQTTProcess*)mqttController.getFirst();
 	int i = 1;
 	while (proc != nullptr) {
 		if (i == index) break;
-		proc = (MQTTProcess *)proc->next;
+		proc = (MQTTProcess*)proc->next;
 		i++;
 	};
 
@@ -422,20 +436,20 @@ bool ApiController::handleUpdateTrigger(String type)
 	}
 
 	Serial.printf("Process=%s\n", proc->name.c_str());
-	MQTTSwitch * sw = (MQTTSwitch*)proc;
+	MQTTSwitch* sw = (MQTTSwitch*)proc;
 
-	Trigger * trigger = nullptr;
+	Trigger* trigger = nullptr;
 
 	if (uid == 0) {
 		Serial.println("new trigger");
 		trigger = CreateTriggerByType(type);
 		if (trigger == nullptr) return false;
-		trigger->proc = (Output *)sw->out;
+		trigger->proc = (Output*)sw->out;
 		trigger->Register();
 	}
 	else {
 		Serial.println("Try ti find trigger...");
-		Trigger * t = Trigger::getFirstTrigger();
+		Trigger* t = Trigger::getFirstTrigger();
 		while (t != nullptr && trigger == nullptr) {
 			if (t->proc == sw->out) {
 				if (t->uid == uid) {
@@ -470,7 +484,7 @@ bool ApiController::handleDeleteTrigger()
 	if (uid == 0) return false;
 	if (webServer.hasArg("switch")) index = webServer.arg("switch").toInt();
 
-	MQTTProcess * proc = (MQTTProcess *)mqttController.getFirst();
+	MQTTProcess* proc = (MQTTProcess*)mqttController.getFirst();
 	int i = 1;
 	while (proc != nullptr) {
 		if (i == index) break;
@@ -486,14 +500,14 @@ bool ApiController::handleDeleteTrigger()
 		return false;
 	}
 
-	MQTTSwitch * sw = (MQTTSwitch *)proc;
+	MQTTSwitch* sw = (MQTTSwitch*)proc;
 
 	Serial.printf("Process=%s\n", proc->name.c_str());
 
 	//Trigger * trigger = nullptr;
 
 	Serial.println("Try ti find trigger...");
-	Trigger * t = Trigger::getFirstTrigger();
+	Trigger* t = Trigger::getFirstTrigger();
 	while (t != nullptr) {
 		if (t->proc == sw->out) {
 			if (t->uid == uid) {
@@ -522,7 +536,7 @@ void ApiController::handleGetSwitches()
 	webServer.setContentLength(CONTENT_LENGTH_UNKNOWN);
 	JsonString ret = JsonString();
 	ret.beginObject();
-	MQTTProcess * proc = (MQTTProcess *)mqttController.getFirst();
+	MQTTProcess* proc = (MQTTProcess*)mqttController.getFirst();
 
 	ret.AddValue("systime", Utils::FormatTime(webServer.timeZone->toLocal(now())));
 	ret.AddValue("uptime", String(millis()));
@@ -532,7 +546,7 @@ void ApiController::handleGetSwitches()
 		ret.beginObject();
 		proc->printInfo(&ret);
 		ret.endObject();
-		proc = (MQTTProcess *)proc->next;
+		proc = (MQTTProcess*)proc->next;
 	};
 	ret.endArray();
 	ret.endObject();
@@ -547,11 +561,11 @@ void ApiController::handleSetSwitches()
 
 		int index = webServer.arg("index").toInt();
 
-		MQTTProcess * proc = (MQTTProcess *)mqttController.getFirst();
+		MQTTProcess* proc = (MQTTProcess*)mqttController.getFirst();
 		int i = 1;
 		while (proc != nullptr) {
 			if (i == index) break;
-			proc = (MQTTProcess *)proc->next;
+			proc = (MQTTProcess*)proc->next;
 			i++;
 		};
 
@@ -564,7 +578,7 @@ void ApiController::handleSetSwitches()
 			WebUIController::handleNotFound();
 			return;
 		}
-		MQTTSwitch * sw = (MQTTSwitch *)proc;
+		MQTTSwitch* sw = (MQTTSwitch*)proc;
 		String state = webServer.arg("state");
 		if (state == "on") {
 			sw->setState(true);

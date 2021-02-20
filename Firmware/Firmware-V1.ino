@@ -3,18 +3,31 @@
  Created:	4/11/2019 10:45:30 PM
  Author:	Віталік
 */
+
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
+#include <DNSServer.h>
+#include <TimeLib.h>
+#include "Adafruit_MQTT.h"
+#include "Adafruit_MQTT_Client.h"
+#include <OneWire.h>
+#include <ESP8266SSDP.h>
+
+#include <dummy.h>
 #include "definitions.h"
 
 
 NTPreciver NTP;
-Hardware * hardware;
+Hardware* hardware;
 
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
-	pinMode(BUILTIN_LED, OUTPUT);
-	digitalWrite(BUILTIN_LED, HIGH);
+	pinMode(LED_BUILTIN, OUTPUT);
+	digitalWrite(LED_BUILTIN, HIGH);
 	if (!SPIFFS.begin()) {
 		Serial.println(F("No file system!"));
 		Serial.println(F("Fomating..."));
@@ -87,23 +100,23 @@ void setup() {
 	*/
 	mqttController.setup();
 
-	Output * out = (Output *)outs.getFirst();
+	Output* out = (Output*)outs.getFirst();
 	while (out != nullptr) {
 		mqttController.Register(new MQTTSwitch(String(wifiController.getAPName()), out));
 		Trigger::loadConfig(out);
-		out = (Output *)out->next;
+		out = (Output*)out->next;
 	}
 
-	Sensor * sns = (Sensor *)sensors.getFirst();
+	Sensor* sns = (Sensor*)sensors.getFirst();
 	while (sns != nullptr) {
 		if (sns->type == "dht") {
-			mqttController.Register(new MQTTSensor(String(wifiController.getAPName()), "temperature" + String(sns->Index), "t" + String(sns->Index), "tsens"));
-			mqttController.Register(new MQTTSensor(String(wifiController.getAPName()), "humidity" + String(sns->Index), "h" + String(sns->Index), "hsens"));
+			mqttController.Register(new MQTTSensor(String(wifiController.getAPName()), "temperature" + String(sns->Index), "t" + String(sns->Index + 1), "tsens"));
+			mqttController.Register(new MQTTSensor(String(wifiController.getAPName()), "humidity" + String(sns->Index), "h" + String(sns->Index + 1), "hsens"));
 		}
 		else if (sns->type == "ds18x20") {
-			mqttController.Register(new MQTTSensor(String(wifiController.getAPName()), "temperature" + String(sns->Index), "t" + String(sns->Index), "tsens"));
+			mqttController.Register(new MQTTSensor(String(wifiController.getAPName()), "temperature" + String(sns->Index), "t" + String(sns->Index + 1), "tsens"));
 		}
-		sns = (Sensor *)sns->next;
+		sns = (Sensor*)sns->next;
 	}
 
 	//mqttController.Register(new MQTTSwitch(String(wifiController.getAPName()), out1));
@@ -119,7 +132,7 @@ void setup() {
 	//Trigger::loadConfig(led);
 
 	Trigger::Sort();
-
+	setTime(0, 0, 0, 1, 1, 2021);
 	webServer.setup(NTP.timeZone);
 	apiController.setup();
 }

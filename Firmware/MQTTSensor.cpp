@@ -45,6 +45,8 @@ void MQTTSensor::schedule()
 
 void MQTTSensor::printInfo(JsonString * ret)
 {
+	Serial.print("variable = ");
+	Serial.println(variable);
 	MQTTProcess::printInfo(ret);
 	ret->AddValue("visual", visual);
 	float d = Variable::getValue(variable);
