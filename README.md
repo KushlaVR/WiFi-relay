@@ -1,6 +1,6 @@
 # WiFi-relay
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FQRAJZS2GFXQU&source=url)
+
 # How it works
 Device works as solid state relay with 1 AC 220V input and 3 AC 220V outputs
 Device can works in 2 mode
