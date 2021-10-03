@@ -27,11 +27,14 @@ public:
 class ApiController
 {
 	static SessionClass * session;
+
 public:
 	ApiController();
 	~ApiController();
+	
+	static bool useAuth;
 
-	void setup();
+	void setup(bool useAuth);
 
 	static void handleRestart();
 	static void handleMQTT();

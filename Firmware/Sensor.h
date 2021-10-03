@@ -59,6 +59,33 @@ public:
 	void pressed();
 };
 
+class OptoCouple : public Sensor {
+	
+	unsigned long changed_millis = 0;
+
+	Button* btn = nullptr;
+
+	bool initialized = false;
+	static void HandlePinInt1();
+	static void HandlePinInt2();
+	static void HandlePinInt3();
+
+	void HandlePin();
+public:
+	
+	int inputIndex = -1;
+	int pin = -1;
+	String out;
+	
+	OptoCouple(int pin);
+	~OptoCouple();
+	
+	virtual void loop();
+
+	void pressed();
+
+};
+
 
 class DS18X20 : public Sensor {
 private:

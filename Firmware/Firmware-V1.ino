@@ -134,7 +134,7 @@ void setup() {
 	Trigger::Sort();
 	setTime(0, 0, 0, 1, 1, 2021);
 	webServer.setup(NTP.timeZone);
-	apiController.setup();
+	apiController.setup(false);
 }
 
 // the loop function runs over and over again until power down or reset

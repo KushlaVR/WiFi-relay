@@ -29,6 +29,21 @@
     {
       "type": "DHT11",
       "pin": "D3"
+    },
+    {
+      "type": "button",
+      "pin": "D7",
+      "out": "out1"
+    },
+    {
+      "type": "button",
+      "pin": "D6",
+      "out": "out2"
+    },
+    {
+      "type": "button",
+      "pin": "D5",
+      "out": "out3"
     }
   ]
 }

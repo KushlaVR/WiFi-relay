@@ -1,4 +1,6 @@
 #include "Sensor.h"
+#include "MQTTProcess.h"
+#include "MQTTSwitch.h"
 
 Sensor::Sensor()
 {
@@ -241,4 +243,93 @@ bool DS18X20::findAll(OneWire* wire)
 		wire->reset();
 	}
 	return present;
+}
+
+
+OptoCouple* OptoCouples[3];
+int OptoCoupleCount = 0;
+
+
+void OptoCouplePressed(void* arg) {
+	OptoCouple* btn = (OptoCouple*)arg;
+	btn->pressed();
+}
+
+
+void OptoCouple::HandlePinInt1()
+{
+	OptoCouples[0]->HandlePin();
+}
+
+void OptoCouple::HandlePinInt2()
+{
+	OptoCouples[1]->HandlePin();
+}
+
+void OptoCouple::HandlePinInt3()
+{
+	OptoCouples[2]->HandlePin();
+}
+
+void OptoCouple::HandlePin()
+{
+	changed_millis = millis();
+}
+
+OptoCouple::OptoCouple(int pin)
+{
+	this->type = "btn";
+	this->interval = 200;
+	changed_millis = millis() - 200;
+	btn = new Button(pin, buttonPressed);
+	btn->argument = this;
+	pinMode(pin, INPUT_PULLUP);
+}
+
+OptoCouple::~OptoCouple()
+{
+}
+
+void OptoCouple::loop()
+{
+	if (pin == -1) return;
+
+	if (!initialized) {
+		OptoCouples[OptoCoupleCount] = this;
+		if (OptoCoupleCount == 0) {
+			attachInterrupt(pin, HandlePinInt1, CHANGE);
+		}
+		else if (OptoCoupleCount == 1) {
+			attachInterrupt(pin, HandlePinInt2, CHANGE);
+		}
+		else if (OptoCoupleCount == 2) {
+			attachInterrupt(pin, HandlePinInt3, CHANGE);
+		}
+		OptoCoupleCount++;
+		initialized = true;
+	}
+
+	unsigned long m = millis() - changed_millis;
+
+	if (m < interval)
+		btn->state = true;
+	else
+		btn->state = false;
+
+	btn->handle();
+}
+
+void OptoCouple::pressed()
+{
+	MQTTProcess* proc = (MQTTProcess*)mqttController.getFirst();
+	int i = 1;
+	while (proc != nullptr) {
+		if (proc->name == out) {
+			MQTTSwitch* sw = (MQTTSwitch*)proc;
+			sw->setState(!sw->out->isOn());
+			break;
+		}
+		proc = (MQTTProcess*)proc->next;
+		i++;
+	};
 }

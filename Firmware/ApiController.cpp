@@ -1,6 +1,7 @@
 ﻿#include "ApiController.h"
 
 SessionClass* ApiController::session = nullptr;
+bool ApiController::useAuth = false;
 
 
 ApiController::ApiController()
@@ -12,8 +13,9 @@ ApiController::~ApiController()
 {
 }
 
-void ApiController::setup()
+void ApiController::setup(bool useAuth)
 {
+	ApiController::useAuth = useAuth;
 	webServer.on("/api/auth", handleAuth);
 	webServer.on("/api/wifi", handleWifi);
 	webServer.on("/api/wifisave", handleWifiSave);
@@ -152,6 +154,8 @@ void ApiController::handleLogout() {
 
 bool ApiController::isAuthorized()
 {
+	if (!ApiController::useAuth) return true;
+
 	if (webServer.hasHeader("Cookie")) {
 		Serial.print("Found cookie: ");
 		String cookie = webServer.header("Cookie");

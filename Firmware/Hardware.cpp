@@ -62,6 +62,11 @@ void Hardware::begin()
 				wire = new OneWire(pinNumber(pin));
 				DS18X20::findAll(wire);
 			}
+			else if (type == "button") {
+				OptoCouple* sensor = new OptoCouple(pinNumber(pin));
+				sensor->out = s.getValue("out");
+				sensors.add(sensor);
+			}
 			sensorStart = s.indexOf("}", sensorStart);
 			sensorStart = s.indexOf("type", sensorStart);
 		}
