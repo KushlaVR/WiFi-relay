@@ -1,8 +1,83 @@
 # WiFi-relay
 
+## While you reading this text - ukrainian people are dying from russian attack
+
+## How can you help?
+You can transfer a few dollars to a special account of the National Bank of Ukraine to help the Armed Forces of Ukraine
+
+
+### For UAH remittances:
+
+Bank: National Bank of Ukraine
+
+MFO 300001
+
+Account No. UA843000010000000047330992708
+
+EDRPOU Code 00032106
+
+Payee: National Bank of Ukraine 
+
+
+### For USD remittances: 
+
+BENEFICIARY: National Bank of Ukraine
+
+BENEFICIARY BIC: NBUA UA UX
+
+BENEFICIARY ADDRESS: 9 Instytutska St, Kyiv, 01601, Ukraine
+
+ACCOUNT NUMBER: 804790258
+
+BENEFICIARY BANK NAME: JP MORGAN CHASE BANK, New York
+
+BENEFICIARY BANK BIC: CHASUS33
+
+ABA 0210 0002 1
+
+BENEFICIARY BANK ADDRESS: 383 Madison Avenue, New York, NY 10017, USA
+
+PURPOSE OF PAYMENT: for ac 47330992708 
+
+### For EUR remittances: 
+
+BENEFICIARY: National Bank of Ukraine
+
+IBAN DE05504000005040040066
+
+PURPOSE OF PAYMENT: for ac 47330992708
+
+BENEFICIARY BANK NAME: DEUTSCHE  BUNDESBANK, Frankfurt
+
+BENEFICIARY BANK BIC: MARKDEFF
+
+BENEFICIARY BANK ADDRESS: Wilhelm-Epstein-Strasse 14, 60431 Frankfurt Am Main, Germany
+
+
+### For GBP remittances: 
+
+BENEFICIARY/RECIPIENT NAME: National Bank of Ukraine
+
+ACCOUNT NUMBER: 80033041
+
+IBAN GB52CHAS60924280033041
+
+BENEFICIARY ADDRESS: 9 Instytutska St, Kyiv, 01601, Ukraine
+
+BENEFICIARY BANK NAME: JP MORGAN CHASE BANK NA, London
+
+BENEFICIARY BANK BIC: CHASGB2L
+
+SORT CODE: 60-92-42 
+
+BENEFICIARY BANK ADDRESS: 125 London Wall, London EC2Y 5AJ, UK
+
+PURPOSE OF PAYMENT: for ac 47330992708
 
 # How it works
+
 Device works as solid state relay with 1 AC 220V input and 3 AC 220V outputs
+
 Device can works in 2 mode
 - Standalone mode
 - Slave mode
